@@ -52,6 +52,13 @@ import SkinAnalysis from './pages/SkinAnalysis';
 import SkinRoutine from './pages/SkinRoutine';
 import Progress from './pages/Progress';
 import Products from './pages/Products';
+import Lifestyle from './pages/Lifestyle';
+import SkinChat from './pages/SkinChat';
+import Education from './pages/Education';
+import MakeupTryOn from './pages/MakeupTryOn';
+import Community from './pages/Community';
+import Profile from './pages/Profile';
+import Quiz from './pages/Quiz';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +68,13 @@ export const PAGES = {
     "SkinRoutine": SkinRoutine,
     "Progress": Progress,
     "Products": Products,
+    "Lifestyle": Lifestyle,
+    "SkinChat": SkinChat,
+    "Education": Education,
+    "MakeupTryOn": MakeupTryOn,
+    "Community": Community,
+    "Profile": Profile,
+    "Quiz": Quiz,
 }
 
 export const pagesConfig = {
