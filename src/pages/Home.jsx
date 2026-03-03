@@ -13,6 +13,7 @@ import GlassCard from '@/components/ui/GlassCard';
 import CircularProgress from '@/components/ui/CircularProgress';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 import WeatherAdvisor from '@/components/home/WeatherAdvisor';
+import ProactiveHealthInsights from '@/components/home/ProactiveHealthInsights';
 
 const features = [
   { icon: Camera, title: 'AI Skin Analysis', desc: 'Get detailed insights about your skin', page: 'SkinAnalysis', color: 'from-pink-400 to-rose-400' },
