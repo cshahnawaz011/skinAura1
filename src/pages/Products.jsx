@@ -137,22 +137,41 @@ For each product include:
 
   const analyzeIngredients = async () => {
     if (!ingredientInput.trim()) return;
-    
     setAnalyzingIngredients(true);
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Analyze this ingredient list for skincare product safety and effectiveness for ${latestAnalysis?.skin_type || 'normal'} skin:
+    const skinProfile = latestAnalysis
+      ? `${latestAnalysis.skin_type} skin, acne ${latestAnalysis.acne_level}/10, oiliness ${latestAnalysis.oiliness}/10, dryness ${latestAnalysis.dryness}/10, sensitivity ${latestAnalysis.sensitivity}/10, redness ${latestAnalysis.redness}/10`
+      : 'unknown skin type';
 
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are a cosmetic chemist performing a deep clinical ingredient analysis.
+
+PATIENT SKIN PROFILE: ${skinProfile}
+
+INGREDIENT LIST TO ANALYZE:
 "${ingredientInput}"
 
-For each ingredient, provide:
-1. Name
-2. Rating: good (beneficial), neutral (okay), or bad (potentially harmful)
-3. What it does
-4. Comedogenic rating (0-5) for oily skin
-5. Any allergen warnings
+For EACH ingredient provide a thorough analysis:
+1. name: Standardized INCI name
+2. rating: "good" | "neutral" | "bad" | "avoid" (for their specific skin type)
+3. function: What this ingredient does in a formulation (specific mechanism)
+4. skin_benefit: How this ingredient benefits or harms THIS patient's specific skin profile
+5. comedogenic_rating: 0-5 (0=non-comedogenic, 5=highly comedogenic)
+6. concentration_concern: true/false — is it likely at a concerning concentration in this product?
+7. allergen_warning: Any known allergen or sensitizer risks (null if none)
+8. interactions: Any notable interactions with other ingredients in this list (null if none)
+9. evidence_level: "strong" | "moderate" | "weak" — scientific evidence for claims
 
-Also provide overall product assessment.`,
+Overall product analysis:
+- overall_assessment: Detailed paragraph on product suitability
+- suitability_score: 1-10 for this specific skin type
+- top_concern: The single biggest concern with this formula
+- top_benefit: The single biggest benefit
+- avoid_if: When this product should be avoided
+- pair_with: What to use alongside this product
+- fragrance_free: true/false
+- alcohol_free: true/false
+- reef_safe: true/false if any UV filters present`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -164,13 +183,23 @@ Also provide overall product assessment.`,
                 name: { type: "string" },
                 rating: { type: "string" },
                 function: { type: "string" },
+                skin_benefit: { type: "string" },
                 comedogenic_rating: { type: "number" },
-                allergen_warning: { type: "string" }
+                concentration_concern: { type: "boolean" },
+                allergen_warning: { type: "string" },
+                interactions: { type: "string" },
+                evidence_level: { type: "string" }
               }
             }
           },
           overall_assessment: { type: "string" },
-          suitability_score: { type: "number" }
+          suitability_score: { type: "number" },
+          top_concern: { type: "string" },
+          top_benefit: { type: "string" },
+          avoid_if: { type: "string" },
+          pair_with: { type: "string" },
+          fragrance_free: { type: "boolean" },
+          alcohol_free: { type: "boolean" }
         }
       }
     });
@@ -408,69 +437,115 @@ Also provide overall product assessment.`,
           {/* Analysis Results */}
           <AnimatePresence>
             {ingredientAnalysis && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+
                 {/* Overall Assessment */}
-                <GlassCard>
-                  <div className="flex items-center justify-between mb-4">
+                <GlassCard className="bg-gradient-to-r from-pink-50 to-amber-50 dark:from-pink-900/20 dark:to-amber-900/20">
+                  <div className="flex items-center justify-between mb-3">
                     <h3 className="text-xl font-semibold">Overall Assessment</h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-pink-500">
-                        {ingredientAnalysis.suitability_score}/10
-                      </span>
+                    <div className="text-center">
+                      <span className={`text-3xl font-bold ${
+                        ingredientAnalysis.suitability_score >= 7 ? 'text-emerald-500' :
+                        ingredientAnalysis.suitability_score >= 5 ? 'text-amber-500' : 'text-red-500'
+                      }`}>{ingredientAnalysis.suitability_score}</span>
+                      <span className="text-gray-400 text-sm">/10</span>
                     </div>
                   </div>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    {ingredientAnalysis.overall_assessment}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">{ingredientAnalysis.overall_assessment}</p>
+
+                  {/* Meta badges */}
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {ingredientAnalysis.fragrance_free && (
+                      <Badge className="bg-emerald-100 text-emerald-700 border-0">✓ Fragrance-Free</Badge>
+                    )}
+                    {ingredientAnalysis.alcohol_free && (
+                      <Badge className="bg-emerald-100 text-emerald-700 border-0">✓ Alcohol-Free</Badge>
+                    )}
+                    {!ingredientAnalysis.fragrance_free && (
+                      <Badge className="bg-amber-100 text-amber-700 border-0">⚠ Contains Fragrance</Badge>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {ingredientAnalysis.top_benefit && (
+                      <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
+                        <p className="text-xs font-bold text-emerald-600 mb-1">✨ Top Benefit</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">{ingredientAnalysis.top_benefit}</p>
+                      </div>
+                    )}
+                    {ingredientAnalysis.top_concern && (
+                      <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-xl">
+                        <p className="text-xs font-bold text-red-600 mb-1">⚠ Top Concern</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">{ingredientAnalysis.top_concern}</p>
+                      </div>
+                    )}
+                    {ingredientAnalysis.avoid_if && (
+                      <div className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
+                        <p className="text-xs font-bold text-gray-600 mb-1">🚫 Avoid If</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">{ingredientAnalysis.avoid_if}</p>
+                      </div>
+                    )}
+                    {ingredientAnalysis.pair_with && (
+                      <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                        <p className="text-xs font-bold text-blue-600 mb-1">🔗 Pair With</p>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">{ingredientAnalysis.pair_with}</p>
+                      </div>
+                    )}
+                  </div>
                 </GlassCard>
 
                 {/* Ingredient Breakdown */}
                 <GlassCard>
-                  <h3 className="text-xl font-semibold mb-4">Ingredient Breakdown</h3>
+                  <h3 className="text-xl font-semibold mb-4">Ingredient Deep Dive ({ingredientAnalysis.ingredients?.length} ingredients)</h3>
                   <div className="space-y-3">
                     {ingredientAnalysis.ingredients?.map((ing, i) => (
-                      <div
-                        key={i}
-                        className={`p-4 rounded-xl ${
-                          ing.rating === 'good' ? 'bg-emerald-50 dark:bg-emerald-900/20' :
-                          ing.rating === 'bad' ? 'bg-red-50 dark:bg-red-900/20' :
-                          'bg-gray-50 dark:bg-gray-800/50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-semibold">{ing.name}</span>
-                          <div className="flex items-center gap-2">
-                            {ing.rating === 'good' && (
-                              <Badge className="bg-emerald-500">
-                                <Check className="w-3 h-3 mr-1" /> Good
-                              </Badge>
-                            )}
-                            {ing.rating === 'bad' && (
-                              <Badge className="bg-red-500">
-                                <X className="w-3 h-3 mr-1" /> Avoid
-                              </Badge>
-                            )}
-                            {ing.rating === 'neutral' && (
-                              <Badge variant="secondary">Neutral</Badge>
+                      <div key={i} className={`p-4 rounded-xl border ${
+                        ing.rating === 'good' ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800' :
+                        ing.rating === 'bad' || ing.rating === 'avoid' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' :
+                        'bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700'
+                      }`}>
+                        <div className="flex items-start justify-between mb-2 gap-2">
+                          <div>
+                            <span className="font-semibold">{ing.name}</span>
+                            {ing.evidence_level && (
+                              <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${
+                                ing.evidence_level === 'strong' ? 'bg-emerald-100 text-emerald-700' :
+                                ing.evidence_level === 'moderate' ? 'bg-amber-100 text-amber-700' :
+                                'bg-gray-100 text-gray-600'
+                              }`}>{ing.evidence_level} evidence</span>
                             )}
                           </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {(ing.rating === 'good') && <Badge className="bg-emerald-500 text-xs"><Check className="w-3 h-3 mr-1" />Good</Badge>}
+                            {(ing.rating === 'bad' || ing.rating === 'avoid') && <Badge className="bg-red-500 text-xs"><X className="w-3 h-3 mr-1" />Avoid</Badge>}
+                            {ing.rating === 'neutral' && <Badge variant="secondary" className="text-xs">Neutral</Badge>}
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                          {ing.function}
-                        </p>
+
+                        <p className="text-xs text-gray-500 mb-2">{ing.function}</p>
+
+                        {ing.skin_benefit && (
+                          <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{ing.skin_benefit}</p>
+                        )}
+
                         <div className="flex flex-wrap gap-2 text-xs">
-                          <span className="px-2 py-1 bg-white dark:bg-gray-700 rounded">
-                            Comedogenic: {ing.comedogenic_rating}/5
+                          <span className={`px-2 py-1 rounded font-medium ${
+                            ing.comedogenic_rating <= 1 ? 'bg-emerald-100 text-emerald-700' :
+                            ing.comedogenic_rating <= 2 ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            Pore-clogging: {ing.comedogenic_rating}/5
                           </span>
+                          {ing.concentration_concern && (
+                            <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded">⚠ Concentration concern</span>
+                          )}
                           {ing.allergen_warning && (
                             <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded flex items-center gap-1">
-                              <AlertTriangle className="w-3 h-3" />
-                              {ing.allergen_warning}
+                              <AlertTriangle className="w-3 h-3" />{ing.allergen_warning}
                             </span>
+                          )}
+                          {ing.interactions && (
+                            <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">🔗 {ing.interactions}</span>
                           )}
                         </div>
                       </div>
