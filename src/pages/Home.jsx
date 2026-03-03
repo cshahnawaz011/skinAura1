@@ -215,6 +215,14 @@ export default function Home() {
               </Link>
             </div>
           </GlassCard>
+
+          {/* Proactive Health Insights — full width */}
+          <div className="lg:col-span-3">
+            <ProactiveHealthInsights
+              skinAnalysis={latestAnalysis}
+              dietLog={todayLog}
+            />
+          </div>
         </div>
       )}
 
