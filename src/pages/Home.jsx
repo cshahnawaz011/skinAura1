@@ -5,13 +5,14 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
-  Camera, Sparkles, TrendingUp, MessageCircle, BookOpen,
+  Camera, Sparkles, TrendingUp, MessageCircle,
   Palette, Sun, Users, ArrowRight, Star, Droplets, Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
 import CircularProgress from '@/components/ui/CircularProgress';
 import SkeletonCard from '@/components/ui/SkeletonCard';
+import WeatherAdvisor from '@/components/home/WeatherAdvisor';
 
 const features = [
   { icon: Camera, title: 'AI Skin Analysis', desc: 'Get detailed insights about your skin', page: 'SkinAnalysis', color: 'from-pink-400 to-rose-400' },

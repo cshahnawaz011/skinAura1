@@ -47,34 +47,34 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Home from './pages/Home';
-import SkinAnalysis from './pages/SkinAnalysis';
-import SkinRoutine from './pages/SkinRoutine';
-import Progress from './pages/Progress';
-import Products from './pages/Products';
-import Lifestyle from './pages/Lifestyle';
-import SkinChat from './pages/SkinChat';
-import Education from './pages/Education';
-import MakeupTryOn from './pages/MakeupTryOn';
 import Community from './pages/Community';
+import Education from './pages/Education';
+import Home from './pages/Home';
+import Lifestyle from './pages/Lifestyle';
+import MakeupTryOn from './pages/MakeupTryOn';
+import Products from './pages/Products';
 import Profile from './pages/Profile';
+import Progress from './pages/Progress';
 import Quiz from './pages/Quiz';
+import SkinAnalysis from './pages/SkinAnalysis';
+import SkinChat from './pages/SkinChat';
+import SkinRoutine from './pages/SkinRoutine';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "SkinAnalysis": SkinAnalysis,
-    "SkinRoutine": SkinRoutine,
-    "Progress": Progress,
-    "Products": Products,
-    "Lifestyle": Lifestyle,
-    "SkinChat": SkinChat,
-    "Education": Education,
-    "MakeupTryOn": MakeupTryOn,
     "Community": Community,
+    "Education": Education,
+    "Home": Home,
+    "Lifestyle": Lifestyle,
+    "MakeupTryOn": MakeupTryOn,
+    "Products": Products,
     "Profile": Profile,
+    "Progress": Progress,
     "Quiz": Quiz,
+    "SkinAnalysis": SkinAnalysis,
+    "SkinChat": SkinChat,
+    "SkinRoutine": SkinRoutine,
 }
 
 export const pagesConfig = {
