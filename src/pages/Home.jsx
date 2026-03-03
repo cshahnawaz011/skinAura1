@@ -100,6 +100,11 @@ export default function Home() {
       {/* User Dashboard */}
       {user && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Weather Skin Advisor — full width */}
+          <div className="lg:col-span-3">
+            <WeatherAdvisor skinAnalysis={latestAnalysis} />
+          </div>
           {/* Skin Score Card */}
           <GlassCard className="lg:col-span-1" delay={0.1}>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
