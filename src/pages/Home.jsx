@@ -280,7 +280,7 @@ export default function Home() {
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <p className="text-3xl font-bold gold-shimmer">10+</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">AI Features</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{tr('aiFeatures')}</p>
           </div>
           <div>
             <p className="text-3xl font-bold gold-shimmer">98%</p>
