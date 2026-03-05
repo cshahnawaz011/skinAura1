@@ -64,6 +64,9 @@ import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
 import SkinRoutine from './pages/SkinRoutine';
 import PublicProfile from './pages/PublicProfile';
+import SkinAgePrediction from './pages/SkinAgePrediction';
+import GlowMap from './pages/GlowMap';
+import AiInsights from './pages/AiInsights';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +88,9 @@ export const PAGES = {
     "SkinReport": SkinReport,
     "SkinRoutine": SkinRoutine,
     "PublicProfile": PublicProfile,
+    "SkinAgePrediction": SkinAgePrediction,
+    "GlowMap": GlowMap,
+    "AiInsights": AiInsights,
 }
 
 export const pagesConfig = {
