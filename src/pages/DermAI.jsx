@@ -32,12 +32,16 @@ export default function DermAI() {
 
   const initConversation = async () => {
     setInitializing(true);
-    const conv = await base44.agents.createConversation({ agent_name: "DermAI" });
-    setConversation(conv);
-    setMessages(conv.messages || []);
-    unsubscribeRef.current = base44.agents.subscribeToConversation(conv.id, (updated) => {
-      setMessages([...updated.messages]);
-    });
+    try {
+      const conv = await base44.agents.createConversation({ agent_name: "DermAI" });
+      setConversation(conv);
+      setMessages(conv.messages || []);
+      unsubscribeRef.current = base44.agents.subscribeToConversation(conv.id, (updated) => {
+        setMessages([...updated.messages]);
+      });
+    } catch (err) {
+      console.error("DermAI init error:", err);
+    }
     setInitializing(false);
   };
 
@@ -46,7 +50,11 @@ export default function DermAI() {
     if (!msg.trim() || !conversation || loading) return;
     setLoading(true);
     setInput("");
-    await base44.agents.addMessage(conversation, { role: "user", content: msg });
+    try {
+      await base44.agents.addMessage(conversation, { role: "user", content: msg });
+    } catch (err) {
+      console.error("DermAI send error:", err);
+    }
     setLoading(false);
   };
 
