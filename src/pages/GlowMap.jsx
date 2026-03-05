@@ -110,6 +110,20 @@ For each city provide:
 
   const topCities = cityData?.cities ? [...cityData.cities].sort((a, b) => b.avg_glow_score - a.avg_glow_score).slice(0, 5) : [];
 
+  // Map real user analyses to their city markers (match by location from UserProfile)
+  const userCityMap = {};
+  allAnalyses.forEach(a => {
+    const profile = allProfiles.find(p => p.user_email === a.user_email);
+    if (profile?.location) {
+      const loc = profile.location.trim().toLowerCase();
+      const matchedCity = CITIES.find(c => loc.includes(c.city.toLowerCase()) || loc.includes(c.country.toLowerCase()));
+      if (matchedCity) {
+        if (!userCityMap[matchedCity.city]) userCityMap[matchedCity.city] = [];
+        userCityMap[matchedCity.city].push({ email: a.user_email, score: a.overall_score, skin_type: a.skin_type });
+      }
+    }
+  });
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div>
