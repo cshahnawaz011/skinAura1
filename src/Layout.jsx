@@ -126,7 +126,7 @@ export default function Layout({ children, currentPageName }) {
               className="absolute right-0 top-0 h-full w-72 bg-white dark:bg-gray-900"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 pt-20">
+              <div className="p-4 pt-20 overflow-y-auto h-full">
                 <ul className="space-y-1">
                   {navItems.map((item) => {
                     const Icon = item.icon;
