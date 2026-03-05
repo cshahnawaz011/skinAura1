@@ -216,25 +216,25 @@ export default function Home() {
           <GlassCard className="lg:col-span-1" delay={0.3}>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Shield className="w-5 h-5 text-emerald-500" />
-              Quick Actions
+              {tr('quickActions')}
             </h3>
             <div className="space-y-3">
               <Link to={createPageUrl('SkinAnalysis')} className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <Camera className="w-4 h-4 mr-2 text-pink-500" />
-                  New Skin Analysis
+                  {tr('newSkinAnalysis')}
                 </Button>
               </Link>
               <Link to={createPageUrl('SkinRoutine')} className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <Sparkles className="w-4 h-4 mr-2 text-amber-500" />
-                  View My Routine
+                  {tr('viewMyRoutine')}
                 </Button>
               </Link>
               <Link to={createPageUrl('SkinChat')} className="block">
                 <Button variant="outline" className="w-full justify-start">
                   <MessageCircle className="w-4 h-4 mr-2 text-violet-500" />
-                  Ask AI Coach
+                  {tr('askAICoach')}
                 </Button>
               </Link>
             </div>
