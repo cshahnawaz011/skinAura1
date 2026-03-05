@@ -197,11 +197,11 @@ export default function Home() {
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Sleep Hours</span>
+                <span className="text-gray-600 dark:text-gray-300">{tr('sleepHours')}</span>
                 <span className="font-medium">{todayLog?.sleep_hours || '--'} hrs</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Exercise</span>
+                <span className="text-gray-600 dark:text-gray-300">{tr('exercise')}</span>
                 <span className="font-medium">{todayLog?.exercise_minutes || 0} min</span>
               </div>
             </div>
