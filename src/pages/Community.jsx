@@ -39,6 +39,12 @@ export default function Community() {
     queryFn: () => base44.entities.CommunityPost.list('-created_date', 50),
   });
 
+  const { data: myFollows = [] } = useQuery({
+    queryKey: ['myFollows', user?.email],
+    queryFn: () => base44.entities.Follow.filter({ follower_email: user.email }),
+    enabled: !!user?.email,
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
       let beforeUrl = null;
