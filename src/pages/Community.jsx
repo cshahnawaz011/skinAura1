@@ -4,8 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Heart, MessageCircle, Share2, Plus, X, Loader2,
-  Trophy, TrendingUp, Users, Camera, Send
+  Trophy, TrendingUp, Users, Camera, Send, UserPlus, UserMinus
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
