@@ -101,7 +101,7 @@ export default function Layout({ children, currentPageName }) {
           ) : (
             <Button
               size="sm"
-              onClick={() => base44.auth.redirectToLogin()}
+              onClick={() => base44.auth.redirectToLogin(window.location.href)}
               className="w-full justify-start gap-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white hover:from-pink-600 hover:to-amber-600"
             >
               <LogIn className="w-5 h-5" />
