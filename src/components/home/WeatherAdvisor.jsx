@@ -75,6 +75,7 @@ export default function WeatherAdvisor({ skinAnalysis }) {
   }, []);
 
   const fetchWeatherAndAdvice = () => {
+    if (cooldownLeft > 0) return;
     setLoading(true);
     setLocationError(null);
 
