@@ -284,7 +284,7 @@ export default function Home() {
           </div>
           <div>
             <p className="text-3xl font-bold gold-shimmer">98%</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Accuracy</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{tr('accuracy')}</p>
           </div>
           <div>
             <p className="text-3xl font-bold gold-shimmer">24/7</p>
