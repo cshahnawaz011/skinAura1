@@ -101,6 +101,8 @@ export default function ProactiveHealthInsights({ skinAnalysis, dietLog, progres
   }, [skinAnalysis?.id, dietLog?.id]);
 
   const generateInsights = async () => {
+    const { allowed } = checkAICooldown('health_insights');
+    if (!allowed) return;
     setLoading(true);
 
     // Build trend data
