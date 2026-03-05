@@ -205,7 +205,7 @@ export default function Layout({ children, currentPageName }) {
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                <Icon className={`w-7 h-7 ${isActive ? 'scale-110' : ''} transition-transform`} />
                 <span className="text-[10px] font-medium">{item.name}</span>
               </Link>
             );
