@@ -107,14 +107,7 @@ export default function Profile() {
             )}
           </div>
 
-          <Button
-            variant="outline"
-            onClick={() => base44.auth.logout()}
-            className="gap-2"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </Button>
+
         </div>
       </GlassCard>
 
