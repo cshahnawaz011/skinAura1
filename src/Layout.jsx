@@ -4,9 +4,10 @@ import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, User, MessageCircle,
-  BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets
+  BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets, LogIn, LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 
 const navItems = [
   { name: 'Home', icon: Home, page: 'Home' },
