@@ -4,22 +4,34 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Droplets, Moon, Dumbbell, Brain, Apple, Coffee,
-  Plus, Minus, Check, TrendingUp, Calendar
+  Plus, Minus, Check, TrendingUp, Calendar, Smile,
+  Monitor, Footprints, Sun, Pill, Sparkles, Wind,
+  Wine, Leaf, Pencil, HeartPulse
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import GlassCard from '@/components/ui/GlassCard';
-import { format, subDays } from 'date-fns';
+import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const goodFoods = ['Salmon', 'Avocado', 'Berries', 'Nuts', 'Green Tea', 'Spinach', 'Sweet Potato', 'Olive Oil'];
-const badFoods = ['Sugar', 'Dairy', 'Fried Food', 'Alcohol', 'Processed Food', 'Soda', 'White Bread'];
+const goodFoods = ['Salmon', 'Avocado', 'Berries', 'Nuts', 'Green Tea', 'Spinach', 'Sweet Potato', 'Olive Oil', 'Turmeric', 'Cucumber', 'Walnuts', 'Dark Chocolate'];
+const badFoods = ['Sugar', 'Dairy', 'Fried Food', 'Alcohol', 'Processed Food', 'Soda', 'White Bread', 'Fast Food', 'Chips'];
+const vitaminOptions = ['Vitamin C', 'Vitamin D', 'Vitamin E', 'Zinc', 'Omega-3', 'Collagen', 'Biotin', 'Magnesium', 'Iron', 'B12'];
+const moodOptions = [
+  { value: 'great', emoji: '😄', label: 'Great', color: 'bg-emerald-500' },
+  { value: 'good', emoji: '🙂', label: 'Good', color: 'bg-green-400' },
+  { value: 'neutral', emoji: '😐', label: 'Okay', color: 'bg-amber-400' },
+  { value: 'bad', emoji: '😔', label: 'Bad', color: 'bg-orange-400' },
+  { value: 'terrible', emoji: '😫', label: 'Rough', color: 'bg-red-500' },
+];
 
 export default function Lifestyle() {
   const [user, setUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [notesValue, setNotesValue] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -29,38 +41,24 @@ export default function Lifestyle() {
   const { data: todayLog, isLoading } = useQuery({
     queryKey: ['dietLog', user?.email, selectedDate],
     queryFn: async () => {
-      const logs = await base44.entities.DietLog.filter({ 
-        user_email: user.email, 
-        log_date: selectedDate 
-      });
-      return logs[0] || null;
+      const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: selectedDate });
+      const log = logs[0] || null;
+      if (log) setNotesValue(log.notes || '');
+      return log;
     },
     enabled: !!user?.email,
   });
 
   const { data: weekLogs = [] } = useQuery({
     queryKey: ['weekLogs', user?.email],
-    queryFn: async () => {
-      const logs = await base44.entities.DietLog.filter(
-        { user_email: user.email },
-        '-log_date',
-        7
-      );
-      return logs;
-    },
+    queryFn: () => base44.entities.DietLog.filter({ user_email: user.email }, '-log_date', 7),
     enabled: !!user?.email,
   });
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      if (todayLog) {
-        return base44.entities.DietLog.update(todayLog.id, data);
-      }
-      return base44.entities.DietLog.create({
-        user_email: user.email,
-        log_date: selectedDate,
-        ...data,
-      });
+      if (todayLog) return base44.entities.DietLog.update(todayLog.id, data);
+      return base44.entities.DietLog.create({ user_email: user.email, log_date: selectedDate, ...data });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['dietLog']);
@@ -69,53 +67,52 @@ export default function Lifestyle() {
   });
 
   const updateField = (field, value) => {
-    saveMutation.mutate({
-      ...(todayLog || {}),
-      [field]: value,
-    });
+    saveMutation.mutate({ ...(todayLog || {}), [field]: value });
   };
 
   const toggleFood = (food, isGood) => {
     const field = isGood ? 'foods_good' : 'foods_bad';
-    const currentFoods = todayLog?.[field] || [];
-    const newFoods = currentFoods.includes(food)
-      ? currentFoods.filter(f => f !== food)
-      : [...currentFoods, food];
-    updateField(field, newFoods);
+    const cur = todayLog?.[field] || [];
+    updateField(field, cur.includes(food) ? cur.filter(f => f !== food) : [...cur, food]);
+  };
+
+  const toggleVitamin = (v) => {
+    const cur = todayLog?.vitamins_taken || [];
+    updateField('vitamins_taken', cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]);
   };
 
   const getWellnessScore = () => {
     if (!todayLog) return 0;
     let score = 0;
-    
-    // Water (max 30 points)
-    score += Math.min(30, (todayLog.water_glasses || 0) * 3.75);
-    
-    // Sleep (max 25 points)
-    const sleepHours = todayLog.sleep_hours || 0;
-    if (sleepHours >= 7 && sleepHours <= 9) score += 25;
-    else if (sleepHours >= 6) score += 15;
-    else if (sleepHours >= 5) score += 10;
-    
-    // Exercise (max 20 points)
-    score += Math.min(20, (todayLog.exercise_minutes || 0) / 3);
-    
-    // Stress (max 15 points)
+    score += Math.min(25, (todayLog.water_glasses || 0) * 3.1);
+    const sleep = todayLog.sleep_hours || 0;
+    if (sleep >= 7 && sleep <= 9) score += 20;
+    else if (sleep >= 6) score += 12;
+    else if (sleep >= 5) score += 6;
+    score += Math.min(15, (todayLog.exercise_minutes || 0) / 4);
     const stress = todayLog.stress_level || 3;
-    score += (6 - stress) * 3;
-    
-    // Good foods (max 10 points)
-    score += Math.min(10, (todayLog.foods_good?.length || 0) * 2);
-    
-    return Math.round(score);
+    score += (6 - stress) * 2.5;
+    score += Math.min(8, (todayLog.foods_good?.length || 0) * 1.5);
+    if (todayLog.skincare_done_morning) score += 4;
+    if (todayLog.skincare_done_night) score += 4;
+    if (todayLog.sunscreen_applied) score += 4;
+    if (todayLog.meditation_minutes >= 10) score += 3;
+    if ((todayLog.steps || 0) >= 8000) score += 3;
+    score -= Math.min(10, (todayLog.screen_time_hours || 0));
+    score -= Math.min(6, (todayLog.alcohol_drinks || 0) * 2);
+    return Math.max(0, Math.min(100, Math.round(score)));
   };
 
   const chartData = weekLogs.map(log => ({
     date: format(new Date(log.log_date), 'EEE'),
     water: log.water_glasses || 0,
     sleep: log.sleep_hours || 0,
-    exercise: (log.exercise_minutes || 0) / 10,
+    steps: Math.round((log.steps || 0) / 1000),
   })).reverse();
+
+  const score = getWellnessScore();
+  const scoreColor = score >= 70 ? 'text-emerald-500' : score >= 50 ? 'text-amber-500' : 'text-red-500';
+  const scoreLabel = score >= 70 ? 'Excellent 🌟' : score >= 50 ? 'Good 👍' : 'Needs Attention ⚡';
 
   if (!user) {
     return (
@@ -123,13 +120,8 @@ export default function Lifestyle() {
         <GlassCard className="text-center py-12">
           <Droplets className="w-12 h-12 text-blue-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Lifestyle Tracker</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Sign in to track how your lifestyle affects your skin
-          </p>
-          <Button
-            onClick={() => base44.auth.redirectToLogin()}
-            className="bg-gradient-to-r from-pink-500 to-amber-500"
-          >
+          <p className="text-gray-500 dark:text-gray-400 mb-6">Sign in to track how your lifestyle affects your skin</p>
+          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-amber-500">
             Sign In to Start Tracking
           </Button>
         </GlassCard>
@@ -140,21 +132,14 @@ export default function Lifestyle() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-3xl font-bold">Lifestyle Tracker</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Track habits that impact your skin health
-          </p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Daily habits that impact your skin & health</p>
         </div>
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-gray-400" />
-          <Input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-40"
-          />
+          <Input type="date" value={selectedDate} onChange={(e) => setSelectedDate(e.target.value)} className="w-40" />
         </div>
       </div>
 
@@ -163,241 +148,344 @@ export default function Lifestyle() {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-gray-500 mb-1">Today's Wellness Score</p>
-            <p className="text-4xl font-bold text-gray-800 dark:text-white">
-              {getWellnessScore()}<span className="text-lg text-gray-400">/100</span>
-            </p>
+            <p className={`text-5xl font-bold ${scoreColor}`}>{score}<span className="text-lg text-gray-400">/100</span></p>
           </div>
           <div className="text-right">
-            <p className="text-sm text-gray-500">Impact on Skin</p>
-            <p className={`font-semibold ${
-              getWellnessScore() >= 70 ? 'text-emerald-500' :
-              getWellnessScore() >= 50 ? 'text-amber-500' : 'text-red-500'
-            }`}>
-              {getWellnessScore() >= 70 ? 'Excellent' :
-               getWellnessScore() >= 50 ? 'Good' : 'Needs Improvement'}
-            </p>
+            <p className="text-sm text-gray-500 mb-1">Skin Impact</p>
+            <p className={`font-semibold text-lg ${scoreColor}`}>{scoreLabel}</p>
           </div>
         </div>
       </GlassCard>
 
-      {/* Main Trackers Grid */}
+      {/* Row 1: Water, Sleep */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Water Tracker */}
-        <GlassCard delay={0.1}>
+        {/* Water */}
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
               <Droplets className="w-5 h-5 text-blue-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Water Intake</h3>
-              <p className="text-sm text-gray-500">Goal: 8 glasses</p>
-            </div>
+            <div><h3 className="font-semibold">Water Intake</h3><p className="text-xs text-gray-500">Goal: 8 glasses/day</p></div>
           </div>
-          
           <div className="flex items-center justify-center gap-4 mb-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => updateField('water_glasses', Math.max(0, (todayLog?.water_glasses || 0) - 1))}
-            >
+            <Button variant="outline" size="icon" onClick={() => updateField('water_glasses', Math.max(0, (todayLog?.water_glasses || 0) - 1))}>
               <Minus className="w-4 h-4" />
             </Button>
             <div className="text-center">
-              <p className="text-4xl font-bold text-blue-500">
-                {todayLog?.water_glasses || 0}
-              </p>
+              <p className="text-4xl font-bold text-blue-500">{todayLog?.water_glasses || 0}</p>
               <p className="text-sm text-gray-500">glasses</p>
             </div>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => updateField('water_glasses', (todayLog?.water_glasses || 0) + 1)}
-            >
+            <Button variant="outline" size="icon" onClick={() => updateField('water_glasses', (todayLog?.water_glasses || 0) + 1)}>
               <Plus className="w-4 h-4" />
             </Button>
           </div>
-
           <div className="flex justify-center gap-1">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-6 h-8 rounded-full border-2 transition-colors ${
-                  i < (todayLog?.water_glasses || 0)
-                    ? 'bg-blue-500 border-blue-500'
-                    : 'border-blue-200 dark:border-blue-800'
-                }`}
-              />
+              <div key={i} className={`w-6 h-8 rounded-full border-2 transition-colors cursor-pointer ${i < (todayLog?.water_glasses || 0) ? 'bg-blue-500 border-blue-500' : 'border-blue-200 dark:border-blue-800'}`}
+                onClick={() => updateField('water_glasses', i + 1)} />
             ))}
           </div>
         </GlassCard>
 
-        {/* Sleep Tracker */}
-        <GlassCard delay={0.2}>
+        {/* Sleep */}
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
               <Moon className="w-5 h-5 text-indigo-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Sleep Hours</h3>
-              <p className="text-sm text-gray-500">Goal: 7-9 hours</p>
-            </div>
+            <div><h3 className="font-semibold">Sleep Hours</h3><p className="text-xs text-gray-500">Goal: 7–9 hours</p></div>
           </div>
-
           <div className="text-center mb-4">
-            <p className="text-4xl font-bold text-indigo-500">
-              {todayLog?.sleep_hours || 0}
-              <span className="text-lg text-gray-400"> hrs</span>
-            </p>
+            <p className="text-4xl font-bold text-indigo-500">{todayLog?.sleep_hours || 0}<span className="text-lg text-gray-400"> hrs</span></p>
           </div>
-
-          <Slider
-            value={[todayLog?.sleep_hours || 0]}
-            onValueChange={([value]) => updateField('sleep_hours', value)}
-            max={12}
-            step={0.5}
-            className="mb-2"
-          />
-          <div className="flex justify-between text-xs text-gray-400">
-            <span>0h</span>
-            <span>6h</span>
-            <span>12h</span>
-          </div>
+          <Slider value={[todayLog?.sleep_hours || 0]} onValueChange={([v]) => updateField('sleep_hours', v)} max={12} step={0.5} className="mb-2" />
+          <div className="flex justify-between text-xs text-gray-400"><span>0h</span><span>6h</span><span>12h</span></div>
         </GlassCard>
+      </div>
 
-        {/* Exercise Tracker */}
-        <GlassCard delay={0.3}>
+      {/* Row 2: Exercise, Steps */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Exercise */}
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
               <Dumbbell className="w-5 h-5 text-emerald-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Exercise</h3>
-              <p className="text-sm text-gray-500">Goal: 30+ minutes</p>
-            </div>
+            <div><h3 className="font-semibold">Exercise</h3><p className="text-xs text-gray-500">Goal: 30+ minutes</p></div>
           </div>
-
           <div className="text-center mb-4">
-            <p className="text-4xl font-bold text-emerald-500">
-              {todayLog?.exercise_minutes || 0}
-              <span className="text-lg text-gray-400"> min</span>
-            </p>
+            <p className="text-4xl font-bold text-emerald-500">{todayLog?.exercise_minutes || 0}<span className="text-lg text-gray-400"> min</span></p>
           </div>
-
           <div className="flex gap-2 flex-wrap justify-center">
-            {[15, 30, 45, 60].map((min) => (
-              <Button
-                key={min}
-                variant={todayLog?.exercise_minutes === min ? 'default' : 'outline'}
-                size="sm"
+            {[0, 15, 30, 45, 60, 90].map((min) => (
+              <Button key={min} size="sm" variant={todayLog?.exercise_minutes === min ? 'default' : 'outline'}
                 onClick={() => updateField('exercise_minutes', min)}
                 className={todayLog?.exercise_minutes === min ? 'bg-emerald-500' : ''}
-              >
-                {min}m
-              </Button>
+              >{min === 0 ? 'Rest' : `${min}m`}</Button>
             ))}
           </div>
         </GlassCard>
 
-        {/* Stress Tracker */}
-        <GlassCard delay={0.4}>
+        {/* Steps */}
+        <GlassCard>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center">
+              <Footprints className="w-5 h-5 text-teal-500" />
+            </div>
+            <div><h3 className="font-semibold">Daily Steps</h3><p className="text-xs text-gray-500">Goal: 8,000 steps</p></div>
+          </div>
+          <div className="text-center mb-4">
+            <p className="text-4xl font-bold text-teal-500">{(todayLog?.steps || 0).toLocaleString()}</p>
+            <p className="text-sm text-gray-500">steps</p>
+          </div>
+          <Slider value={[todayLog?.steps || 0]} onValueChange={([v]) => updateField('steps', v)} max={20000} step={500} className="mb-2" />
+          <div className="flex justify-between text-xs text-gray-400"><span>0</span><span>10k</span><span>20k</span></div>
+        </GlassCard>
+      </div>
+
+      {/* Row 3: Stress, Mood */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Stress */}
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
               <Brain className="w-5 h-5 text-amber-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Stress Level</h3>
-              <p className="text-sm text-gray-500">How stressed are you?</p>
-            </div>
+            <div><h3 className="font-semibold">Stress Level</h3><p className="text-xs text-gray-500">Low stress = better skin</p></div>
           </div>
-
           <div className="flex justify-center gap-2">
             {[1, 2, 3, 4, 5].map((level) => (
-              <button
-                key={level}
-                onClick={() => updateField('stress_level', level)}
-                className={`w-12 h-12 rounded-xl font-bold transition-all ${
-                  todayLog?.stress_level === level
-                    ? level <= 2 ? 'bg-emerald-500 text-white' :
-                      level <= 3 ? 'bg-amber-500 text-white' :
-                      'bg-red-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200'
-                }`}
-              >
-                {level}
-              </button>
+              <button key={level} onClick={() => updateField('stress_level', level)}
+                className={`w-12 h-12 rounded-xl font-bold transition-all ${todayLog?.stress_level === level
+                  ? level <= 2 ? 'bg-emerald-500 text-white' : level <= 3 ? 'bg-amber-500 text-white' : 'bg-red-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+              >{level}</button>
             ))}
           </div>
-          <div className="flex justify-between text-xs text-gray-400 mt-2 px-1">
-            <span>Calm</span>
-            <span>Very Stressed</span>
+          <div className="flex justify-between text-xs text-gray-400 mt-2 px-1"><span>😌 Calm</span><span>😤 Stressed</span></div>
+        </GlassCard>
+
+        {/* Mood */}
+        <GlassCard>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+              <Smile className="w-5 h-5 text-purple-500" />
+            </div>
+            <div><h3 className="font-semibold">Mood</h3><p className="text-xs text-gray-500">How are you feeling?</p></div>
+          </div>
+          <div className="flex justify-center gap-2 flex-wrap">
+            {moodOptions.map((m) => (
+              <button key={m.value} onClick={() => updateField('mood', m.value)}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all border-2 ${todayLog?.mood === m.value ? `${m.color} text-white border-transparent` : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'}`}
+              >
+                <span className="text-xl">{m.emoji}</span>
+                <span className="text-xs font-medium">{m.label}</span>
+              </button>
+            ))}
           </div>
         </GlassCard>
       </div>
 
-      {/* Food Tracker */}
+      {/* Row 4: Screen Time, Coffee, Alcohol, Meditation */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Screen Time */}
+        <GlassCard className="p-4">
+          <div className="text-center">
+            <Monitor className="w-7 h-7 text-slate-400 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm mb-3">Screen Time</h4>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('screen_time_hours', Math.max(0, (todayLog?.screen_time_hours || 0) - 0.5))}>
+                <Minus className="w-3 h-3" />
+              </Button>
+              <span className="text-2xl font-bold text-slate-500">{todayLog?.screen_time_hours || 0}</span>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('screen_time_hours', (todayLog?.screen_time_hours || 0) + 0.5)}>
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">hours</p>
+          </div>
+        </GlassCard>
+
+        {/* Coffee */}
+        <GlassCard className="p-4">
+          <div className="text-center">
+            <Coffee className="w-7 h-7 text-amber-600 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm mb-3">Coffee</h4>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('coffee_cups', Math.max(0, (todayLog?.coffee_cups || 0) - 1))}>
+                <Minus className="w-3 h-3" />
+              </Button>
+              <span className="text-2xl font-bold text-amber-600">{todayLog?.coffee_cups || 0}</span>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('coffee_cups', (todayLog?.coffee_cups || 0) + 1)}>
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">cups</p>
+          </div>
+        </GlassCard>
+
+        {/* Alcohol */}
+        <GlassCard className="p-4">
+          <div className="text-center">
+            <Wine className="w-7 h-7 text-purple-400 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm mb-3">Alcohol</h4>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('alcohol_drinks', Math.max(0, (todayLog?.alcohol_drinks || 0) - 1))}>
+                <Minus className="w-3 h-3" />
+              </Button>
+              <span className="text-2xl font-bold text-purple-400">{todayLog?.alcohol_drinks || 0}</span>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('alcohol_drinks', (todayLog?.alcohol_drinks || 0) + 1)}>
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">drinks</p>
+          </div>
+        </GlassCard>
+
+        {/* Meditation */}
+        <GlassCard className="p-4">
+          <div className="text-center">
+            <Wind className="w-7 h-7 text-cyan-500 mx-auto mb-2" />
+            <h4 className="font-semibold text-sm mb-3">Meditation</h4>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('meditation_minutes', Math.max(0, (todayLog?.meditation_minutes || 0) - 5))}>
+                <Minus className="w-3 h-3" />
+              </Button>
+              <span className="text-2xl font-bold text-cyan-500">{todayLog?.meditation_minutes || 0}</span>
+              <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateField('meditation_minutes', (todayLog?.meditation_minutes || 0) + 5)}>
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">min</p>
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* Outdoor Time */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+            <Sun className="w-5 h-5 text-yellow-500" />
+          </div>
+          <div><h3 className="font-semibold">Outdoor / Sunlight Time</h3><p className="text-xs text-gray-500">Vitamin D is great for skin!</p></div>
+        </div>
+        <div className="text-center mb-4">
+          <p className="text-4xl font-bold text-yellow-500">{todayLog?.outdoor_time_minutes || 0}<span className="text-lg text-gray-400"> min</span></p>
+        </div>
+        <div className="flex gap-2 flex-wrap justify-center">
+          {[0, 15, 30, 60, 90, 120].map((min) => (
+            <Button key={min} size="sm" variant={todayLog?.outdoor_time_minutes === min ? 'default' : 'outline'}
+              onClick={() => updateField('outdoor_time_minutes', min)}
+              className={todayLog?.outdoor_time_minutes === min ? 'bg-yellow-500' : ''}
+            >{min === 0 ? 'None' : `${min}m`}</Button>
+          ))}
+        </div>
+      </GlassCard>
+
+      {/* Skincare Checklist */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-pink-500" />
+          </div>
+          <div><h3 className="font-semibold">Skincare Checklist</h3><p className="text-xs text-gray-500">Did you do your routine?</p></div>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {[
+            { field: 'skincare_done_morning', label: '☀️ Morning Routine', color: 'bg-amber-500' },
+            { field: 'skincare_done_night', label: '🌙 Night Routine', color: 'bg-indigo-500' },
+            { field: 'sunscreen_applied', label: '🧴 Sunscreen Applied', color: 'bg-orange-400' },
+          ].map(({ field, label, color }) => (
+            <button key={field} onClick={() => updateField(field, !todayLog?.[field])}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-medium text-sm transition-all ${todayLog?.[field] ? `${color} text-white border-transparent` : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'}`}
+            >
+              {todayLog?.[field] && <Check className="w-4 h-4" />}
+              {label}
+            </button>
+          ))}
+        </div>
+      </GlassCard>
+
+      {/* Vitamins & Supplements */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-lime-100 dark:bg-lime-900/30 flex items-center justify-center">
+            <Pill className="w-5 h-5 text-lime-600" />
+          </div>
+          <div><h3 className="font-semibold">Vitamins & Supplements</h3><p className="text-xs text-gray-500">What did you take today?</p></div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {vitaminOptions.map((v) => (
+            <Badge key={v} variant={todayLog?.vitamins_taken?.includes(v) ? 'default' : 'outline'}
+              className={`cursor-pointer transition-all ${todayLog?.vitamins_taken?.includes(v) ? 'bg-lime-600 hover:bg-lime-700' : 'hover:bg-lime-50 dark:hover:bg-lime-900/20'}`}
+              onClick={() => toggleVitamin(v)}
+            >
+              {todayLog?.vitamins_taken?.includes(v) && <Check className="w-3 h-3 mr-1" />}
+              {v}
+            </Badge>
+          ))}
+        </div>
+      </GlassCard>
+
+      {/* Food Trackers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <GlassCard delay={0.5}>
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
               <Apple className="w-5 h-5 text-emerald-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Good for Skin</h3>
-              <p className="text-sm text-gray-500">Foods that help your skin</p>
-            </div>
+            <div><h3 className="font-semibold">Good for Skin</h3><p className="text-xs text-gray-500">Skin-loving foods eaten today</p></div>
           </div>
           <div className="flex flex-wrap gap-2">
             {goodFoods.map((food) => (
-              <Badge
-                key={food}
-                variant={todayLog?.foods_good?.includes(food) ? 'default' : 'outline'}
-                className={`cursor-pointer transition-all ${
-                  todayLog?.foods_good?.includes(food)
-                    ? 'bg-emerald-500 hover:bg-emerald-600'
-                    : 'hover:bg-emerald-50'
-                }`}
+              <Badge key={food} variant={todayLog?.foods_good?.includes(food) ? 'default' : 'outline'}
+                className={`cursor-pointer transition-all ${todayLog?.foods_good?.includes(food) ? 'bg-emerald-500 hover:bg-emerald-600' : 'hover:bg-emerald-50'}`}
                 onClick={() => toggleFood(food, true)}
               >
-                {todayLog?.foods_good?.includes(food) && (
-                  <Check className="w-3 h-3 mr-1" />
-                )}
+                {todayLog?.foods_good?.includes(food) && <Check className="w-3 h-3 mr-1" />}
                 {food}
               </Badge>
             ))}
           </div>
         </GlassCard>
 
-        <GlassCard delay={0.6}>
+        <GlassCard>
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
               <Coffee className="w-5 h-5 text-red-500" />
             </div>
-            <div>
-              <h3 className="font-semibold">Bad for Skin</h3>
-              <p className="text-sm text-gray-500">Foods to limit</p>
-            </div>
+            <div><h3 className="font-semibold">Bad for Skin</h3><p className="text-xs text-gray-500">Foods to limit</p></div>
           </div>
           <div className="flex flex-wrap gap-2">
             {badFoods.map((food) => (
-              <Badge
-                key={food}
-                variant={todayLog?.foods_bad?.includes(food) ? 'default' : 'outline'}
-                className={`cursor-pointer transition-all ${
-                  todayLog?.foods_bad?.includes(food)
-                    ? 'bg-red-500 hover:bg-red-600'
-                    : 'hover:bg-red-50'
-                }`}
+              <Badge key={food} variant={todayLog?.foods_bad?.includes(food) ? 'default' : 'outline'}
+                className={`cursor-pointer transition-all ${todayLog?.foods_bad?.includes(food) ? 'bg-red-500 hover:bg-red-600' : 'hover:bg-red-50'}`}
                 onClick={() => toggleFood(food, false)}
               >
-                {todayLog?.foods_bad?.includes(food) && (
-                  <Check className="w-3 h-3 mr-1" />
-                )}
+                {todayLog?.foods_bad?.includes(food) && <Check className="w-3 h-3 mr-1" />}
                 {food}
               </Badge>
             ))}
           </div>
         </GlassCard>
       </div>
+
+      {/* Daily Notes */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+            <Pencil className="w-5 h-5 text-gray-500" />
+          </div>
+          <div><h3 className="font-semibold">Daily Notes</h3><p className="text-xs text-gray-500">Observations, feelings, skin changes...</p></div>
+        </div>
+        <Textarea
+          placeholder="How does your skin feel today? Any flare-ups, changes, or observations..."
+          value={notesValue}
+          onChange={(e) => setNotesValue(e.target.value)}
+          onBlur={() => updateField('notes', notesValue)}
+          rows={3}
+        />
+      </GlassCard>
 
       {/* Weekly Chart */}
       {chartData.length > 1 && (
@@ -412,17 +500,10 @@ export default function Lifestyle() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
                 <YAxis stroke="#9ca3af" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    borderRadius: '12px',
-                    border: 'none',
-                    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-                  }}
-                />
+                <Tooltip contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Bar dataKey="water" fill="#3b82f6" name="Water (glasses)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="sleep" fill="#6366f1" name="Sleep (hours)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="exercise" fill="#10b981" name="Exercise (×10 min)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="steps" fill="#14b8a6" name="Steps (×1000)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
