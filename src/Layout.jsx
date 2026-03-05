@@ -10,17 +10,17 @@ import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
 
-const navItems = [
-  { name: 'Home', icon: Home, page: 'Home' },
-  { name: 'Analyze', icon: Camera, page: 'SkinAnalysis' },
-  { name: 'Routine', icon: Sparkles, page: 'SkinRoutine' },
-  { name: 'Progress', icon: TrendingUp, page: 'Progress' },
-  { name: 'Products', icon: Droplets, page: 'Products' },
-  { name: 'Lifestyle', icon: Sun, page: 'Lifestyle' },
-  { name: 'Chat', icon: MessageCircle, page: 'SkinChat' },
-  { name: 'Learn', icon: BookOpen, page: 'Education' },
-  { name: 'Makeup', icon: Palette, page: 'MakeupTryOn' },
-  { name: 'Community', icon: Users, page: 'Community' },
+const NAV_KEYS = [
+  { key: 'home', icon: Home, page: 'Home' },
+  { key: 'analyze', icon: Camera, page: 'SkinAnalysis' },
+  { key: 'routine', icon: Sparkles, page: 'SkinRoutine' },
+  { key: 'progress', icon: TrendingUp, page: 'Progress' },
+  { key: 'products', icon: Droplets, page: 'Products' },
+  { key: 'lifestyle', icon: Sun, page: 'Lifestyle' },
+  { key: 'chat', icon: MessageCircle, page: 'SkinChat' },
+  { key: 'learn', icon: BookOpen, page: 'Education' },
+  { key: 'makeup', icon: Palette, page: 'MakeupTryOn' },
+  { key: 'community', icon: Users, page: 'Community' },
 ];
 
 export default function Layout({ children, currentPageName }) {
