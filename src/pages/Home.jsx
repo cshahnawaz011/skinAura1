@@ -175,11 +175,11 @@ export default function Home() {
           <GlassCard className="lg:col-span-1" delay={0.2}>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Sun className="w-5 h-5 text-amber-500" />
-              Today's Wellness
+              {tr('todaysWellness')}
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-gray-600 dark:text-gray-300">Water Intake</span>
+                <span className="text-gray-600 dark:text-gray-300">{tr('waterIntake')}</span>
                 <div className="flex items-center gap-2">
                   <div className="flex">
                     {Array.from({ length: 8 }).map((_, i) => (
