@@ -100,8 +100,26 @@ export default function WeatherAdvisor({ skinAnalysis }) {
   };
 
   const loadWeatherByCoords = async (lat, lon) => {
+    // Reverse geocode using OpenStreetMap Nominatim (free, no key needed)
+    let cityName = `${lat.toFixed(2)}, ${lon.toFixed(2)}`;
+    try {
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`,
+        { headers: { 'Accept-Language': 'en' } }
+      );
+      const geoData = await geoRes.json();
+      cityName =
+        geoData.address?.city ||
+        geoData.address?.town ||
+        geoData.address?.village ||
+        geoData.address?.county ||
+        cityName;
+    } catch {}
+
+    setLocationName(cityName);
+
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Get current real-time weather for GPS coordinates: lat=${lat}, lon=${lon}.
+      prompt: `Get current real-time weather for the city "${cityName}" (GPS: lat=${lat}, lon=${lon}).
 Return: city name, temperature (°C), feels_like (°C), humidity (%), uv_index (0-11), aqi (air quality index number), weather condition (one word: sunny/cloudy/rainy/etc), wind_speed (km/h).
 Use real current data.`,
       add_context_from_internet: true,
@@ -119,7 +137,7 @@ Use real current data.`,
         }
       }
     });
-    setLocationName(result.city || `${lat.toFixed(1)}, ${lon.toFixed(1)}`);
+    result.city = cityName; // force exact city from GPS
     await generateSkinAdvice(result);
   };
 
