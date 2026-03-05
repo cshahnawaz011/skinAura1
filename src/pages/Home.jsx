@@ -94,7 +94,7 @@ export default function Home() {
               className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
               onClick={() => setShowDnsPopup(false)}
             >
-              Got it!
+              {tr('gotIt')}
             </Button>
           </motion.div>
         </div>
