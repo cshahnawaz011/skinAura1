@@ -211,13 +211,17 @@ export default function Community() {
                 <GlassCard>
                   {/* Header */}
                   <div className="flex items-center gap-3 mb-4">
-                    <Avatar>
-                      <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-400 text-white">
-                        {post.user_name?.[0]?.toUpperCase() || '?'}
-                      </AvatarFallback>
-                    </Avatar>
+                    <Link to={`${createPageUrl('PublicProfile')}?email=${post.user_email}`}>
+                      <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                        <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-400 text-white">
+                          {post.user_name?.[0]?.toUpperCase() || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                     <div>
-                      <p className="font-semibold">{post.user_name}</p>
+                      <Link to={`${createPageUrl('PublicProfile')}?email=${post.user_email}`}>
+                        <p className="font-semibold hover:text-pink-500 transition-colors cursor-pointer">{post.user_name}</p>
+                      </Link>
                       <p className="text-sm text-gray-500">
                         {format(new Date(post.created_date), 'MMM d, yyyy')}
                       </p>
