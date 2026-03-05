@@ -30,9 +30,6 @@ export default function Home() {
 
   useEffect(() => {
     setShowDnsPopup(true);
-  }, []);
-
-  useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
