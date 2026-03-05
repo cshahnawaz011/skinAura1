@@ -274,19 +274,19 @@ export default function Home() {
       </div>
 
       {/* Stats Banner */}
-      <GlassCard className="mt-8">
-        <div className="grid grid-cols-3 gap-4 text-center">
+      <GlassCard className="!p-4">
+        <div className="grid grid-cols-3 gap-2 text-center">
           <div>
-            <p className="text-3xl font-bold gold-shimmer">10+</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{tr('aiFeatures')}</p>
+            <p className="text-2xl font-bold gold-shimmer">10+</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('aiFeatures')}</p>
           </div>
           <div>
-            <p className="text-3xl font-bold gold-shimmer">98%</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{tr('accuracy')}</p>
+            <p className="text-2xl font-bold gold-shimmer">98%</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('accuracy')}</p>
           </div>
           <div>
-            <p className="text-3xl font-bold gold-shimmer">24/7</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{tr('aiSupport')}</p>
+            <p className="text-2xl font-bold gold-shimmer">24/7</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('aiSupport')}</p>
           </div>
         </div>
       </GlassCard>
