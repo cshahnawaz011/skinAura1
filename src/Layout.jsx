@@ -153,15 +153,15 @@ export default function Layout({ children, currentPageName }) {
             onClick={() => setMobileMenuOpen(false)}
           >
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: '-100%' }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
+              exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-0 h-full w-72 bg-white dark:bg-gray-900"
+              className="absolute left-0 top-0 h-full w-56 bg-white dark:bg-gray-900 shadow-xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-4 pt-20 overflow-y-auto h-full">
-                <ul className="space-y-1">
+              <div className="p-3 pt-20 overflow-y-auto h-full">
+                <ul className="space-y-0.5">
                   {navItems.map((item) => {
                     const Icon = item.icon;
                     const isActive = currentPageName === item.page;
@@ -170,14 +170,14 @@ export default function Layout({ children, currentPageName }) {
                         <Link
                           to={createPageUrl(item.page)}
                           onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                          className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all ${
                             isActive
                               ? 'bg-gradient-to-r from-pink-200/50 to-amber-200/50 text-pink-600'
-                              : 'hover:bg-white/50 text-gray-600 dark:text-gray-300'
+                              : 'hover:bg-gray-100 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
                           }`}
                         >
-                          <Icon className="w-5 h-5" />
-                          <span className="font-medium">{item.name}</span>
+                          <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`} />
+                          <span className="text-sm font-medium">{item.name}</span>
                         </Link>
                       </li>
                     );
