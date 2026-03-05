@@ -114,10 +114,10 @@ export default function Home() {
           <Sparkles className="w-10 h-10 text-white" />
         </motion.div>
         <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-          Welcome to <span className="gold-shimmer">GlowAI</span>
+          {tr('welcomeTo')} <span className="gold-shimmer">GlowAI</span>
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-          Your personal AI-powered skincare companion. Analyze, track, and transform your skin with science-backed recommendations.
+          {tr('homeSubtitle')}
         </p>
         
 
