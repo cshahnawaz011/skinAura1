@@ -123,7 +123,7 @@ export default function Layout({ children, currentPageName }) {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-0 h-full w-72 glass"
+              className="absolute right-0 top-0 h-full w-72 bg-white dark:bg-gray-900"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 pt-20">
