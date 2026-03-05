@@ -75,17 +75,17 @@ export default function Home() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Enable Secure DNS</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">{tr('enableSecureDNS')}</h2>
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
-              For smooth app performance, please enable Google Private DNS.
+              {tr('dnsDescription')}
             </p>
             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-sm space-y-2 mb-5">
-              <p className="font-semibold text-gray-700 dark:text-gray-200">Go to:</p>
+              <p className="font-semibold text-gray-700 dark:text-gray-200">{tr('goTo')}</p>
               <p className="text-gray-600 dark:text-gray-300">
-                <span className="font-medium">Settings</span> → <span className="font-medium">Network &amp; Internet</span> → <span className="font-medium">Private DNS</span>
+                <span className="font-medium">{tr('settings')}</span> → <span className="font-medium">{tr('networkInternet')}</span> → <span className="font-medium">{tr('privateDNS')}</span>
               </p>
-              <p className="text-gray-600 dark:text-gray-300">Enter:</p>
+              <p className="text-gray-600 dark:text-gray-300">{tr('enter')}</p>
               <p className="font-mono bg-white dark:bg-gray-700 rounded-lg px-3 py-2 text-blue-600 dark:text-blue-400 font-semibold tracking-wide select-all">
                 dns.google
               </p>
