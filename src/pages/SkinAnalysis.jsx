@@ -187,13 +187,18 @@ export default function SkinAnalysis() {
   useEffect(() => {
     if (cooldownLeft <= 0) return;
     const interval = setInterval(() => {
-      setCooldownLeft(prev => {
-        if (prev <= 1) { clearInterval(interval); return 0; }
-        return prev - 1;
-      });
+      setCooldownLeft(prev => { if (prev <= 1) { clearInterval(interval); return 0; } return prev - 1; });
     }, 1000);
     return () => clearInterval(interval);
   }, [cooldownLeft]);
+
+  useEffect(() => {
+    if (uploadCooldown <= 0) return;
+    const t = setInterval(() => {
+      setUploadCooldown(prev => { if (prev <= 1) { clearInterval(t); return 0; } return prev - 1; });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [uploadCooldown]);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});

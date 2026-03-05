@@ -73,6 +73,14 @@ export default function MakeupTryOn() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (uploadCooldown <= 0) return;
+    const t = setInterval(() => {
+      setUploadCooldown(prev => { if (prev <= 1) { clearInterval(t); return 0; } return prev - 1; });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [uploadCooldown]);
+
   const { data: savedLooks = [] } = useQuery({
     queryKey: ['savedLooks', user?.email],
     queryFn: () => base44.entities.SavedMakeupLook.filter({ user_email: user.email }),
