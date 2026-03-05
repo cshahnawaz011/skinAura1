@@ -31,6 +31,9 @@ function StatPill({ icon: Icon, label, value, color }) {
   );
 }
 
+const CACHE_KEY = 'glowai_weather_cache';
+const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
 export default function WeatherAdvisor({ skinAnalysis }) {
   const [weather, setWeather] = useState(null);
   const [advice, setAdvice] = useState(null);
@@ -40,8 +43,34 @@ export default function WeatherAdvisor({ skinAnalysis }) {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [manualCity, setManualCity] = useState('');
   const [showCityInput, setShowCityInput] = useState(false);
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1000) { clearInterval(interval); return 0; }
+        return prev - 1000;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownLeft]);
 
   useEffect(() => {
+    // Load from cache on mount
+    try {
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
+        setWeather(cached.weather);
+        setAdvice(cached.advice);
+        setLocationName(cached.locationName);
+        setLastUpdated(new Date(cached.timestamp));
+        const remaining = CACHE_DURATION_MS - (Date.now() - cached.timestamp);
+        setCooldownLeft(remaining);
+        return;
+      }
+    } catch {}
     fetchWeatherAndAdvice();
   }, []);
 
