@@ -214,8 +214,9 @@ Examples of good insights (use their real data, not these examples):
               <p className="text-xs text-gray-400">Health Score</p>
             </div>
           )}
-          <Button variant="ghost" size="icon" onClick={generateInsights} disabled={loading}>
+          <Button variant="ghost" size="sm" onClick={generateInsights} disabled={loading || cooldownLeft > 0} className="flex items-center gap-1">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {cooldownLeft > 0 && <span className="text-xs text-gray-400">{Math.floor(cooldownLeft/60)}:{String(cooldownLeft%60).padStart(2,'0')}</span>}
           </Button>
         </div>
       </div>
