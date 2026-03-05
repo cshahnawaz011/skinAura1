@@ -150,79 +150,97 @@ Provide a comprehensive clinical comparison including:
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-3xl font-bold flex items-center gap-3">
-          <GitCompare className="w-8 h-8 text-pink-500" />
-          Product Comparison
+          <Sparkles className="w-8 h-8 text-purple-500" />
+          AI Product Comparison
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">
-          Side-by-side breakdown to make the best purchase decision
+          Search any skincare products and get deep AI-powered insights
         </p>
       </div>
 
-      {/* Product Selectors */}
+      {/* AI-Powered Search */}
       <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-end">
         <GlassCard>
-          <h3 className="font-semibold mb-3 text-pink-500">Product A</h3>
-          <Select onValueChange={(val) => setProductA(displayProducts.find(p => p.id === val))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select first product..." />
-            </SelectTrigger>
-            <SelectContent>
-              {displayProducts.map(p => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.product_name} — {p.category?.replace('_', ' ')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <h3 className="font-semibold mb-3 text-pink-500 flex items-center gap-2">
+            <Search className="w-4 h-4" /> Product A
+          </h3>
+          <Input
+            placeholder="Search product name (e.g., CeraVe, Retinol...)"
+            value={searchA}
+            onChange={(e) => setSearchA(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && searchProduct(searchA, setProductA, setLoadingA)}
+            className="mb-2"
+          />
+          <Button
+            onClick={() => searchProduct(searchA, setProductA, setLoadingA)}
+            disabled={!searchA.trim() || loadingA}
+            variant="outline"
+            className="w-full text-xs h-9"
+          >
+            {loadingA ? <><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Searching...</> : 'Search'}
+          </Button>
           {productA && (
-            <div className="mt-3 space-y-1">
-              <p className="font-medium text-sm">{productA.product_name}</p>
+            <div className="mt-4 p-3 bg-gradient-to-br from-pink-50 to-pink-100/50 dark:from-pink-900/20 dark:to-pink-900/10 rounded-lg space-y-2 border border-pink-200/50 dark:border-pink-700/30">
+              <p className="font-semibold text-sm text-pink-700 dark:text-pink-300">{productA.product_name}</p>
               <div className="flex flex-wrap gap-1">
-                {productA.key_ingredients?.slice(0, 3).map((ing, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
+                {productA.key_ingredients?.map((ing, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs">{ing}</Badge>
                 ))}
               </div>
-              <Badge className={`text-xs mt-1 ${priceColor[productA.price_range]}`}>
-                {priceLabel[productA.price_range]} {productA.price_range}
-              </Badge>
+              <div className="flex items-center justify-between text-xs">
+                <Badge className={priceColor[productA.price_range]}>
+                  {priceLabel[productA.price_range]}
+                </Badge>
+                <span className="text-yellow-500 font-semibold">{productA.rating} ⭐</span>
+              </div>
+              <p className="text-xs text-gray-600 dark:text-gray-300 italic">{productA.benefits}</p>
             </div>
           )}
         </GlassCard>
 
-        <div className="flex items-center justify-center">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center">
-            <ArrowLeftRight className="w-5 h-5 text-white" />
+        <div className="flex items-center justify-center h-10">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center shadow-lg">
+            <ArrowLeftRight className="w-6 h-6 text-white" />
           </div>
         </div>
 
         <GlassCard>
-          <h3 className="font-semibold mb-3 text-amber-500">Product B</h3>
-          <Select onValueChange={(val) => setProductB(displayProducts.find(p => p.id === val))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select second product..." />
-            </SelectTrigger>
-            <SelectContent>
-              {displayProducts.map(p => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.product_name} — {p.category?.replace('_', ' ')}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <h3 className="font-semibold mb-3 text-amber-500 flex items-center gap-2">
+            <Search className="w-4 h-4" /> Product B
+          </h3>
+          <Input
+            placeholder="Search product name (e.g., Retinol, Niacinamide...)"
+            value={searchB}
+            onChange={(e) => setSearchB(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && searchProduct(searchB, setProductB, setLoadingB)}
+            className="mb-2"
+          />
+          <Button
+            onClick={() => searchProduct(searchB, setProductB, setLoadingB)}
+            disabled={!searchB.trim() || loadingB}
+            variant="outline"
+            className="w-full text-xs h-9"
+          >
+            {loadingB ? <><Loader2 className="w-3 h-3 mr-2 animate-spin" /> Searching...</> : 'Search'}
+          </Button>
           {productB && (
-            <div className="mt-3 space-y-1">
-              <p className="font-medium text-sm">{productB.product_name}</p>
+            <div className="mt-4 p-3 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-900/10 rounded-lg space-y-2 border border-amber-200/50 dark:border-amber-700/30">
+              <p className="font-semibold text-sm text-amber-700 dark:text-amber-300">{productB.product_name}</p>
               <div className="flex flex-wrap gap-1">
-                {productB.key_ingredients?.slice(0, 3).map((ing, i) => (
-                  <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
+                {productB.key_ingredients?.map((ing, i) => (
+                  <Badge key={i} variant="secondary" className="text-xs">{ing}</Badge>
                 ))}
               </div>
-              <Badge className={`text-xs mt-1 ${priceColor[productB.price_range]}`}>
-                {priceLabel[productB.price_range]} {productB.price_range}
-              </Badge>
+              <div className="flex items-center justify-between text-xs">
+                <Badge className={priceColor[productB.price_range]}>
+                  {priceLabel[productB.price_range]}
+                </Badge>
+                <span className="text-yellow-500 font-semibold">{productB.rating} ⭐</span>
+              </div>
+              <p className="text-xs text-gray-600 dark:text-gray-300 italic">{productB.benefits}</p>
             </div>
           )}
         </GlassCard>
