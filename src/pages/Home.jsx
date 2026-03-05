@@ -249,7 +249,6 @@ export default function Home() {
             />
           </div>
         </div>
-      )}
 
       {/* Features Grid */}
       <div>
