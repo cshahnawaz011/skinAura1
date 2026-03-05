@@ -47,10 +47,12 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import AiInsights from './pages/AiInsights';
 import Community from './pages/Community';
 import DermAI from './pages/DermAI';
 import Education from './pages/Education';
 import GamifiedTracker from './pages/GamifiedTracker';
+import GlowMap from './pages/GlowMap';
 import Home from './pages/Home';
 import Lifestyle from './pages/Lifestyle';
 import MakeupTryOn from './pages/MakeupTryOn';
@@ -58,23 +60,23 @@ import ProductComparison from './pages/ProductComparison';
 import Products from './pages/Products';
 import Profile from './pages/Profile';
 import Progress from './pages/Progress';
+import PublicProfile from './pages/PublicProfile';
 import Quiz from './pages/Quiz';
+import SkinAgePrediction from './pages/SkinAgePrediction';
 import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
 import SkinRoutine from './pages/SkinRoutine';
-import PublicProfile from './pages/PublicProfile';
-import SkinAgePrediction from './pages/SkinAgePrediction';
-import GlowMap from './pages/GlowMap';
-import AiInsights from './pages/AiInsights';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AiInsights": AiInsights,
     "Community": Community,
     "DermAI": DermAI,
     "Education": Education,
     "GamifiedTracker": GamifiedTracker,
+    "GlowMap": GlowMap,
     "Home": Home,
     "Lifestyle": Lifestyle,
     "MakeupTryOn": MakeupTryOn,
@@ -82,15 +84,13 @@ export const PAGES = {
     "Products": Products,
     "Profile": Profile,
     "Progress": Progress,
+    "PublicProfile": PublicProfile,
     "Quiz": Quiz,
+    "SkinAgePrediction": SkinAgePrediction,
     "SkinAnalysis": SkinAnalysis,
     "SkinChat": SkinChat,
     "SkinReport": SkinReport,
     "SkinRoutine": SkinRoutine,
-    "PublicProfile": PublicProfile,
-    "SkinAgePrediction": SkinAgePrediction,
-    "GlowMap": GlowMap,
-    "AiInsights": AiInsights,
 }
 
 export const pagesConfig = {

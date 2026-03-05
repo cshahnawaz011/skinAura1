@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Globe, Loader2, Sparkles, TrendingUp, Award } from 'lucide-react';
+import { MapPin, Globe, Loader2, Sparkles, TrendingUp, Award, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { checkAICooldown, recordAIUsage, getCooldownSeconds } from '@/components/utils/aiRateLimit';
 
 const CITIES = [
