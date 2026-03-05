@@ -134,7 +134,7 @@ export default function Home() {
           <GlassCard className="lg:col-span-1" delay={0.1}>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Star className="w-5 h-5 text-amber-500" />
-              Your Skin Score
+              {tr('yourSkinScore')}
             </h3>
             {analysisLoading ? (
               <div className="flex justify-center py-4">
