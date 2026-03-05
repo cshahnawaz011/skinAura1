@@ -101,7 +101,8 @@ export default function Layout({ children, currentPageName }) {
             </div>
             <span className="text-xl font-bold gold-shimmer">GlowAI</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <LanguageSelector compact />
             <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
