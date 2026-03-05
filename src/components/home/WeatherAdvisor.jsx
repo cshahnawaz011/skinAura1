@@ -293,8 +293,11 @@ Provide urgent, specific, proactive skin advice. Be direct and clinical.
         </div>
         <div className="flex items-center gap-2">
           {advice?.weather_mood && <span className="text-sm font-medium">{advice.weather_mood}</span>}
-          <Button variant="ghost" size="icon" onClick={fetchWeatherAndAdvice} disabled={loading} title="Refresh">
+          <Button variant="ghost" size="sm" onClick={fetchWeatherAndAdvice} disabled={loading || cooldownLeft > 0} title="Refresh" className="flex items-center gap-1">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {cooldownLeft > 0 && (
+              <span className="text-xs text-gray-400">{Math.ceil(cooldownLeft / 1000)}s</span>
+            )}
           </Button>
         </div>
       </div>
