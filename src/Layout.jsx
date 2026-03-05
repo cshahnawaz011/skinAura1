@@ -32,7 +32,7 @@ const NAV_KEYS = [
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { tr } = useTranslation();
+  const { tr, lang } = useTranslation();
   const navItems = NAV_KEYS.map(item => ({ ...item, name: t[lang]?.[item.key] || item.label }));
 
   useEffect(() => {
