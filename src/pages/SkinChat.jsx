@@ -25,7 +25,19 @@ export default function SkinChat() {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('skin_chat'));
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownLeft]);
   const queryClient = useQueryClient();
 
   useEffect(() => {
