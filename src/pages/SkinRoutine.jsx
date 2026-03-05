@@ -164,7 +164,19 @@ export default function SkinRoutine() {
   const [activeTab, setActiveTab] = useState('morning');
   const [generating, setGenerating] = useState(false);
   const [generatingPhase, setGeneratingPhase] = useState('');
+  const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('skin_routine'));
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownLeft]);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
