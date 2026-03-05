@@ -49,38 +49,38 @@
  */
 import Community from './pages/Community';
 import Education from './pages/Education';
+import GamifiedTracker from './pages/GamifiedTracker';
 import Home from './pages/Home';
 import Lifestyle from './pages/Lifestyle';
 import MakeupTryOn from './pages/MakeupTryOn';
+import ProductComparison from './pages/ProductComparison';
 import Products from './pages/Products';
 import Profile from './pages/Profile';
 import Progress from './pages/Progress';
 import Quiz from './pages/Quiz';
 import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
-import SkinRoutine from './pages/SkinRoutine';
-import ProductComparison from './pages/ProductComparison';
-import GamifiedTracker from './pages/GamifiedTracker';
 import SkinReport from './pages/SkinReport';
+import SkinRoutine from './pages/SkinRoutine';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Community": Community,
     "Education": Education,
+    "GamifiedTracker": GamifiedTracker,
     "Home": Home,
     "Lifestyle": Lifestyle,
     "MakeupTryOn": MakeupTryOn,
+    "ProductComparison": ProductComparison,
     "Products": Products,
     "Profile": Profile,
     "Progress": Progress,
     "Quiz": Quiz,
     "SkinAnalysis": SkinAnalysis,
     "SkinChat": SkinChat,
-    "SkinRoutine": SkinRoutine,
-    "ProductComparison": ProductComparison,
-    "GamifiedTracker": GamifiedTracker,
     "SkinReport": SkinReport,
+    "SkinRoutine": SkinRoutine,
 }
 
 export const pagesConfig = {
