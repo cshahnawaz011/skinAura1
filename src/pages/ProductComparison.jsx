@@ -30,38 +30,14 @@ export default function ProductComparison() {
   const [productB, setProductB] = useState(null);
   const [comparing, setComparing] = useState(false);
   const [comparison, setComparison] = useState(null);
-  const [allProducts, setAllProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [searchA, setSearchA] = useState('');
+  const [searchB, setSearchB] = useState('');
+  const [loadingA, setLoadingA] = useState(false);
+  const [loadingB, setLoadingB] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
-
-  const { data: savedProducts = [] } = useQuery({
-    queryKey: ['savedProducts', user?.email],
-    queryFn: () => base44.entities.SavedProduct.filter({ user_email: user.email }),
-    enabled: !!user?.email,
-    onSuccess: (data) => setAllProducts(data),
-  });
-
-  // Also load recommendations from saved products
-  useEffect(() => {
-    if (savedProducts.length > 0) setAllProducts(savedProducts);
-  }, [savedProducts]);
-
-  // Allow manual product creation for comparison
-  const [customProducts] = useState([
-    { id: 'c1', product_name: 'CeraVe Hydrating Cleanser', category: 'cleanser', key_ingredients: ['Ceramides', 'Hyaluronic Acid', 'Niacinamide'], benefits: 'Gentle, non-stripping cleanse that restores skin barrier', price_range: 'budget', rating: 4.7 },
-    { id: 'c2', product_name: 'La Roche-Posay Toleriane', category: 'cleanser', key_ingredients: ['Niacinamide', 'Ceramides', 'Thermal Spring Water'], benefits: 'Ultra-gentle formula for sensitive skin', price_range: 'mid', rating: 4.6 },
-    { id: 'c3', product_name: 'The Ordinary Niacinamide 10%', category: 'serum', key_ingredients: ['Niacinamide', 'Zinc PCA'], benefits: 'Reduces pore appearance and controls sebum', price_range: 'budget', rating: 4.5 },
-    { id: 'c4', product_name: 'Paula\'s Choice 2% BHA', category: 'toner', key_ingredients: ['Salicylic Acid', 'Green Tea Extract'], benefits: 'Exfoliates inside pores, reduces blackheads', price_range: 'mid', rating: 4.8 },
-    { id: 'c5', product_name: 'Neutrogena Hydro Boost', category: 'moisturizer', key_ingredients: ['Hyaluronic Acid', 'Glycerin', 'Dimethicone'], benefits: 'Long-lasting hydration, oil-free formula', price_range: 'budget', rating: 4.6 },
-    { id: 'c6', product_name: 'Tatcha The Water Cream', category: 'moisturizer', key_ingredients: ['Hadasei-3', 'Japanese Wild Rose', 'Leopard Lily'], benefits: 'Anti-aging hydration with Japanese botanical complex', price_range: 'premium', rating: 4.7 },
-    { id: 'c7', product_name: 'EltaMD UV Clear SPF 46', category: 'sunscreen', key_ingredients: ['Zinc Oxide', 'Niacinamide', 'Hyaluronic Acid'], benefits: 'Broad spectrum UVA/UVB protection, non-comedogenic', price_range: 'mid', rating: 4.9 },
-    { id: 'c8', product_name: 'Supergoop! Unseen SPF 40', category: 'sunscreen', key_ingredients: ['Avobenzone', 'Red Algae', 'Meadowfoam Seed Oil'], benefits: 'Invisible finish, doubles as makeup primer', price_range: 'premium', rating: 4.7 },
-  ]);
-
-  const displayProducts = [...customProducts, ...savedProducts.filter(p => !customProducts.find(c => c.product_name === p.product_name))];
 
   const runComparison = async () => {
     if (!productA || !productB) return;
