@@ -207,7 +207,7 @@ export default function Home() {
             </div>
             <Link to={createPageUrl('Lifestyle')}>
               <Button variant="outline" size="sm" className="w-full mt-4">
-                Log Today's Activity
+                {tr('logTodaysActivity')}
               </Button>
             </Link>
           </GlassCard>
