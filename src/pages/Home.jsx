@@ -26,6 +26,11 @@ const features = [
 
 export default function Home() {
   const [user, setUser] = useState(null);
+  const [showDnsPopup, setShowDnsPopup] = useState(false);
+
+  useEffect(() => {
+    setShowDnsPopup(true);
+  }, []);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
