@@ -14,6 +14,7 @@ import t from '@/components/i18n/translations';
 
 const NAV_KEYS = [
   { key: 'home', icon: Home, page: 'Home', label: 'Home' },
+  { key: 'publicProfile', icon: Users, page: 'PublicProfile', label: 'Profile', hidden: true },
   { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
   { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
   { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
