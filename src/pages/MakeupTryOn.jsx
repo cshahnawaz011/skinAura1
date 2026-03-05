@@ -171,16 +171,19 @@ export default function MakeupTryOn() {
               className="hidden"
             />
             
+            <input ref={fileInputRef} type="file" accept="image/*" capture="user" onChange={handleFileSelect} className="hidden" />
             {!previewUrl ? (
               <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-8 text-center cursor-pointer hover:border-pink-400 transition-colors"
+                onClick={() => uploadCooldown <= 0 && fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-2xl p-8 text-center transition-colors ${uploadCooldown > 0 ? 'border-gray-200 opacity-60 cursor-not-allowed' : 'border-gray-300 dark:border-gray-600 hover:border-pink-400 cursor-pointer'}`}
               >
                 <Camera className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="font-medium">Upload Your Selfie</p>
-                <p className="text-sm text-gray-500 mt-1">
-                  Clear, front-facing photo works best
-                </p>
+                {uploadCooldown > 0 ? (
+                  <p className="font-medium text-gray-400">⏳ {Math.floor(uploadCooldown / 60)}:{String(uploadCooldown % 60).padStart(2, '0')} until next upload</p>
+                ) : (
+                  <p className="font-medium">Upload Your Selfie</p>
+                )}
+                <p className="text-sm text-gray-500 mt-1">Clear, front-facing photo works best</p>
               </div>
             ) : (
               <div className="relative">
