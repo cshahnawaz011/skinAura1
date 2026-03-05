@@ -19,6 +19,16 @@ import { useTranslation } from '@/components/i18n/translations';
 export default function Home() {
   const [user, setUser] = useState(null);
   const [showDnsPopup, setShowDnsPopup] = useState(false);
+  const { tr } = useTranslation();
+
+  const features = [
+    { icon: Camera, title: tr('aiSkinAnalysis'), desc: tr('aiSkinAnalysisDesc'), page: 'SkinAnalysis', color: 'from-pink-400 to-rose-400' },
+    { icon: Sparkles, title: tr('personalizedRoutine'), desc: tr('personalizedRoutineDesc'), page: 'SkinRoutine', color: 'from-amber-400 to-orange-400' },
+    { icon: TrendingUp, title: tr('trackProgressFeature'), desc: tr('trackProgressDesc'), page: 'Progress', color: 'from-emerald-400 to-teal-400' },
+    { icon: Droplets, title: tr('productFinder'), desc: tr('productFinderDesc'), page: 'Products', color: 'from-blue-400 to-cyan-400' },
+    { icon: MessageCircle, title: tr('aiSkinCoach'), desc: tr('aiSkinCoachDesc'), page: 'SkinChat', color: 'from-violet-400 to-purple-400' },
+    { icon: Palette, title: tr('virtualMakeup'), desc: tr('virtualMakeupDesc'), page: 'MakeupTryOn', color: 'from-pink-400 to-fuchsia-400' },
+  ];
 
   useEffect(() => {
     setShowDnsPopup(true);
