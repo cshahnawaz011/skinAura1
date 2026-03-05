@@ -12,22 +12,30 @@ import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
 import t from '@/components/i18n/translations';
 
+// color groups: pink=core skin, violet=AI tools, emerald=wellness, blue=social/learn
 const NAV_KEYS = [
-  { key: 'home', icon: Home, page: 'Home', label: 'Home' },
+  { key: 'home', icon: Home, page: 'Home', label: 'Home', color: 'text-pink-500' },
   { key: 'publicProfile', icon: Users, page: 'PublicProfile', label: 'Profile', hidden: true },
-  { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
-  { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
-  { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
-  { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
-  { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
-  { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
-  { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn' },
-  { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup' },
-  { key: 'community', icon: Users, page: 'Community', label: 'Community' },
-  { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare' },
-  { key: 'tracker', icon: Trophy, page: 'GamifiedTracker', label: 'Glow Tracker' },
-  { key: 'report', icon: FileText, page: 'SkinReport', label: 'My Report' },
-  { key: 'dermAI', icon: Bot, page: 'DermAI', label: 'Dr. Glow AI' },
+  // --- Core Skin (Pink) ---
+  { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Skin Analysis', color: 'text-pink-500' },
+  { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine', color: 'text-pink-500' },
+  { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress', color: 'text-pink-500' },
+  { key: 'report', icon: FileText, page: 'SkinReport', label: 'My Report', color: 'text-pink-500' },
+  // --- AI Tools (Violet) ---
+  { key: 'dermAI', icon: Bot, page: 'DermAI', label: 'Dr. Glow AI', color: 'text-violet-500' },
+  { key: 'skinAge', icon: Clock, page: 'SkinAgePrediction', label: 'Skin Age AI', color: 'text-violet-500' },
+  { key: 'aiInsights', icon: Zap, page: 'AiInsights', label: 'AI Insights', color: 'text-violet-500' },
+  { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Skin Chat', color: 'text-violet-500' },
+  // --- Wellness (Emerald) ---
+  { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle', color: 'text-emerald-500' },
+  { key: 'tracker', icon: Trophy, page: 'GamifiedTracker', label: 'Glow Tracker', color: 'text-emerald-500' },
+  { key: 'products', icon: Droplets, page: 'Products', label: 'Products', color: 'text-emerald-500' },
+  { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare', color: 'text-emerald-500' },
+  // --- Social / Learn (Blue) ---
+  { key: 'community', icon: Users, page: 'Community', label: 'Community', color: 'text-blue-500' },
+  { key: 'glowMap', icon: Globe, page: 'GlowMap', label: 'Glow Map', color: 'text-blue-500' },
+  { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn', color: 'text-blue-500' },
+  { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup', color: 'text-blue-500' },
 ];
 
 export default function Layout({ children, currentPageName }) {
