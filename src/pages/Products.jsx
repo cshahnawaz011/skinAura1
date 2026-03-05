@@ -242,6 +242,65 @@ Overall product analysis:
         </TabsList>
       </Tabs>
 
+      {/* My Shelf Tab */}
+      {activeTab === 'shelf' && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">My Skincare Shelf</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Track the products you currently use</p>
+            </div>
+            <Button
+              onClick={() => setShowAddModal(true)}
+              className="bg-gradient-to-r from-pink-500 to-amber-500"
+            >
+              <Plus className="w-4 h-4 mr-2" />Add Product
+            </Button>
+          </div>
+
+          <ShelfInsights savedProducts={savedProducts} latestAnalysis={latestAnalysis} />
+
+          {savedProducts.length === 0 ? (
+            <GlassCard className="text-center py-12">
+              <Package className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-1">Your shelf is empty</h3>
+              <p className="text-sm text-gray-500 mb-4">Add the products you currently use to get AI insights</p>
+              <Button onClick={() => setShowAddModal(true)} className="bg-gradient-to-r from-pink-500 to-amber-500">
+                <Plus className="w-4 h-4 mr-2" />Add First Product
+              </Button>
+            </GlassCard>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {savedProducts.map((product, i) => (
+                <motion.div key={product.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                  <GlassCard className="h-full">
+                    <div className="flex items-start justify-between mb-3">
+                      <Badge className="capitalize">{product.category?.replace('_', ' ')}</Badge>
+                      <Button variant="ghost" size="icon" onClick={() => removeMutation.mutate(product.id)}>
+                        <X className="w-4 h-4 text-gray-400 hover:text-red-500" />
+                      </Button>
+                    </div>
+                    <h3 className="font-semibold text-base mb-2">{product.product_name}</h3>
+                    {product.benefits && <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{product.benefits}</p>}
+                    <div className="flex flex-wrap gap-1">
+                      {product.key_ingredients?.map((ing, j) => (
+                        <Badge key={j} variant="outline" className="text-xs">{ing}</Badge>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                      <Badge className={`text-xs capitalize ${
+                        product.price_range === 'budget' ? 'bg-emerald-100 text-emerald-700' :
+                        product.price_range === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                      }`}>{product.price_range || 'mid'}</Badge>
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* AI Recommendations Tab */}
       {activeTab === 'recommendations' && (
         <div className="space-y-6">
