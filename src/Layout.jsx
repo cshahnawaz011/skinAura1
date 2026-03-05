@@ -190,7 +190,7 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 z-50 px-2 pt-2 pb-[env(safe-area-inset-bottom,8px)] border-t border-gray-200 dark:border-gray-700">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 z-50 px-1 pt-1 pb-[env(safe-area-inset-bottom,8px)] border-t border-gray-200 dark:border-gray-700">
         <div className="flex justify-around items-center">
           {[navItems[0], navItems[1], navItems[2], navItems[3], navItems[9]].map((item) => {
             const Icon = item.icon;
@@ -199,14 +199,14 @@ export default function Layout({ children, currentPageName }) {
               <Link
                 key={item.page}
                 to={createPageUrl(item.page)}
-                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ${
+                className={`flex flex-col items-center gap-1 min-w-[56px] min-h-[56px] justify-center px-2 py-2 rounded-xl transition-all ${
                   isActive
                     ? 'text-pink-500'
                     : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
                 }`}
               >
-                <Icon className={`w-7 h-7 ${isActive ? 'scale-110' : ''} transition-transform`} />
-                <span className="text-[10px] font-medium">{item.name}</span>
+                <Icon className={`w-6 h-6 ${isActive ? 'scale-110' : ''} transition-transform`} />
+                <span className="text-[9px] font-medium leading-none">{item.name}</span>
               </Link>
             );
           })}
