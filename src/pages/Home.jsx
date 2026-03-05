@@ -103,24 +103,22 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-8 lg:py-12"
+        className="text-center py-6 lg:py-12"
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', delay: 0.2 }}
-          className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-pink-400 via-amber-300 to-emerald-300 flex items-center justify-center shadow-lg"
+          className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-400 via-amber-300 to-emerald-300 flex items-center justify-center shadow-lg"
         >
-          <Sparkles className="w-10 h-10 text-white" />
+          <Sparkles className="w-8 h-8 text-white" />
         </motion.div>
-        <h1 className="text-4xl lg:text-5xl font-bold mb-4">
+        <h1 className="text-3xl lg:text-5xl font-bold mb-2">
           Welcome
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
+        <p className="text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
           {tr('homeSubtitle')}
         </p>
-        
-
       </motion.div>
 
       {/* User Dashboard */}
