@@ -503,9 +503,9 @@ IMPORTANT RULES:
 
           {/* Actions */}
           <div className="flex gap-4">
-            <Button variant="outline" onClick={generateRoutine} disabled={generating || !latestAnalysis} className="flex-1">
+            <Button variant="outline" onClick={generateRoutine} disabled={generating || !latestAnalysis || cooldownLeft > 0} className="flex-1">
               <RefreshCw className={`w-4 h-4 mr-2 ${generating ? 'animate-spin' : ''}`} />
-              Regenerate
+              {cooldownLeft > 0 ? `${Math.floor(cooldownLeft/60)}:${String(cooldownLeft%60).padStart(2,'0')}` : 'Regenerate'}
             </Button>
             <Button variant="destructive" onClick={() => deleteMutation.mutate(currentRoutine.id)} className="px-4">
               <Trash2 className="w-4 h-4" />
