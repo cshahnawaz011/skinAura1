@@ -126,11 +126,10 @@ For each city provide:
   return (
     <div className="flex flex-col h-full">
       {/* Title Bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/20 bg-white/50 dark:bg-white/5 backdrop-blur">
+      <div className="px-4 py-3 border-b border-white/20 bg-white/50 dark:bg-white/5 backdrop-blur">
         <h1 className="text-xl font-bold flex items-center gap-2">
           <Globe className="w-6 h-6 text-teal-500" /> AI Glow Map
         </h1>
-        <span className="text-xs text-gray-500 dark:text-gray-400">worst skin scores</span>
       </div>
 
       {!cityData ? (
