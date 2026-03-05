@@ -124,29 +124,34 @@ For each city provide:
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Globe className="w-8 h-8 text-teal-500" /> AI Glow Map</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Global skin health intelligence — cities with the best & worst skin scores</p>
+    <div className="flex flex-col h-full">
+      {/* Title Bar */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/20 bg-white/50 dark:bg-white/5 backdrop-blur">
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <Globe className="w-6 h-6 text-teal-500" /> AI Glow Map
+        </h1>
+        <span className="text-xs text-gray-500 dark:text-gray-400">worst skin scores</span>
       </div>
 
       {!cityData ? (
-        <GlassCard className="text-center py-12 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
-          <Globe className="w-16 h-16 text-teal-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold mb-2">World Skin Intelligence</h3>
-          <p className="text-gray-500 mb-6 max-w-md mx-auto">AI analyses climate, pollution, diet & skincare culture across 15 major cities to generate a live global glow map.</p>
-          <Button onClick={loadMap} disabled={loading || cooldown > 0} className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-4">
-            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating Global Map...</>
-              : cooldown > 0 ? `⏳ ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, '0')}`
-              : <><Sparkles className="w-4 h-4 mr-2" /> Generate Glow Map</>}
-          </Button>
-        </GlassCard>
+        <div className="flex-1 flex items-center justify-center p-4">
+          <GlassCard className="text-center py-12 bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 max-w-md">
+            <Globe className="w-16 h-16 text-teal-500 mx-auto mb-4" />
+            <h3 className="text-xl font-bold mb-2">World Skin Intelligence</h3>
+            <p className="text-gray-500 mb-6 text-sm">AI analyses climate, pollution, diet & skincare culture across 15 major cities to generate a live global glow map.</p>
+            <Button onClick={loadMap} disabled={loading || cooldown > 0} className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-3 text-sm">
+              {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                : cooldown > 0 ? `⏳ ${Math.floor(cooldown / 60)}:${String(cooldown % 60).padStart(2, '0')}`
+                : <><Sparkles className="w-4 h-4 mr-2" /> Generate Map</>}
+            </Button>
+          </GlassCard>
+        </div>
       ) : (
-        <AnimatePresence>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            {/* Map */}
-            <GlassCard className="p-0 overflow-hidden">
-              <div className="w-full" style={{ height: '450px', position: 'relative' }}>
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 p-4">
+          {/* Map Section */}
+          <div className="flex-1 flex flex-col">
+            <GlassCard className="flex-1 p-0 overflow-hidden">
+              <div className="w-full h-full" style={{ position: 'relative', minHeight: '300px' }}>
                 <MapContainer
                   center={[20, 0]}
                   zoom={2}
@@ -187,34 +192,32 @@ For each city provide:
                   })}
                 </MapContainer>
               </div>
-              <div className="p-4 flex gap-4 flex-wrap items-center text-sm text-gray-500 border-t border-white/20">
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> High Glow (75+)</span>
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Medium (60-74)</span>
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Low (&lt;60)</span>
-                {Object.values(userCityMap).flat().length > 0 && (
-                  <span className="flex items-center gap-2 ml-auto text-violet-500 font-medium">
-                    <Users className="w-4 h-4" /> {Object.values(userCityMap).flat().length} real users mapped
-                  </span>
-                )}
-              </div>
             </GlassCard>
+            <div className="text-xs text-gray-500 mt-2 flex gap-3 flex-wrap px-1">
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> High (75+)</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Med (60-74)</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500"></span> Low (&lt;60)</span>
+            </div>
+          </div>
 
+          {/* Scrollable Right Panel */}
+          <div className="w-full lg:w-80 flex flex-col gap-4 overflow-y-auto max-h-96 lg:max-h-full lg:min-h-0">
             {/* Top 5 cities */}
-            <GlassCard>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Award className="w-5 h-5 text-amber-500" /> Top 5 Glowing Cities</h3>
-              <div className="space-y-3">
+            <GlassCard className="flex-shrink-0">
+              <h3 className="text-base font-semibold mb-3 flex items-center gap-2"><Award className="w-4 h-4 text-amber-500" /> Top 5 Glowing Cities</h3>
+              <div className="space-y-2">
                 {topCities.map((c, i) => (
-                  <div key={c.city} className="flex items-center gap-4">
-                    <span className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-white text-sm ${i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-400' : 'bg-gray-300'}`}>{i + 1}</span>
-                    <div className="flex-1">
-                      <div className="flex justify-between mb-1">
-                        <span className="font-medium">{c.city}, {c.country}</span>
-                        <span className="font-bold text-teal-600">{c.avg_glow_score}/100</span>
+                  <div key={c.city} className="flex items-start gap-3">
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-white text-xs flex-shrink-0 ${i === 0 ? 'bg-amber-500' : i === 1 ? 'bg-gray-400' : i === 2 ? 'bg-orange-400' : 'bg-gray-300'}`}>{i + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between gap-2 mb-1">
+                        <span className="font-medium text-sm">{c.city}, {c.country}</span>
+                        <span className="font-bold text-teal-600 text-sm whitespace-nowrap">{c.avg_glow_score}/100</span>
                       </div>
-                      <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
-                        <div className="h-2 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400" style={{ width: `${c.avg_glow_score}%` }} />
+                      <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full">
+                        <div className="h-1.5 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400" style={{ width: `${c.avg_glow_score}%` }} />
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">{c.fun_fact}</p>
+                      <p className="text-xs text-gray-500 mt-1 line-clamp-1">{c.fun_fact}</p>
                     </div>
                   </div>
                 ))}
@@ -222,31 +225,17 @@ For each city provide:
             </GlassCard>
 
             {/* Global Insight */}
-            <GlassCard className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
-              <div className="flex items-start gap-3">
-                <TrendingUp className="w-6 h-6 text-teal-500 flex-shrink-0 mt-0.5" />
+            <GlassCard className="flex-shrink-0 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
+              <div className="flex items-start gap-2">
+                <TrendingUp className="w-5 h-5 text-teal-500 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-semibold text-teal-700 dark:text-teal-300 mb-1">Global Skin Insight</p>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{cityData.global_insight}</p>
+                  <p className="font-semibold text-teal-700 dark:text-teal-300 mb-1 text-sm">Global Insight</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-4">{cityData.global_insight}</p>
                 </div>
               </div>
             </GlassCard>
-
-            {/* All cities grid */}
-            <GlassCard>
-              <h3 className="font-semibold mb-4 flex items-center gap-2"><MapPin className="w-5 h-5 text-teal-500" /> All Cities</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                {cityData.cities.map((c) => (
-                  <div key={c.city} className="p-3 rounded-xl border border-white/30 dark:border-white/10 text-center hover:bg-white/50 dark:hover:bg-white/5 transition-colors">
-                    <p className="font-semibold text-sm">{c.city}</p>
-                    <p className="text-2xl font-black mt-1" style={{ color: getColor(c.avg_glow_score) }}>{c.avg_glow_score}</p>
-                    <p className="text-xs text-gray-400 mt-1">{c.skin_climate}</p>
-                  </div>
-                ))}
-              </div>
-            </GlassCard>
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </div>
       )}
     </div>
   );
