@@ -51,7 +51,7 @@ export default function Layout({ children, currentPageName }) {
           </Link>
         </div>
         
-        <nav className="flex-1 p-4 overflow-y-auto">
+        <nav className="flex-1 p-4 overflow-y-auto scrollbar-thin">
           <ul className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
