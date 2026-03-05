@@ -50,9 +50,7 @@ export default function WeatherAdvisor({ skinAnalysis }) {
     setLocationError(null);
 
     if (!navigator.geolocation) {
-      setShowCityInput(true);
-      setLocationError('Geolocation not supported. Enter your city manually.');
-      setLoading(false);
+      fetchLocationByIP();
       return;
     }
 
@@ -62,12 +60,30 @@ export default function WeatherAdvisor({ skinAnalysis }) {
         await loadWeatherByCoords(latitude, longitude);
       },
       () => {
-        setShowCityInput(true);
-        setLocationError('Location access denied. Enter your city to get personalized advice.');
-        setLoading(false);
+        // GPS denied — fall back to IP geolocation
+        fetchLocationByIP();
       },
-      { timeout: 8000 }
+      { timeout: 8000, enableHighAccuracy: true }
     );
+  };
+
+  const fetchLocationByIP = async () => {
+    try {
+      const res = await fetch('https://ipapi.co/json/');
+      const data = await res.json();
+      if (data.city) {
+        setLocationName(data.city);
+        await loadWeatherByCity(data.city);
+      } else {
+        setShowCityInput(true);
+        setLocationError('Could not detect location. Enter your city manually.');
+        setLoading(false);
+      }
+    } catch {
+      setShowCityInput(true);
+      setLocationError('Could not detect location. Enter your city manually.');
+      setLoading(false);
+    }
   };
 
   const loadWeatherByCoords = async (lat, lon) => {

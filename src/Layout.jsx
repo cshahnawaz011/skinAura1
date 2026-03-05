@@ -156,7 +156,7 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* Bottom Navigation (Mobile) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass z-40 px-2 py-2 safe-area-inset-bottom">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 glass z-50 px-2 py-2 safe-area-inset-bottom border-t border-white/20">
         <div className="flex justify-around items-center">
           {[navItems[0], navItems[1], navItems[2], navItems[3], navItems[10]].map((item) => {
             const Icon = item.icon;
