@@ -180,7 +180,7 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       {/* Main Content */}
-      <main className="lg:ml-64 min-h-screen pt-[72px] lg:pt-0 pb-24 lg:pb-0">
+      <main className="lg:ml-64 min-h-screen pt-[72px] lg:pt-0 pb-[calc(72px+env(safe-area-inset-bottom,0px))] lg:pb-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPageName}
