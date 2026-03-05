@@ -101,23 +101,6 @@ export default function Layout({ children, currentPageName }) {
             <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
-            {user ? (
-              <button
-                onClick={() => base44.auth.logout()}
-                title="Sign Out"
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center shadow-md hover:scale-105 transition-transform"
-              >
-                <span className="text-white text-xs font-bold">{user.full_name?.[0]?.toUpperCase() || '?'}</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => base44.auth.redirectToLogin(window.location.href)}
-                title="Sign In"
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-amber-500 flex items-center justify-center shadow-md hover:scale-105 transition-transform"
-              >
-                <LogIn className="w-4 h-4 text-white" />
-              </button>
-            )}
             <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
