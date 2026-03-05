@@ -160,11 +160,11 @@ export default function Home() {
               </div>
             ) : (
               <div className="text-center py-6">
-                <p className="text-gray-500 dark:text-gray-400 mb-4">No analysis yet</p>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">{tr('noAnalysisYet')}</p>
                 <Link to={createPageUrl('SkinAnalysis')}>
                   <Button className="bg-gradient-to-r from-pink-500 to-amber-500">
                     <Camera className="w-4 h-4 mr-2" />
-                    Analyze Now
+                    {tr('analyzeNow')}
                   </Button>
                 </Link>
               </div>
