@@ -220,11 +220,15 @@ export default function SkinAnalysis() {
   });
 
   const handleFileSelect = (e) => {
+    const { allowed } = checkUploadCooldown('skin_analysis_photo');
+    if (!allowed) return;
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
       setAnalysisResult(null);
+      recordUploadUsage('skin_analysis_photo');
+      setUploadCooldown(2 * 60);
     }
   };
 

@@ -93,11 +93,15 @@ export default function MakeupTryOn() {
   });
 
   const handleFileSelect = (e) => {
+    const { allowed } = checkUploadCooldown('makeup_photo');
+    if (!allowed) return;
     const file = e.target.files[0];
     if (file) {
       setSelectedImage(file);
       setPreviewUrl(URL.createObjectURL(file));
       setResultImage(null);
+      recordUploadUsage('makeup_photo');
+      setUploadCooldown(2 * 60);
     }
   };
 
