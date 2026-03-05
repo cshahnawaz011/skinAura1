@@ -75,7 +75,7 @@ export default function Layout({ children, currentPageName }) {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-white/20 space-y-1">
+        <div className="p-4 border-t border-white/20">
           <Button
             variant="ghost"
             size="sm"
@@ -85,26 +85,6 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             {darkMode ? 'Light Mode' : 'Dark Mode'}
           </Button>
-          {user ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => base44.auth.logout()}
-              className="w-full justify-start gap-3 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20"
-            >
-              <LogOut className="w-5 h-5" />
-              Sign Out
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              onClick={() => base44.auth.redirectToLogin(window.location.href)}
-              className="w-full justify-start gap-3 bg-gradient-to-r from-pink-500 to-amber-500 text-white hover:from-pink-600 hover:to-amber-600"
-            >
-              <LogIn className="w-5 h-5" />
-              Sign In
-            </Button>
-          )}
         </div>
       </aside>
 
