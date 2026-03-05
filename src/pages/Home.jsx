@@ -121,23 +121,7 @@ export default function Home() {
           Your personal AI-powered skincare companion. Analyze, track, and transform your skin with science-backed recommendations.
         </p>
         
-        {!user && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-8"
-          >
-            <Button
-              size="lg"
-              onClick={() => base44.auth.redirectToLogin()}
-              className="bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all"
-            >
-              Get Started Free
-              <ArrowRight className="ml-2 w-5 h-5" />
-            </Button>
-          </motion.div>
-        )}
+
       </motion.div>
 
       {/* User Dashboard */}
