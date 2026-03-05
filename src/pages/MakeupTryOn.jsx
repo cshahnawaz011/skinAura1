@@ -163,13 +163,7 @@ export default function MakeupTryOn() {
         {/* Image Upload & Preview */}
         <div className="space-y-4">
           <GlassCard>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
+
             
             <input ref={fileInputRef} type="file" accept="image/*" capture="user" onChange={handleFileSelect} className="hidden" />
             {!previewUrl ? (
