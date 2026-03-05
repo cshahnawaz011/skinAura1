@@ -224,6 +224,8 @@ export default function SkinAnalysis() {
 
   const analyzeImage = async () => {
     if (!selectedImage) return;
+    const { allowed } = checkAICooldown('skin_analysis');
+    if (!allowed) return;
     setAnalyzing(true);
 
     const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedImage });
