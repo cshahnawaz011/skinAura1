@@ -71,23 +71,32 @@ export default function Layout({ children, currentPageName }) {
         
         <nav className="flex-1 p-4 overflow-y-auto scrollbar-thin">
           <ul className="space-y-1">
-            {navItems.map((item) => {
+            {navItems.map((item, idx) => {
               const Icon = item.icon;
               const isActive = currentPageName === item.page;
+              // Section dividers
+              const sectionBreaks = { 4: '🌸 AI Tools', 8: '🌿 Wellness', 12: '🌐 Explore' };
               return (
-                <li key={item.page}>
-                  <Link
-                    to={createPageUrl(item.page)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-pink-200/50 to-amber-200/50 dark:from-pink-900/30 dark:to-amber-900/30 text-pink-600 dark:text-pink-300 shadow-sm'
-                        : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="font-medium">{item.name}</span>
-                  </Link>
-                </li>
+                <React.Fragment key={item.page}>
+                  {sectionBreaks[idx] && (
+                    <li className="pt-3 pb-1 px-4">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">{sectionBreaks[idx]}</span>
+                    </li>
+                  )}
+                  <li>
+                    <Link
+                      to={createPageUrl(item.page)}
+                      className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                        isActive
+                          ? 'bg-white/70 dark:bg-white/10 shadow-sm font-semibold'
+                          : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`} />
+                      <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}>{item.name}</span>
+                    </Link>
+                  </li>
+                </React.Fragment>
               );
             })}
           </ul>
