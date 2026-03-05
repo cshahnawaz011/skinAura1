@@ -78,7 +78,7 @@ export default function Layout({ children, currentPageName }) {
           </ul>
         </nav>
 
-        <div className="p-4 border-t border-white/20">
+        <div className="p-4 border-t border-white/20 space-y-1">
           <Button
             variant="ghost"
             size="sm"
@@ -86,8 +86,9 @@ export default function Layout({ children, currentPageName }) {
             className="w-full justify-start gap-3"
           >
             {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            {darkMode ? 'Light Mode' : 'Dark Mode'}
+            {darkMode ? tr('lightMode') : tr('darkMode')}
           </Button>
+          <LanguageSelector />
         </div>
       </aside>
 
