@@ -180,6 +180,7 @@ export default function SkinAnalysis() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('skin_analysis'));
+  const [uploadCooldown, setUploadCooldown] = useState(getUploadCooldownSeconds('skin_analysis_photo'));
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 

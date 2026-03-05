@@ -65,6 +65,7 @@ export default function MakeupTryOn() {
   const [resultImage, setResultImage] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [lookName, setLookName] = useState('');
+  const [uploadCooldown, setUploadCooldown] = useState(getUploadCooldownSeconds('makeup_photo'));
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
