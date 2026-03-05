@@ -148,9 +148,9 @@ For each city provide:
       ) : (
         <div className="flex flex-col lg:flex-row flex-1 overflow-hidden gap-4 p-4">
           {/* Map Section */}
-          <div className="flex-1 flex flex-col">
-            <GlassCard className="flex-1 p-0 overflow-hidden">
-              <div className="w-full h-full" style={{ position: 'relative', minHeight: '300px' }}>
+          <div className="flex-1 flex flex-col min-w-0">
+            <GlassCard className="h-64 lg:h-96 p-0 overflow-hidden flex-shrink-0">
+              <div className="w-full h-full" style={{ position: 'relative' }}>
                 <MapContainer
                   center={[20, 0]}
                   zoom={2}
