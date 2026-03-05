@@ -308,8 +308,9 @@ Provide a helpful, personalized response:`,
             />
             <Button
               type="submit"
-              disabled={!input.trim() || isTyping}
+              disabled={!input.trim() || isTyping || cooldownLeft > 0}
               className="bg-gradient-to-r from-pink-500 to-amber-500"
+              title={cooldownLeft > 0 ? `Available in ${cooldownLeft}s` : ''}
             >
               {isTyping ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
