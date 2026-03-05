@@ -19,7 +19,6 @@ const navItems = [
   { name: 'Learn', icon: BookOpen, page: 'Education' },
   { name: 'Makeup', icon: Palette, page: 'MakeupTryOn' },
   { name: 'Community', icon: Users, page: 'Community' },
-  { name: 'Profile', icon: User, page: 'Profile' },
 ];
 
 export default function Layout({ children, currentPageName }) {
