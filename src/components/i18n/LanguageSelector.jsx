@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { LANGUAGES } from './translations';
-import { Globe } from 'lucide-react';
+import { Globe, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function LanguageSelector({ compact = false }) {
   const [current, setCurrent] = useState(localStorage.getItem('glowai-lang') || 'en');
@@ -14,7 +15,6 @@ export default function LanguageSelector({ compact = false }) {
     localStorage.setItem('glowai-lang', code);
     setCurrent(code);
     setOpen(false);
-    // Update dir for RTL languages
     document.documentElement.dir = lang?.dir || 'ltr';
     window.location.reload();
   };
@@ -25,11 +25,11 @@ export default function LanguageSelector({ compact = false }) {
   }, [current]);
 
   return (
-    <div className="relative">
+    <>
       <Button
         variant="ghost"
         size={compact ? 'icon' : 'sm'}
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen(true)}
         className={compact ? '' : 'gap-2 justify-start w-full'}
       >
         <Globe className="w-4 h-4" />
@@ -37,25 +37,31 @@ export default function LanguageSelector({ compact = false }) {
         {compact && <span className="text-xs">{currentLang.flag}</span>}
       </Button>
 
-      {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute bottom-full left-0 mb-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden max-h-72 overflow-y-auto">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-xs p-0 overflow-hidden rounded-2xl">
+          <DialogHeader className="px-5 pt-5 pb-3">
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Globe className="w-4 h-4 text-pink-500" />
+              Choose Language
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-72 pb-3">
             {LANGUAGES.map(lang => (
               <button
                 key={lang.code}
                 onClick={() => select(lang.code)}
-                className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                className={`w-full flex items-center gap-3 px-5 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
                   current === lang.code ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-600 dark:text-pink-300 font-semibold' : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
                 <span className="text-base">{lang.flag}</span>
-                <span>{lang.name}</span>
+                <span className="flex-1 text-left">{lang.name}</span>
+                {current === lang.code && <Check className="w-4 h-4 text-pink-500" />}
               </button>
             ))}
           </div>
-        </>
-      )}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
