@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Home, Camera, Sparkles, TrendingUp, User, MessageCircle,
+  Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
