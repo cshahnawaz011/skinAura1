@@ -39,12 +39,48 @@ export default function ProductComparison() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
+  const searchProduct = async (query, setProduct, setSetter) => {
+    if (!query.trim()) return;
+    setSetter(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Search and provide details for the skincare product: "${query}"
+        
+Provide accurate, real product information including:
+- Exact product name
+- Category (cleanser, toner, serum, moisturizer, sunscreen, etc)
+- Key active ingredients (up to 5)
+- Main benefits
+- Typical price range (budget/mid/premium)
+- Average rating (0-5 scale)
+
+If the product doesn't exist, provide information about the closest real alternative.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            product_name: { type: "string" },
+            category: { type: "string" },
+            key_ingredients: { type: "array", items: { type: "string" } },
+            benefits: { type: "string" },
+            price_range: { type: "string", enum: ["budget", "mid", "premium"] },
+            rating: { type: "number", minimum: 0, maximum: 5 }
+          }
+        }
+      });
+      setProduct(result);
+    } catch (err) {
+      console.error('Error searching product:', err);
+    } finally {
+      setSetter(false);
+    }
+  };
+
   const runComparison = async () => {
     if (!productA || !productB) return;
     setComparing(true);
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Compare these two skincare products as a dermatologist:
+      prompt: `Compare these two skincare products in detail as a dermatologist:
 
 PRODUCT A: ${productA.product_name}
 - Category: ${productA.category}
@@ -60,12 +96,14 @@ PRODUCT B: ${productB.product_name}
 - Price Range: ${productB.price_range}
 - Rating: ${productB.rating}
 
-Provide a clinical comparison including:
+Provide a comprehensive clinical comparison including:
 1. Which is better for: oily skin, dry skin, sensitive skin, acne-prone skin, anti-aging
-2. Ingredient synergies and conflicts between both
-3. Overall winner and why
-4. Best use case for each
-5. Can they be used together?`,
+2. Detailed ingredient synergies and conflicts
+3. Overall winner and reasoning
+4. Best use case for each product
+5. Can they be used together?
+6. Texture & wear profile comparison
+7. Long-term vs immediate results`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -84,7 +122,10 @@ Provide a clinical comparison including:
           ingredient_synergy: { type: "string" },
           ingredient_conflict: { type: "string" },
           verdict_a_score: { type: "number" },
-          verdict_b_score: { type: "number" }
+          verdict_b_score: { type: "number" },
+          texture_profile_a: { type: "string" },
+          texture_profile_b: { type: "string" },
+          results_timeline: { type: "string" }
         }
       }
     });
