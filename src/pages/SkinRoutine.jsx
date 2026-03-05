@@ -337,6 +337,8 @@ IMPORTANT RULES:
       priority_note: result.priority_note,
     });
 
+    recordAIUsage('skin_routine');
+    setCooldownLeft(5 * 60);
     setGenerating(false);
     setGeneratingPhase('');
   };
