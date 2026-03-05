@@ -12,16 +12,20 @@ import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
 
 const NAV_KEYS = [
-  { key: 'home', icon: Home, page: 'Home' },
-  { key: 'analyze', icon: Camera, page: 'SkinAnalysis' },
-  { key: 'routine', icon: Sparkles, page: 'SkinRoutine' },
-  { key: 'progress', icon: TrendingUp, page: 'Progress' },
-  { key: 'products', icon: Droplets, page: 'Products' },
-  { key: 'lifestyle', icon: Sun, page: 'Lifestyle' },
-  { key: 'chat', icon: MessageCircle, page: 'SkinChat' },
-  { key: 'learn', icon: BookOpen, page: 'Education' },
-  { key: 'makeup', icon: Palette, page: 'MakeupTryOn' },
-  { key: 'community', icon: Users, page: 'Community' },
+  { key: 'home', icon: Home, page: 'Home', label: 'Home' },
+  { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
+  { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
+  { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
+  { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
+  { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
+  { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
+  { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn' },
+  { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup' },
+  { key: 'community', icon: Users, page: 'Community', label: 'Community' },
+  { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare' },
+  { key: 'tracker', icon: Trophy, page: 'GamifiedTracker', label: 'Glow Tracker' },
+  { key: 'report', icon: FileText, page: 'SkinReport', label: 'My Report' },
+  { key: 'dermAI', icon: Bot, page: 'DermAI', label: 'Dr. Glow AI' },
 ];
 
 export default function Layout({ children, currentPageName }) {
