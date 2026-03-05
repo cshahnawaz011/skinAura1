@@ -249,23 +249,23 @@ export default function Home() {
 
       {/* Features Grid */}
       <div>
-        <h2 className="text-2xl font-bold mb-6 text-center">
+        <h2 className="text-xl lg:text-2xl font-bold mb-4 text-center">
           {tr('exploreFeatures')}
         </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <Link key={feature.page} to={createPageUrl(feature.page)}>
                 <GlassCard
                   delay={0.1 * index}
-                  className="h-full cursor-pointer group"
+                  className="h-full cursor-pointer group !p-4"
                 >
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-9 h-9 text-white" />
+                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="font-semibold mb-1">{feature.title}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{feature.desc}</p>
+                  <h3 className="font-semibold text-sm mb-1 leading-tight">{feature.title}</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-2">{feature.desc}</p>
                 </GlassCard>
               </Link>
             );
