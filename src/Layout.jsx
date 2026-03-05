@@ -7,6 +7,8 @@ import {
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import LanguageSelector from '@/components/i18n/LanguageSelector';
+import { useTranslation } from '@/components/i18n/translations';
 
 const navItems = [
   { name: 'Home', icon: Home, page: 'Home' },
