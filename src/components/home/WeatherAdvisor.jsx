@@ -247,8 +247,19 @@ Provide urgent, specific, proactive skin advice. Be direct and clinical.
 
     setWeather(w);
     setAdvice(result);
-    setLastUpdated(new Date());
+    const now = new Date();
+    setLastUpdated(now);
     setLoading(false);
+    setCooldownLeft(CACHE_DURATION_MS);
+    // Cache to localStorage
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({
+        weather: w,
+        advice: result,
+        locationName: w.city,
+        timestamp: now.getTime()
+      }));
+    } catch {}
   };
 
   const severityColors = {
