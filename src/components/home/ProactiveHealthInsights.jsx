@@ -81,9 +81,21 @@ export default function ProactiveHealthInsights({ skinAnalysis, dietLog, progres
   const [insights, setInsights] = useState(null);
   const [loading, setLoading] = useState(false);
   const [healthScore, setHealthScore] = useState(null);
+  const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('health_insights'));
 
   useEffect(() => {
-    if (skinAnalysis || dietLog) {
+    if (cooldownLeft <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownLeft]);
+
+  useEffect(() => {
+    if ((skinAnalysis || dietLog) && cooldownLeft === 0) {
       generateInsights();
     }
   }, [skinAnalysis?.id, dietLog?.id]);
