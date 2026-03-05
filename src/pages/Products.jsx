@@ -43,6 +43,7 @@ export default function Products() {
   const [ingredientInput, setIngredientInput] = useState('');
   const [ingredientAnalysis, setIngredientAnalysis] = useState(null);
   const [analyzingIngredients, setAnalyzingIngredients] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
