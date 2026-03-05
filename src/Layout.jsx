@@ -26,6 +26,8 @@ const NAV_KEYS = [
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { tr } = useTranslation();
+  const navItems = NAV_KEYS.map(item => ({ ...item, name: tr(item.key) }));
 
   useEffect(() => {
     const isDark = localStorage.getItem('glowai-dark') === 'true';
