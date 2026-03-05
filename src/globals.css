@@ -174,3 +174,20 @@ html {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Android / PWA safe area & touch improvements */
+* {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+button, a, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
