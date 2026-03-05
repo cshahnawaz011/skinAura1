@@ -149,7 +149,7 @@ export default function Layout({ children, currentPageName }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            className="lg:hidden fixed inset-0 bg-black/60 z-40"
             onClick={() => setMobileMenuOpen(false)}
           >
             <motion.div
@@ -157,10 +157,10 @@ export default function Layout({ children, currentPageName }) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute left-0 top-0 h-full w-56 bg-white dark:bg-gray-900 shadow-xl"
+              className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-gray-900 shadow-xl z-50"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-3 pt-20 overflow-y-auto h-full">
+              <div className="p-4 pt-20 overflow-y-auto h-full">
                 <ul className="space-y-0.5">
                   {navItems.map((item) => {
                     const Icon = item.icon;
