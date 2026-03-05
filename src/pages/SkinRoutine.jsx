@@ -523,7 +523,7 @@ IMPORTANT RULES:
           <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
             Generate an expert-level, deeply personalized routine based on your 8-point skin analysis
           </p>
-          <Button onClick={generateRoutine} disabled={generating || !latestAnalysis} className="bg-gradient-to-r from-pink-500 to-amber-500 px-8 py-6">
+          <Button onClick={generateRoutine} disabled={generating || !latestAnalysis || cooldownLeft > 0} className="bg-gradient-to-r from-pink-500 to-amber-500 px-8 py-6">
             {generating ? (
               <div className="flex flex-col items-center gap-1">
                 <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Building Routine...</span>
