@@ -302,9 +302,9 @@ Provide a helpful, personalized response:`,
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about skincare..."
+              placeholder={cooldownLeft > 0 ? `Available in ${Math.floor(cooldownLeft/60)}:${String(cooldownLeft%60).padStart(2,'0')}` : "Ask about skincare..."}
               className="flex-1"
-              disabled={isTyping}
+              disabled={isTyping || cooldownLeft > 0}
             />
             <Button
               type="submit"
