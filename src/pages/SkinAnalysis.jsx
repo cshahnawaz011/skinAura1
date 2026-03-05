@@ -411,11 +411,13 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
           {previewUrl && (
             <Button
               onClick={analyzeImage}
-              disabled={analyzing}
+              disabled={analyzing || cooldownLeft > 0}
               className="w-full mt-4 bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 py-6 text-lg"
             >
               {analyzing ? (
                 <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Deep Analyzing Your Skin...</>
+              ) : cooldownLeft > 0 ? (
+                <>⏳ Available in {Math.floor(cooldownLeft / 60)}:{String(cooldownLeft % 60).padStart(2, '0')}</>
               ) : (
                 <><Sparkles className="w-5 h-5 mr-2" /> Run Clinical AI Analysis</>
               )}
