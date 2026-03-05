@@ -147,37 +147,56 @@ For each city provide:
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
             {/* Map */}
             <GlassCard className="p-0 overflow-hidden">
-              <div style={{ height: '450px' }}>
-                <MapContainer center={[20, 0]} zoom={2} style={{ height: '100%', width: '100%', borderRadius: '1rem' }}>
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                  {cityData.cities.map((c) => (
-                    <CircleMarker
-                      key={c.city}
-                      center={[c.lat, c.lng]}
-                      radius={Math.max(8, c.avg_glow_score / 8)}
-                      fillColor={getColor(c.avg_glow_score)}
-                      color="white"
-                      weight={2}
-                      fillOpacity={0.8}
-                      eventHandlers={{ click: () => setSelected(c) }}
-                    >
-                      <Popup>
-                        <div className="text-center p-1">
-                          <p className="font-bold text-base">{c.city}</p>
-                          <p className="text-xs text-gray-500">{c.country}</p>
-                          <p className="text-2xl font-black mt-1" style={{ color: getColor(c.avg_glow_score) }}>{c.avg_glow_score}</p>
-                          <p className="text-xs font-medium">Glow Score</p>
-                          <p className="text-xs text-gray-500 mt-1">{c.top_skin_concern}</p>
-                        </div>
-                      </Popup>
-                    </CircleMarker>
-                  ))}
+              <div className="w-full" style={{ height: '450px', position: 'relative' }}>
+                <MapContainer
+                  center={[20, 0]}
+                  zoom={2}
+                  style={{ height: '100%', width: '100%' }}
+                  scrollWheelZoom={false}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
+                  {cityData.cities.map((c) => {
+                    const usersHere = userCityMap[c.city] || [];
+                    return (
+                      <CircleMarker
+                        key={c.city}
+                        center={[c.lat, c.lng]}
+                        radius={Math.max(8, c.avg_glow_score / 8)}
+                        fillColor={getColor(c.avg_glow_score)}
+                        color="white"
+                        weight={2}
+                        fillOpacity={0.85}
+                      >
+                        <Popup>
+                          <div style={{ minWidth: 160 }}>
+                            <p style={{ fontWeight: 700, fontSize: 15 }}>{c.city}, {c.country}</p>
+                            <p style={{ fontSize: 22, fontWeight: 900, color: getColor(c.avg_glow_score), margin: '4px 0 0' }}>{c.avg_glow_score}<span style={{ fontSize: 12, color: '#888' }}>/100</span></p>
+                            <p style={{ fontSize: 11, color: '#666', marginBottom: 4 }}>Avg Glow Score</p>
+                            <p style={{ fontSize: 11, color: '#888' }}>⚠️ {c.top_skin_concern}</p>
+                            <p style={{ fontSize: 11, color: '#888', marginTop: 2 }}>🌤 {c.skin_climate}</p>
+                            {usersHere.length > 0 && (
+                              <div style={{ marginTop: 8, borderTop: '1px solid #eee', paddingTop: 6 }}>
+                                <p style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed' }}>👥 {usersHere.length} GlowAI User{usersHere.length > 1 ? 's' : ''} Here</p>
+                                <p style={{ fontSize: 11, color: '#888' }}>Avg User Score: {Math.round(usersHere.reduce((s, u) => s + u.score, 0) / usersHere.length)}/100</p>
+                              </div>
+                            )}
+                            <p style={{ fontSize: 10, color: '#aaa', marginTop: 6, fontStyle: 'italic' }}>{c.fun_fact}</p>
+                          </div>
+                        </Popup>
+                      </CircleMarker>
+                    );
+                  })}
                 </MapContainer>
               </div>
-              <div className="p-4 flex gap-4 flex-wrap text-sm text-gray-500 border-t border-white/20">
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500"></span> High Glow (75+)</span>
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500"></span> Medium (60-74)</span>
-                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500"></span> Needs Attention (&lt;60)</span>
+              <div className="p-4 flex gap-4 flex-wrap items-center text-sm text-gray-500 border-t border-white/20">
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> High Glow (75+)</span>
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> Medium (60-74)</span>
+                <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-red-500 inline-block"></span> Low (&lt;60)</span>
+                {Object.values(userCityMap).flat().length > 0 && (
+                  <span className="flex items-center gap-2 ml-auto text-violet-500 font-medium">
+                    <Users className="w-4 h-4" /> {Object.values(userCityMap).flat().length} real users mapped
+                  </span>
+                )}
               </div>
             </GlassCard>
 
