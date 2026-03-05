@@ -62,7 +62,7 @@ export default function Home() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-6">
       {/* DNS Popup */}
       {showDnsPopup && (
         <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
