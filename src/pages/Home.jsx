@@ -125,8 +125,7 @@ export default function Home() {
       </motion.div>
 
       {/* User Dashboard */}
-      {user && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
           {/* Weather Skin Advisor — full width */}
           <div className="lg:col-span-3">
