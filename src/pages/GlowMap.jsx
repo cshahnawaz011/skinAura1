@@ -32,7 +32,22 @@ export default function GlowMap() {
   const [cityData, setCityData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(getCooldownSeconds('glow_map'));
-  const [selected, setSelected] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  // Fetch all users' analyses to show real user locations
+  const { data: allAnalyses = [] } = useQuery({
+    queryKey: ['allAnalysesMap'],
+    queryFn: () => base44.entities.SkinAnalysis.list('-created_date', 200),
+  });
+
+  const { data: allProfiles = [] } = useQuery({
+    queryKey: ['allProfilesMap'],
+    queryFn: () => base44.entities.UserProfile.list(),
+  });
 
   useEffect(() => {
     if (cooldown <= 0) return;
