@@ -224,6 +224,8 @@ export default function SkinRoutine() {
 
   const generateRoutine = async () => {
     if (!latestAnalysis) return;
+    const { allowed } = checkAICooldown('skin_routine');
+    if (!allowed) return;
     setGenerating(true);
 
     // Build very rich skin profile
