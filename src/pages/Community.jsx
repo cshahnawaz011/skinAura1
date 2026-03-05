@@ -331,6 +331,60 @@ export default function Community() {
         </div>
       )}
 
+      {/* Following Feed */}
+      {activeTab === 'following' && (
+        <div className="space-y-6">
+          {(() => {
+            const followingEmails = myFollows.map(f => f.following_email);
+            const followingPosts = posts.filter(p => followingEmails.includes(p.user_email));
+            return followingPosts.length === 0 ? (
+              <GlassCard className="text-center py-12">
+                <UserPlus className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold mb-2">Follow People</h3>
+                <p className="text-gray-500">Follow other users to see their posts here</p>
+              </GlassCard>
+            ) : followingPosts.map((post, i) => (
+              <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                <GlassCard>
+                  <div className="flex items-center gap-3 mb-4">
+                    <Link to={`${createPageUrl('PublicProfile')}?email=${post.user_email}`}>
+                      <Avatar className="cursor-pointer hover:opacity-80 transition-opacity">
+                        <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-400 text-white">
+                          {post.user_name?.[0]?.toUpperCase() || '?'}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
+                    <div>
+                      <Link to={`${createPageUrl('PublicProfile')}?email=${post.user_email}`}>
+                        <p className="font-semibold hover:text-pink-500 cursor-pointer">{post.user_name}</p>
+                      </Link>
+                      <p className="text-sm text-gray-500">{format(new Date(post.created_date), 'MMM d, yyyy')}</p>
+                    </div>
+                  </div>
+                  {(post.before_photo || post.after_photo) && (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {post.before_photo && <img src={post.before_photo} alt="Before" className="w-full h-48 object-cover rounded-xl" />}
+                      {post.after_photo && <img src={post.after_photo} alt="After" className="w-full h-48 object-cover rounded-xl" />}
+                    </div>
+                  )}
+                  <p className="text-gray-700 dark:text-gray-300 mb-4">{post.caption}</p>
+                  <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <button onClick={() => likeMutation.mutate(post)} className={`flex items-center gap-2 ${isLiked(post) ? 'text-pink-500' : 'text-gray-500 hover:text-pink-500'}`}>
+                      <Heart className={`w-5 h-5 ${isLiked(post) ? 'fill-current' : ''}`} />
+                      <span>{post.likes_count || 0}</span>
+                    </button>
+                    <button onClick={() => setSelectedPost(selectedPost?.id === post.id ? null : post)} className="flex items-center gap-2 text-gray-500 hover:text-blue-500">
+                      <MessageCircle className="w-5 h-5" />
+                      <span>{post.comments?.length || 0}</span>
+                    </button>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ));
+          })()}
+        </div>
+      )}
+
       {/* Leaderboard */}
       {activeTab === 'leaderboard' && (
         <GlassCard>
