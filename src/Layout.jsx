@@ -118,21 +118,26 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 glass z-50 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <Link to={createPageUrl('Home')} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
+        <div className="flex items-center">
+          {/* Left: menu + dark mode */}
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-11 h-11">
+              {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+            </Button>
+            <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="w-11 h-11">
+              {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            </Button>
+          </div>
+          {/* Center: logo */}
+          <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gold-shimmer">GlowAI</span>
+            <span className="text-xl font-bold gold-shimmer">Glow</span>
           </Link>
-          <div className="flex items-center gap-1">
+          {/* Right: language */}
+          <div className="ml-auto">
             <LanguageSelector compact />
-            <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
           </div>
         </div>
       </header>
