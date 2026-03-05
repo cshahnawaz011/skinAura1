@@ -302,14 +302,39 @@ Provide a comprehensive clinical comparison including:
               </div>
             </GlassCard>
 
+            {/* Texture & Results Timeline */}
+            {(comparison.texture_profile_a || comparison.texture_profile_b) && (
+              <GlassCard>
+                <h3 className="text-lg font-semibold mb-4">Texture & Feel</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-3 bg-pink-50 dark:bg-pink-900/20 rounded-lg border border-pink-200/50 dark:border-pink-700/30">
+                    <p className="font-semibold text-pink-700 dark:text-pink-300 text-sm mb-2">{productA?.product_name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{comparison.texture_profile_a}</p>
+                  </div>
+                  <div className="p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200/50 dark:border-amber-700/30">
+                    <p className="font-semibold text-amber-700 dark:text-amber-300 text-sm mb-2">{productB?.product_name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{comparison.texture_profile_b}</p>
+                  </div>
+                </div>
+              </GlassCard>
+            )}
+
+            {/* Results Timeline */}
+            {comparison.results_timeline && (
+              <GlassCard className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                <h3 className="font-semibold mb-3 text-purple-700 dark:text-purple-300">⏱️ Results Timeline</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300">{comparison.results_timeline}</p>
+              </GlassCard>
+            )}
+
             {/* Use Cases & Synergy */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <GlassCard>
-                <h3 className="font-semibold mb-3 text-pink-500">Best Use: {productA?.product_name}</h3>
+              <GlassCard className="bg-gradient-to-br from-pink-50 to-pink-100/50 dark:from-pink-900/20 dark:to-pink-900/10 border border-pink-200/50 dark:border-pink-700/30">
+                <h3 className="font-semibold mb-3 text-pink-700 dark:text-pink-300">💡 Best Use: {productA?.product_name}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">{comparison.best_use_a}</p>
               </GlassCard>
-              <GlassCard>
-                <h3 className="font-semibold mb-3 text-amber-500">Best Use: {productB?.product_name}</h3>
+              <GlassCard className="bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-amber-900/20 dark:to-amber-900/10 border border-amber-200/50 dark:border-amber-700/30">
+                <h3 className="font-semibold mb-3 text-amber-700 dark:text-amber-300">💡 Best Use: {productB?.product_name}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">{comparison.best_use_b}</p>
               </GlassCard>
             </div>
