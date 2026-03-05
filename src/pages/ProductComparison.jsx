@@ -3,14 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  GitCompare, Check, X, Minus, Star, Loader2, Sparkles, ChevronDown, ArrowLeftRight
+  GitCompare, Check, X, Loader2, Sparkles, ArrowLeftRight, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue
-} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 
 const priceMap = { budget: 1, mid: 2, premium: 3 };
 const priceLabel = { budget: '$', mid: '$$', premium: '$$$' };
