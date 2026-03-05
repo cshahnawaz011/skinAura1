@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Camera, Sparkles, TrendingUp, MessageCircle,
-  Palette, Sun, Users, Star, Droplets, Shield
+  Palette, Sun, Users, Star, Droplets, Shield, ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
