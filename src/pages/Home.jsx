@@ -64,6 +64,42 @@ export default function Home() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {/* DNS Popup */}
+      {showDnsPopup && (
+        <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-sm w-full p-6"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                <Shield className="w-5 h-5 text-white" />
+              </div>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">Enable Secure DNS</h2>
+            </div>
+            <p className="text-gray-600 dark:text-gray-300 text-sm mb-4">
+              For smooth app performance, please enable Google Private DNS.
+            </p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-sm space-y-2 mb-5">
+              <p className="font-semibold text-gray-700 dark:text-gray-200">Go to:</p>
+              <p className="text-gray-600 dark:text-gray-300">
+                <span className="font-medium">Settings</span> → <span className="font-medium">Network &amp; Internet</span> → <span className="font-medium">Private DNS</span>
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">Enter:</p>
+              <p className="font-mono bg-white dark:bg-gray-700 rounded-lg px-3 py-2 text-blue-600 dark:text-blue-400 font-semibold tracking-wide select-all">
+                dns.google
+              </p>
+            </div>
+            <Button
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
+              onClick={() => setShowDnsPopup(false)}
+            >
+              Got it!
+            </Button>
+          </motion.div>
+        </div>
+      )}
       {/* Hero Section */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
