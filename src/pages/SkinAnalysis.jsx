@@ -179,8 +179,20 @@ export default function SkinAnalysis() {
   const [analysisResult, setAnalysisResult] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('skin_analysis'));
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1) { clearInterval(interval); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownLeft]);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
