@@ -59,6 +59,9 @@ import Quiz from './pages/Quiz';
 import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinRoutine from './pages/SkinRoutine';
+import ProductComparison from './pages/ProductComparison';
+import GamifiedTracker from './pages/GamifiedTracker';
+import SkinReport from './pages/SkinReport';
 import __Layout from './Layout.jsx';
 
 
@@ -75,6 +78,9 @@ export const PAGES = {
     "SkinAnalysis": SkinAnalysis,
     "SkinChat": SkinChat,
     "SkinRoutine": SkinRoutine,
+    "ProductComparison": ProductComparison,
+    "GamifiedTracker": GamifiedTracker,
+    "SkinReport": SkinReport,
 }
 
 export const pagesConfig = {
