@@ -115,6 +115,8 @@ User's skin profile:
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
+    const { allowed } = checkAICooldown('skin_chat');
+    if (!allowed) return;
 
     const userMessage = {
       role: 'user',
