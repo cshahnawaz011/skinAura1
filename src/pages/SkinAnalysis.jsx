@@ -382,12 +382,13 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
       {!analysisResult && (
         <GlassCard>
           <div
-            onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
-              previewUrl ? 'border-pink-300 bg-pink-50/50 dark:bg-pink-900/10' : 'border-gray-300 dark:border-gray-600 hover:border-pink-400'
+            onClick={() => uploadCooldown <= 0 && fileInputRef.current?.click()}
+            className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all ${
+              uploadCooldown > 0 ? 'border-gray-200 bg-gray-50 dark:bg-gray-800/30 cursor-not-allowed opacity-60' :
+              previewUrl ? 'border-pink-300 bg-pink-50/50 dark:bg-pink-900/10 cursor-pointer' : 'border-gray-300 dark:border-gray-600 hover:border-pink-400 cursor-pointer'
             }`}
           >
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+            <input ref={fileInputRef} type="file" accept="image/*" capture="user" onChange={handleFileSelect} className="hidden" />
             {previewUrl ? (
               <div className="relative inline-block">
                 <img src={previewUrl} alt="Preview" className="max-h-64 rounded-xl shadow-lg" />
@@ -400,13 +401,17 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center">
-                  <Camera className="w-8 h-8 text-white" />
-                </div>
-                <div>
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center">
+                <Camera className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                {uploadCooldown > 0 ? (
+                  <p className="font-medium text-lg text-gray-400">⏳ Upload available in {Math.floor(uploadCooldown / 60)}:{String(uploadCooldown % 60).padStart(2, '0')}</p>
+                ) : (
                   <p className="font-medium text-lg">Upload Your Selfie</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Take a clear, well-lit photo without makeup</p>
-                </div>
+                )}
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Take a clear, well-lit photo without makeup</p>
+              </div>
                 <div className="flex items-center justify-center gap-4 text-sm text-gray-400 flex-wrap">
                   {['Good lighting', 'No makeup', 'Front facing', 'Clean skin'].map(tip => (
                     <span key={tip} className="flex items-center gap-1">
