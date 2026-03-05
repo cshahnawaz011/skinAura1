@@ -249,63 +249,14 @@ Provide a comprehensive clinical comparison including:
       <Button
         onClick={runComparison}
         disabled={!productA || !productB || comparing}
-        className="w-full bg-gradient-to-r from-pink-500 to-amber-500 text-white h-12 text-base"
+        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white h-12 text-base font-semibold"
       >
         {comparing ? (
-          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Comparing Products...</>
+          <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Deep Analyzing...</>
         ) : (
-          <><GitCompare className="w-5 h-5 mr-2" /> Compare Products</>
+          <><Sparkles className="w-5 h-5 mr-2" /> Compare with AI Insights</>
         )}
       </Button>
-
-      {/* Side-by-Side Comparison */}
-      <AnimatePresence>
-        {productA && productB && !comparing && (
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-            <GlassCard>
-              <h3 className="text-lg font-semibold mb-4">Side-by-Side Breakdown</h3>
-              <div className="grid grid-cols-[1fr_auto_1fr] gap-2 mb-2">
-                <p className="font-semibold text-pink-500 text-sm">{productA.product_name}</p>
-                <div />
-                <p className="font-semibold text-amber-500 text-sm text-right">{productB.product_name}</p>
-              </div>
-              <CompareRow
-                label="Category"
-                a={productA.category?.replace('_', ' ')}
-                b={productB.category?.replace('_', ' ')}
-              />
-              <CompareRow
-                label="Price"
-                a={`${priceLabel[productA.price_range]} ${productA.price_range}`}
-                b={`${priceLabel[productB.price_range]} ${productB.price_range}`}
-                winner={priceMap[productA.price_range] <= priceMap[productB.price_range] ? 'a' : 'b'}
-              />
-              <CompareRow
-                label="Rating"
-                a={`${productA.rating || 'N/A'} ⭐`}
-                b={`${productB.rating || 'N/A'} ⭐`}
-                winner={(productA.rating || 0) >= (productB.rating || 0) ? 'a' : 'b'}
-              />
-              <div className="py-3 border-b border-gray-100 dark:border-gray-700">
-                <p className="text-xs text-gray-400 font-medium text-center mb-2">Key Ingredients</p>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-wrap gap-1">
-                    {productA.key_ingredients?.map((ing, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
-                    ))}
-                  </div>
-                  <div className="flex flex-wrap gap-1 justify-end">
-                    {productB.key_ingredients?.map((ing, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">{ing}</Badge>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              <CompareRow label="Benefits" a={productA.benefits} b={productB.benefits} />
-            </GlassCard>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* AI Analysis Results */}
       <AnimatePresence>
