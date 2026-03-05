@@ -72,25 +72,7 @@ export default function Profile() {
     return badges;
   };
 
-  if (!user) {
-    return (
-      <div className="max-w-4xl mx-auto">
-        <GlassCard className="text-center py-12">
-          <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Your Profile</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Sign in to view your profile and track your skin journey
-          </p>
-          <Button
-            onClick={() => base44.auth.redirectToLogin()}
-            className="bg-gradient-to-r from-pink-500 to-amber-500"
-          >
-            Sign In
-          </Button>
-        </GlassCard>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
