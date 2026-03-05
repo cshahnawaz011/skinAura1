@@ -69,11 +69,24 @@ export default function WeatherAdvisor({ skinAnalysis }) {
 
   const fetchLocationByIP = async () => {
     try {
-      const res = await fetch('https://ipapi.co/json/');
-      const data = await res.json();
-      if (data.city) {
-        setLocationName(data.city);
-        await loadWeatherByCity(data.city);
+      // Try multiple IP geolocation APIs for better accuracy
+      let city = null;
+
+      try {
+        const res = await fetch('https://ip-api.com/json/?fields=city,regionName,country');
+        const data = await res.json();
+        if (data.city) city = data.city;
+      } catch {}
+
+      if (!city) {
+        const res2 = await fetch('https://ipwho.is/');
+        const data2 = await res2.json();
+        if (data2.city) city = data2.city;
+      }
+
+      if (city) {
+        setLocationName(city);
+        await loadWeatherByCity(city);
       } else {
         setShowCityInput(true);
         setLocationError('Could not detect location. Enter your city manually.');
