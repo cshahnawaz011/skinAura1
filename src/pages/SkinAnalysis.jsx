@@ -293,6 +293,8 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
     });
 
     setAnalysisResult({ ...result, photo_url: file_url });
+    recordAIUsage('skin_analysis');
+    setCooldownLeft(5 * 60);
     setAnalyzing(false);
   };
 
