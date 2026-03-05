@@ -263,8 +263,8 @@ export default function Home() {
                   delay={0.1 * index}
                   className="h-full cursor-pointer group"
                 >
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-6 h-6 text-white" />
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-9 h-9 text-white" />
                   </div>
                   <h3 className="font-semibold mb-1">{feature.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{feature.desc}</p>
