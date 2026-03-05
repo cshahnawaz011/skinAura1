@@ -1,4 +1,27 @@
 const COOLDOWN_MS = 5 * 60 * 1000; // 5 minutes
+const UPLOAD_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+
+export function checkUploadCooldown(key) {
+  try {
+    const lastUsed = parseInt(localStorage.getItem(`upload_cooldown_${key}`) || '0');
+    const elapsed = Date.now() - lastUsed;
+    if (elapsed < UPLOAD_COOLDOWN_MS) {
+      return { allowed: false, remainingMs: UPLOAD_COOLDOWN_MS - elapsed };
+    }
+  } catch {}
+  return { allowed: true, remainingMs: 0 };
+}
+
+export function recordUploadUsage(key) {
+  try {
+    localStorage.setItem(`upload_cooldown_${key}`, Date.now().toString());
+  } catch {}
+}
+
+export function getUploadCooldownSeconds(key) {
+  const { remainingMs } = checkUploadCooldown(key);
+  return Math.ceil(remainingMs / 1000);
+}
 
 /**
  * Check if an AI action is allowed (not in cooldown).
