@@ -25,13 +25,11 @@ const navItems = [
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const isDark = localStorage.getItem('glowai-dark') === 'true';
     setDarkMode(isDark);
     if (isDark) document.documentElement.classList.add('dark');
-    base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
   const toggleDarkMode = () => {
