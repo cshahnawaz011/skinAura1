@@ -153,6 +153,8 @@ Provide a helpful, personalized response:`,
     const updatedMessages = [...newMessages, assistantMessage];
     setMessages(updatedMessages);
     setIsTyping(false);
+    recordAIUsage('skin_chat');
+    setCooldownLeft(5 * 60);
 
     if (user) {
       saveMutation.mutate(updatedMessages);
