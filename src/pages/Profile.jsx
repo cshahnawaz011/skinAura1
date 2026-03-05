@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import {
-  User, Camera, Sparkles, TrendingUp, Calendar, Settings,
-  LogOut, Award, Target, ChevronRight, Edit2, Bell
+  User, Camera, Sparkles, TrendingUp, Calendar,
+  Award, Target, ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
