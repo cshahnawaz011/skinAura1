@@ -146,7 +146,7 @@ export default function Home() {
                   value={latestAnalysis.overall_score || 0}
                   size={140}
                   strokeWidth={12}
-                  label="out of 100"
+                  label={tr('outOf')}
                   color="pink"
                 />
                 <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
