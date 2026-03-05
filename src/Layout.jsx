@@ -10,6 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
+import t from '@/components/i18n/translations';
 
 const NAV_KEYS = [
   { key: 'home', icon: Home, page: 'Home', label: 'Home' },
