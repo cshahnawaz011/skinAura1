@@ -150,11 +150,11 @@ export default function Home() {
                   color="pink"
                 />
                 <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                  Skin Type: <span className="font-medium capitalize">{latestAnalysis.skin_type}</span>
+                  {tr('skinType')}: <span className="font-medium capitalize">{latestAnalysis.skin_type}</span>
                 </p>
                 <Link to={createPageUrl('Progress')}>
                   <Button variant="ghost" size="sm" className="mt-2 text-pink-500">
-                    View Progress <ArrowRight className="w-4 h-4 ml-1" />
+                    {tr('viewProgress')} <ArrowRight className="w-4 h-4 ml-1" />
                   </Button>
                 </Link>
               </div>
