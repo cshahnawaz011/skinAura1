@@ -36,6 +36,7 @@ export default function Home() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
+
   const { data: latestAnalysis, isLoading: analysisLoading } = useQuery({
     queryKey: ['latestAnalysis', user?.email],
     queryFn: async () => {
