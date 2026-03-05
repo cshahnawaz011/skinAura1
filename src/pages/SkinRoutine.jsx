@@ -529,6 +529,8 @@ IMPORTANT RULES:
                 <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Building Routine...</span>
                 {generatingPhase && <span className="text-xs opacity-80">{generatingPhase}</span>}
               </div>
+            ) : cooldownLeft > 0 ? (
+              <>⏳ Available in {Math.floor(cooldownLeft/60)}:{String(cooldownLeft%60).padStart(2,'0')}</>
             ) : (
               <><Sparkles className="w-4 h-4 mr-2" /> Generate Advanced {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Routine</>
             )}
