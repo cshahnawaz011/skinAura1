@@ -222,8 +222,13 @@ Overall product analysis:
     return true;
   });
 
+  const handleAddProduct = (product) => {
+    saveMutation.mutate(product);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      <AddProductModal open={showAddModal} onClose={() => setShowAddModal(false)} onSave={handleAddProduct} />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Product Finder</h1>
