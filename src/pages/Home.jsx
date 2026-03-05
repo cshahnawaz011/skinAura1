@@ -14,15 +14,7 @@ import CircularProgress from '@/components/ui/CircularProgress';
 import SkeletonCard from '@/components/ui/SkeletonCard';
 import WeatherAdvisor from '@/components/home/WeatherAdvisor';
 import ProactiveHealthInsights from '@/components/home/ProactiveHealthInsights';
-
-const features = [
-  { icon: Camera, title: 'AI Skin Analysis', desc: 'Get detailed insights about your skin', page: 'SkinAnalysis', color: 'from-pink-400 to-rose-400' },
-  { icon: Sparkles, title: 'Personalized Routine', desc: 'Morning & night skincare routines', page: 'SkinRoutine', color: 'from-amber-400 to-orange-400' },
-  { icon: TrendingUp, title: 'Track Progress', desc: 'See your skin transformation', page: 'Progress', color: 'from-emerald-400 to-teal-400' },
-  { icon: Droplets, title: 'Product Finder', desc: 'Find perfect products for you', page: 'Products', color: 'from-blue-400 to-cyan-400' },
-  { icon: MessageCircle, title: 'AI Skin Coach', desc: 'Ask anything about skincare', page: 'SkinChat', color: 'from-violet-400 to-purple-400' },
-  { icon: Palette, title: 'Virtual Makeup', desc: 'Try on makeup looks', page: 'MakeupTryOn', color: 'from-pink-400 to-fuchsia-400' },
-];
+import { useTranslation } from '@/components/i18n/translations';
 
 export default function Home() {
   const [user, setUser] = useState(null);
