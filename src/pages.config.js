@@ -58,7 +58,6 @@ import Lifestyle from './pages/Lifestyle';
 import MakeupTryOn from './pages/MakeupTryOn';
 import ProductComparison from './pages/ProductComparison';
 import Products from './pages/Products';
-import Profile from './pages/Profile';
 import Progress from './pages/Progress';
 import PublicProfile from './pages/PublicProfile';
 import Quiz from './pages/Quiz';
@@ -83,7 +82,6 @@ export const PAGES = {
     "MakeupTryOn": MakeupTryOn,
     "ProductComparison": ProductComparison,
     "Products": Products,
-    "Profile": Profile,
     "Progress": Progress,
     "PublicProfile": PublicProfile,
     "Quiz": Quiz,
