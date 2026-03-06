@@ -80,7 +80,7 @@ export default function Progress() {
       setUploadData({ photo: null, notes: '' });
       setPreviewUrl(null);
       recordUploadUsage('progress_photo');
-      setUploadCooldown(2 * 60);
+      setUploadCooldown(3 * 60);
       if (progressPhotos.length > 0) {
         const firstScore = progressPhotos[progressPhotos.length - 1]?.skin_score || 0;
         const latestScore = analyses[analyses.length - 1]?.overall_score || 0;
@@ -141,7 +141,7 @@ Give a structured, personalized progress analysis.`,
 
     setAiInsight(result);
     recordAIUsage('progress_ai');
-    setAiCooldown(5 * 60);
+    setAiCooldown(3 * 60);
     setAnalyzingProgress(false);
   };
 

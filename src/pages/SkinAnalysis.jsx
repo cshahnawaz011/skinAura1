@@ -230,7 +230,7 @@ export default function SkinAnalysis() {
       setPreviewUrl(URL.createObjectURL(file));
       setAnalysisResult(null);
       recordUploadUsage('skin_analysis_photo');
-      setUploadCooldown(2 * 60);
+      setUploadCooldown(3 * 60);
     }
   };
 
@@ -306,7 +306,7 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
 
     setAnalysisResult({ ...result, photo_url: file_url });
     recordAIUsage('skin_analysis');
-    setCooldownLeft(5 * 60);
+    setCooldownLeft(3 * 60);
     setAnalyzing(false);
   };
 
