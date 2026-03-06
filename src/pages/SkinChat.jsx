@@ -154,7 +154,7 @@ Provide a helpful, personalized response:`,
     setMessages(updatedMessages);
     setIsTyping(false);
     recordAIUsage('skin_chat');
-    setCooldownLeft(5 * 60);
+    setCooldownLeft(3 * 60);
 
     if (user) {
       saveMutation.mutate(updatedMessages);

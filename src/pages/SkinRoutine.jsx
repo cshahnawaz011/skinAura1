@@ -339,7 +339,7 @@ IMPORTANT RULES:
     });
 
     recordAIUsage('skin_routine');
-    setCooldownLeft(5 * 60);
+    setCooldownLeft(3 * 60);
     setGenerating(false);
     setGeneratingPhase('');
   };
