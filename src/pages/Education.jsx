@@ -61,6 +61,7 @@ export default function Education() {
   const [dailyTip, setDailyTip] = useState(null);
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [openArticle, setOpenArticle] = useState(null);
 
   useEffect(() => {
     generateDailyTip();
