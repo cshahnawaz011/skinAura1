@@ -139,14 +139,15 @@ export default function Community() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold">Community</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Community</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Share your skin health & glow score</p>
         </div>
-        <Button onClick={openShareModal} className="bg-gradient-to-r from-pink-500 to-amber-500">
-          <Sparkles className="w-4 h-4 mr-2" />
-          Share My Skin Insights
+        <Button onClick={openShareModal} className="bg-gradient-to-r from-pink-500 to-amber-500 flex-shrink-0">
+          <Sparkles className="w-4 h-4 mr-1 sm:mr-2" />
+          <span className="hidden sm:inline">Share My Skin Insights</span>
+          <span className="sm:hidden">Share</span>
         </Button>
       </div>
 
