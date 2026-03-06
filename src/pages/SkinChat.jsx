@@ -179,7 +179,7 @@ Provide a helpful, personalized response:`,
   };
 
   return (
-    <div className="max-w-4xl mx-auto h-[calc(100vh-8rem)] flex flex-col">
+    <div className="max-w-4xl mx-auto h-[calc(100vh-10rem)] lg:h-[calc(100vh-8rem)] flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
