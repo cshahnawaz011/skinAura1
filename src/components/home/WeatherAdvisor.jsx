@@ -32,7 +32,7 @@ function StatPill({ icon: Icon, label, value, color }) {
 }
 
 const CACHE_KEY = 'glowai_weather_cache';
-const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const CACHE_DURATION_MS = 3 * 60 * 1000; // 3 minutes
 
 export default function WeatherAdvisor({ skinAnalysis }) {
   const [weather, setWeather] = useState(null);
