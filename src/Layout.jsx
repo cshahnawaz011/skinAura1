@@ -185,7 +185,7 @@ export default function Layout({ children, currentPageName }) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute left-0 top-0 h-full w-72 bg-white dark:bg-gray-900 shadow-xl z-50"
+              className="absolute left-0 top-0 h-full w-[75vw] max-w-xs bg-white dark:bg-gray-900 shadow-xl z-50"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 pt-20 overflow-y-auto h-full scrollbar-thin" style={{overflowY: 'auto', maxHeight: '100%'}}>
