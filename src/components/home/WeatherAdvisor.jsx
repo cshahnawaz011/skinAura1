@@ -71,7 +71,6 @@ export default function WeatherAdvisor({ skinAnalysis }) {
         return;
       }
     } catch {}
-    fetchWeatherAndAdvice();
   }, []);
 
   const fetchWeatherAndAdvice = () => {

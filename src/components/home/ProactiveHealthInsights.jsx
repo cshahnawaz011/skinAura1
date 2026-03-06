@@ -94,11 +94,7 @@ export default function ProactiveHealthInsights({ skinAnalysis, dietLog, progres
     return () => clearInterval(interval);
   }, [cooldownLeft]);
 
-  useEffect(() => {
-    if ((skinAnalysis || dietLog) && cooldownLeft === 0) {
-      generateInsights();
-    }
-  }, [skinAnalysis?.id, dietLog?.id]);
+
 
   const generateInsights = async () => {
     const { allowed } = checkAICooldown('health_insights');
