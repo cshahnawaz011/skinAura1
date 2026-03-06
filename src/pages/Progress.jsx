@@ -14,6 +14,7 @@ import Confetti from '@/components/ui/Confetti';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { checkAICooldown, recordAIUsage, getCooldownSeconds, checkUploadCooldown, recordUploadUsage, getUploadCooldownSeconds } from '@/components/utils/aiRateLimit';
+import GlowShareCard from '@/components/share/GlowShareCard';
 
 export default function Progress() {
   const [user, setUser] = useState(null);
