@@ -414,30 +414,30 @@ export default function GamifiedTracker() {
           </div>
         )}
 
-        <div className="flex flex-wrap gap-3 mt-4">
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-4 py-2">
-            <Flame className="w-5 h-5 text-orange-500" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-3 py-2">
+            <Flame className="w-5 h-5 text-orange-500 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold">{currentStreak}</p>
               <p className="text-xs text-gray-500">Day Streak</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-4 py-2">
-            <Zap className="w-5 h-5 text-amber-500" />
+          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-3 py-2">
+            <Zap className="w-5 h-5 text-amber-500 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold">+{todayXP}</p>
               <p className="text-xs text-gray-500">Today's XP</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-4 py-2">
-            <Award className="w-5 h-5 text-violet-500" />
+          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-3 py-2">
+            <Award className="w-5 h-5 text-violet-500 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold">{earnedBadgeIds.length}<span className="text-xs text-gray-400">/{BADGES.length}</span></p>
               <p className="text-xs text-gray-500">Badges</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-4 py-2">
-            <Star className="w-5 h-5 text-pink-500" />
+          <div className="flex items-center gap-2 bg-white/50 dark:bg-white/10 rounded-xl px-3 py-2">
+            <Star className="w-5 h-5 text-pink-500 flex-shrink-0" />
             <div>
               <p className="text-lg font-bold">Lv.{currentLevel.level}<span className="text-xs text-gray-400">/50</span></p>
               <p className="text-xs text-gray-500">Level</p>
