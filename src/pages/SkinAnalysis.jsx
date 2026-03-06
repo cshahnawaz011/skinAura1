@@ -348,11 +348,16 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
           <h1 className="text-2xl sm:text-3xl font-bold">AI Skin Analysis</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm sm:text-base">Clinical-grade skin assessment with deep insights</p>
         </div>
-        {user && pastAnalyses.length > 0 && (
-          <Button variant="outline" onClick={() => setShowHistory(!showHistory)} className="gap-2 flex-shrink-0">
-            <History className="w-4 h-4" /> <span className="hidden sm:inline">History</span> ({pastAnalyses.length})
-          </Button>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {user && pastAnalyses.length > 0 && (
+            <GlowShareCard analysis={pastAnalyses[0]} userName={user?.full_name || user?.email} />
+          )}
+          {user && pastAnalyses.length > 0 && (
+            <Button variant="outline" onClick={() => setShowHistory(!showHistory)} className="gap-2 flex-shrink-0">
+              <History className="w-4 h-4" /> <span className="hidden sm:inline">History</span> ({pastAnalyses.length})
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* History */}
