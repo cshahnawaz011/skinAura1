@@ -216,9 +216,9 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
       {/* Active Tab Content */}
       {currentTab && (
         <GlassCard className={`bg-gradient-to-br ${currentTab.color.replace('from-', 'from-').replace('to-', 'to-')}/10 dark:${currentTab.color.replace('from-', 'from-').replace('to-', 'to-')}/5`}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${currentTab.color} flex items-center justify-center`}>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${currentTab.color} flex items-center justify-center flex-shrink-0`}>
                 <currentTab.icon className="w-5 h-5 text-white" />
               </div>
               <div>
