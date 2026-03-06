@@ -33,9 +33,13 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    setShowDnsPopup(true);
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  const handleCloseIntro = () => {
+    localStorage.setItem('glowai-intro-seen', '1');
+    setShowIntro(false);
+  };
 
 
   const { data: latestAnalysis, isLoading: analysisLoading } = useQuery({
