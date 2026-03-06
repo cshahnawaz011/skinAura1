@@ -232,6 +232,16 @@ export default function Home() {
               dietLog={todayLog}
             />
           </div>
+
+          {/* Cross-Feature Smart Connections — full width */}
+          <div className="lg:col-span-3">
+            <CrossFeatureInsights
+              skinAnalysis={latestAnalysis}
+              dietLog={todayLog}
+              routines={routines}
+              logs={allLogs}
+            />
+          </div>
         </div>
 
       {/* Features Grid */}
