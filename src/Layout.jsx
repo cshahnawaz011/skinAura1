@@ -217,32 +217,8 @@ export default function Layout({ children, currentPageName }) {
         )}
       </AnimatePresence>
 
-      {/* Bottom Navigation (Mobile) */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 z-50 px-1 pt-1 pb-[env(safe-area-inset-bottom,8px)] border-t border-gray-200 dark:border-gray-700">
-        <div className="flex justify-around items-center">
-          {[navItems[0], navItems[2], navItems[3], navItems[6], navItems[10]].filter(Boolean).map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPageName === item.page;
-            return (
-              <Link
-                key={item.page}
-                to={createPageUrl(item.page)}
-                className={`flex flex-col items-center gap-1 min-w-[56px] min-h-[56px] justify-center px-2 py-2 rounded-xl transition-all ${
-                  isActive
-                    ? 'text-pink-500'
-                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
-                }`}
-              >
-                <Icon className={`w-6 h-6 ${isActive ? 'scale-110' : ''} transition-transform`} />
-                <span className="text-[9px] font-medium leading-none">{item.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
       {/* Main Content */}
-      <main className="lg:ml-64 min-h-screen pt-[72px] lg:pt-0 pb-[calc(72px+env(safe-area-inset-bottom,0px))] lg:pb-0">
+      <main className="lg:ml-64 min-h-screen pt-[72px] lg:pt-0 pb-4 lg:pb-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPageName}
