@@ -37,6 +37,7 @@ const NAV_KEYS = [
   { key: 'glowMap', icon: Globe, page: 'GlowMap', label: 'Glow Map', color: 'text-blue-500' },
   { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn', color: 'text-blue-500' },
   { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup', color: 'text-blue-500' },
+  { key: 'profile', icon: UserCircle, page: 'Profile', label: 'Profile', color: 'text-pink-500' },
 ];
 
 export default function Layout({ children, currentPageName }) {
