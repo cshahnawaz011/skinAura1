@@ -586,6 +586,9 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
                 </Button>
               )}
             </div>
+
+            {/* Next Steps — show after save */}
+            {saveMutation.isSuccess && <NextStepsAfterAnalysis />}
           </motion.div>
         )}
       </AnimatePresence>

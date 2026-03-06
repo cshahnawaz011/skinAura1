@@ -246,6 +246,9 @@ export default function Home() {
           </div>
         </div>
 
+      {/* User Journey — clear flow guide */}
+      <UserJourney latestAnalysis={latestAnalysis} />
+
       {/* Product Recommender */}
       <ProductRecommender skinAnalysis={latestAnalysis} />
     </div>
