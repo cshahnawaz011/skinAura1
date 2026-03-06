@@ -42,8 +42,13 @@ const NAV_KEYS = [
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const { tr, lang } = useTranslation();
   const navItems = NAV_KEYS.filter(item => !item.hidden).map(item => ({ ...item, name: t[lang]?.[item.key] || item.label }));
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => setUser(null));
+  }, [currentPageName]);
 
   useEffect(() => {
     const isDark = localStorage.getItem('glowai-dark') === 'true';
