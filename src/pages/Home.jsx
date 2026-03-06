@@ -16,6 +16,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard';
 import WeatherAdvisor from '@/components/home/WeatherAdvisor';
 import ProactiveHealthInsights from '@/components/home/ProactiveHealthInsights';
 import FeaturesIntroPopup from '@/components/home/FeaturesIntroPopup';
+import CrossFeatureInsights from '@/components/home/CrossFeatureInsights';
 import { useTranslation } from '@/components/i18n/translations';
 
 export default function Home() {
