@@ -220,7 +220,7 @@ export default function Layout({ children, currentPageName }) {
       {/* Bottom Navigation (Mobile) */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 z-50 px-1 pt-1 pb-[env(safe-area-inset-bottom,8px)] border-t border-gray-200 dark:border-gray-700">
         <div className="flex justify-around items-center">
-          {[navItems[0], navItems[2], navItems[3], navItems[6], navItems.find(n => n.page === 'Profile')].filter(Boolean).map((item) => {
+          {[navItems[0], navItems[2], navItems[3], navItems[6], navItems[10]].filter(Boolean).map((item) => {
             const Icon = item.icon;
             const isActive = currentPageName === item.page;
             return (
