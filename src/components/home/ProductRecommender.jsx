@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { checkAICooldown, recordAIUsage, getCooldownSeconds } from '@/components/utils/aiRateLimit';
 import GlassCard from '@/components/ui/GlassCard';
@@ -35,7 +35,7 @@ export default function ProductRecommender({ skinAnalysis }) {
   const [cooldown, setCooldown] = useState(getCooldownSeconds(COOLDOWN_KEY));
   const [expanded, setExpanded] = useState({});
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (cooldown > 0) {
       const timer = setInterval(() => {
         const secs = getCooldownSeconds(COOLDOWN_KEY);
