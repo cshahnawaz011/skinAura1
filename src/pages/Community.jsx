@@ -158,7 +158,7 @@ export default function Community() {
             <Star className="w-4 h-4 text-amber-500" />
             <span className="font-semibold text-sm">Your Latest Skin Snapshot</span>
           </div>
-          <div className="grid grid-cols-4 gap-3 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div className="bg-white/60 dark:bg-white/10 rounded-xl p-3">
               <p className={`text-2xl font-bold ${scoreColor(myAnalysis.overall_score)}`}>{myAnalysis.overall_score}</p>
               <p className="text-xs text-gray-500">Glow Score</p>
