@@ -26,16 +26,25 @@ export default function LanguageSelector({ compact = false }) {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size={compact ? 'icon' : 'sm'}
-        onClick={() => setOpen(true)}
-        className={compact ? '' : 'gap-2 justify-start w-full'}
-      >
-        <Globe className="w-4 h-4" />
-        {!compact && <span>{currentLang.flag} {currentLang.name}</span>}
-        {compact && <span className="text-xs">{currentLang.flag}</span>}
-      </Button>
+      {compact ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-gray-200 dark:active:bg-white/10 transition-colors touch-manipulation"
+        >
+          <Globe className="w-6 h-6" />
+        </button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setOpen(true)}
+          className="gap-2 justify-start w-full"
+        >
+          <Globe className="w-4 h-4" />
+          <span>{currentLang.flag} {currentLang.name}</span>
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-xs p-0 overflow-hidden rounded-2xl">
