@@ -145,26 +145,26 @@ export default function Layout({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 glass z-50 px-4 py-3">
-        <div className="flex items-center">
+      <header className="lg:hidden fixed top-0 left-0 right-0 glass z-50 px-2 py-2">
+        <div className="flex items-center justify-between w-full">
           {/* Left: menu + dark mode */}
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-11 h-11">
-              {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="w-9 h-9">
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
-            <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="w-11 h-11">
-              {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="w-9 h-9">
+              {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
           </div>
           {/* Center: logo */}
-          <Link to={createPageUrl('Home')} className="flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+          <Link to={createPageUrl('Home')} className="flex items-center gap-1.5 shrink-0">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="text-xl font-bold gold-shimmer">Glow</span>
+            <span className="text-lg font-bold gold-shimmer">GlowAI</span>
           </Link>
           {/* Right: language */}
-          <div className="ml-auto">
+          <div className="shrink-0">
             <LanguageSelector compact />
           </div>
         </div>
