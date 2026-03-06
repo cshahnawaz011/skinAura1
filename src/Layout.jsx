@@ -45,6 +45,12 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const { tr, lang } = useTranslation();
+
+  const { data: latestAnalysis } = useQuery({
+    queryKey: ['layoutSkinScore', user?.email],
+    queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
+    enabled: !!user?.email,
+  });
   const navItems = NAV_KEYS.filter(item => !item.hidden).map(item => ({ ...item, name: t[lang]?.[item.key] || item.label }));
 
   useEffect(() => {
