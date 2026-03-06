@@ -115,6 +115,19 @@ export default function Layout({ children, currentPageName }) {
           </ul>
         </nav>
 
+        {latestAnalysis && (
+          <div className="px-4 pb-3 border-t border-white/20 pt-3">
+            <Link to={createPageUrl('SkinAnalysis')} className="flex items-center gap-3 p-2.5 rounded-xl bg-gradient-to-r from-pink-100/80 to-amber-100/80 dark:from-pink-900/30 dark:to-amber-900/30 hover:opacity-90 transition">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-pink-500 to-amber-400 flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-sm font-black">{latestAnalysis.overall_score}</span>
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-pink-600 dark:text-pink-300">Glow Score</p>
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 capitalize truncate">{latestAnalysis.skin_type} skin</p>
+              </div>
+            </Link>
+          </div>
+        )}
         <div className="p-4 border-t border-white/20 space-y-1">
           <Button
             variant="ghost"
