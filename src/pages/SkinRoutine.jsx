@@ -458,26 +458,11 @@ IMPORTANT RULES:
           )}
 
           {/* Reminder */}
-          <GlassCard>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {currentRoutine.reminder_enabled ? <Bell className="w-5 h-5 text-pink-500" /> : <BellOff className="w-5 h-5 text-gray-400" />}
-                <div>
-                  <p className="font-medium">Daily Reminder</p>
-                  <p className="text-sm text-gray-500">Get notified to do your {activeTab} routine</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <Input
-                  type="time"
-                  value={currentRoutine.reminder_time || ''}
-                  onChange={(e) => saveMutation.mutate({ ...currentRoutine, reminder_time: e.target.value })}
-                  className="w-28"
-                />
-                <Switch checked={currentRoutine.reminder_enabled} onCheckedChange={toggleReminder} />
-              </div>
-            </div>
-          </GlassCard>
+          <ReminderSection
+            routine={currentRoutine}
+            routineType={activeTab}
+            onSave={(data) => saveMutation.mutate(data)}
+          />
 
           {/* Skin Concerns Targeted */}
           {currentRoutine.skin_concerns?.length > 0 && (
