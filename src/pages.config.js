@@ -54,10 +54,12 @@ import Education from './pages/Education';
 import GamifiedTracker from './pages/GamifiedTracker';
 import GlowMap from './pages/GlowMap';
 import Home from './pages/Home';
+import IngredientChecker from './pages/IngredientChecker';
 import Lifestyle from './pages/Lifestyle';
 import MakeupTryOn from './pages/MakeupTryOn';
 import ProductComparison from './pages/ProductComparison';
 import Products from './pages/Products';
+import Profile from './pages/Profile';
 import Progress from './pages/Progress';
 import PublicProfile from './pages/PublicProfile';
 import Quiz from './pages/Quiz';
@@ -66,8 +68,6 @@ import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
 import SkinRoutine from './pages/SkinRoutine';
-import IngredientChecker from './pages/IngredientChecker';
-import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -79,10 +79,12 @@ export const PAGES = {
     "GamifiedTracker": GamifiedTracker,
     "GlowMap": GlowMap,
     "Home": Home,
+    "IngredientChecker": IngredientChecker,
     "Lifestyle": Lifestyle,
     "MakeupTryOn": MakeupTryOn,
     "ProductComparison": ProductComparison,
     "Products": Products,
+    "Profile": Profile,
     "Progress": Progress,
     "PublicProfile": PublicProfile,
     "Quiz": Quiz,
@@ -91,8 +93,6 @@ export const PAGES = {
     "SkinChat": SkinChat,
     "SkinReport": SkinReport,
     "SkinRoutine": SkinRoutine,
-    "IngredientChecker": IngredientChecker,
-    "Profile": Profile,
 }
 
 export const pagesConfig = {
