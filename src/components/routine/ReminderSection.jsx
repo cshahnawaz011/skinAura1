@@ -1,19 +1,64 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Bell, BellOff, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 
+const PERM_KEY = 'glowai-notif-permission';
+
+function msUntilTime(timeStr) {
+  const [h, m] = timeStr.split(':').map(Number);
+  const now = new Date();
+  const target = new Date();
+  target.setHours(h, m, 0, 0);
+  if (target <= now) target.setDate(target.getDate() + 1);
+  return target - now;
+}
+
 export default function ReminderSection({ routine, onSave, routineType }) {
   const [scheduledTime, setScheduledTime] = useState(
     routine?.reminder_time || (routineType === 'morning' ? '07:00' : '21:00')
   );
-  const [permission, setPermission] = useState(
-    typeof Notification !== 'undefined' ? Notification.permission : 'denied'
-  );
+  const [permission, setPermission] = useState('default');
   const timerRef = useRef(null);
 
-  const isEnabled = routine?.reminder_enabled || false;
+  // Check real permission on mount
+  useEffect(() => {
+    if (typeof Notification !== 'undefined') {
+      setPermission(Notification.permission);
+    }
+  }, []);
+
+  // Auto-schedule when enabled + permission granted
+  useEffect(() => {
+    if (routine?.reminder_enabled && permission === 'granted') {
+      schedule(routine.reminder_time || scheduledTime);
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [routine?.reminder_enabled, permission]);
+
+  // Re-schedule when tab becomes visible again (handles tab switching / sleep)
+  useEffect(() => {
+    const onVisible = () => {
+      if (routine?.reminder_enabled && permission === 'granted') {
+        schedule(routine.reminder_time || scheduledTime);
+      }
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [routine?.reminder_enabled, permission, scheduledTime]);
+
+  const schedule = (timeStr) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    const delay = msUntilTime(timeStr);
+    timerRef.current = setTimeout(() => {
+      new Notification('🌟 GlowAI Reminder', {
+        body: `Time for your ${routineType} skincare routine! ✨`,
+        icon: '/favicon.ico',
+      });
+      schedule(timeStr); // reschedule for next day
+    }, delay);
+  };
 
   const requestPermission = async () => {
     if (typeof Notification === 'undefined') return 'denied';
@@ -22,34 +67,17 @@ export default function ReminderSection({ routine, onSave, routineType }) {
     return result;
   };
 
-  const scheduleNext = (timeStr) => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    const [h, m] = timeStr.split(':').map(Number);
-    const now = new Date();
-    const target = new Date();
-    target.setHours(h, m, 0, 0);
-    if (target <= now) target.setDate(target.getDate() + 1);
-    const delay = target - now;
-    timerRef.current = setTimeout(() => {
-      new Notification('🌟 GlowAI Reminder', {
-        body: `Time for your ${routineType} skincare routine! ✨`,
-        icon: '/favicon.ico',
-      });
-      scheduleNext(timeStr);
-    }, delay);
-  };
-
   const handleToggle = async (enabled) => {
     let perm = permission;
     if (enabled && perm !== 'granted') {
       perm = await requestPermission();
       if (perm !== 'granted') {
-        alert('Please allow notifications in your browser settings, then try again.');
+        alert('Please allow notifications in your browser/phone settings, then try again.');
         return;
       }
     }
     if (timerRef.current) clearTimeout(timerRef.current);
-    if (enabled) scheduleNext(scheduledTime);
+    if (enabled && perm === 'granted') schedule(scheduledTime);
     onSave({ ...routine, reminder_enabled: enabled, reminder_time: scheduledTime });
   };
 
@@ -57,21 +85,23 @@ export default function ReminderSection({ routine, onSave, routineType }) {
     const t = e.target.value;
     setScheduledTime(t);
     onSave({ ...routine, reminder_time: t });
-    if (isEnabled && permission === 'granted') scheduleNext(t);
+    if (routine?.reminder_enabled && permission === 'granted') schedule(t);
   };
 
   const testNotification = async () => {
     let perm = permission;
     if (perm !== 'granted') perm = await requestPermission();
     if (perm === 'granted') {
-      new Notification('🌟 GlowAI Reminder', {
-        body: `This is a test for your ${routineType} skincare routine! ✨`,
+      new Notification('🌟 GlowAI Test', {
+        body: `Test for your ${routineType} skincare reminder! ✨`,
         icon: '/favicon.ico',
       });
     } else {
-      alert('Notifications blocked. Please allow them in your browser settings.');
+      alert('Notifications are blocked. Please allow them in your browser/system settings.');
     }
   };
+
+  const isEnabled = routine?.reminder_enabled || false;
 
   return (
     <div className="glass rounded-2xl p-4">
@@ -98,7 +128,7 @@ export default function ReminderSection({ routine, onSave, routineType }) {
       {isEnabled && permission === 'granted' && (
         <div className="mt-3 px-3 py-2 bg-green-50 dark:bg-green-900/20 rounded-xl">
           <p className="text-xs text-green-700 dark:text-green-400">
-            ✅ Reminder set for <strong>{scheduledTime}</strong> daily. Keep the app open or add it to your home screen for persistent notifications.
+            ✅ Reminder set for <strong>{scheduledTime}</strong> daily. Keep the app open for notifications (add to home screen for best results).
           </p>
         </div>
       )}
