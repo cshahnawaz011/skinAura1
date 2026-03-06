@@ -205,10 +205,17 @@ Provide a helpful, personalized response:`,
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Hi! I'm your AI Skin Coach</h3>
+              {latestAnalysis ? (
+                <div className="mb-4 px-4 py-2 bg-pink-50 dark:bg-pink-900/20 rounded-xl border border-pink-200 dark:border-pink-800 text-sm text-pink-700 dark:text-pink-300">
+                  ✅ मुझे पता है आपकी skin <strong className="capitalize">{latestAnalysis.skin_type}</strong> type की है — Score: <strong>{latestAnalysis.overall_score}/100</strong>। मैं इसी के हिसाब से personalized advice दूँगा।
+                </div>
+              ) : (
+                <div className="mb-4 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800 text-sm text-amber-700 dark:text-amber-300">
+                  ⚠️ <a href="/SkinAnalysis" className="underline font-semibold">Skin Analysis</a> करने के बाद मैं और बेहतर personalized advice दे पाऊँगा।
+                </div>
+              )}
               <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md">
-                {latestAnalysis
-                  ? `I know you have ${latestAnalysis.skin_type} skin. Ask me anything about skincare!`
-                  : 'Ask me anything about skincare. Complete a skin analysis for personalized advice!'}
+                कुछ भी skincare से जुड़ा पूछें — मैं यहाँ हूँ!
               </p>
               
               {/* Quick Questions */}
