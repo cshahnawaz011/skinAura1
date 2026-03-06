@@ -105,36 +105,124 @@ Write a professional clinical summary, key findings, 90-day action plan, and die
   };
 
   const downloadPDF = async () => {
-    if (!reportRef.current) return;
-
-    const { default: html2canvas } = await import('html2canvas');
     const { jsPDF } = await import('jspdf');
-
-    const element = reportRef.current;
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-    });
-
-    const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 15;
+    const contentWidth = pageWidth - margin * 2;
+    let y = margin;
 
-    let heightLeft = pdfHeight;
-    let position = 0;
+    const addLine = (text, fontSize = 10, isBold = false, color = [40, 40, 40]) => {
+      pdf.setFontSize(fontSize);
+      pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
+      pdf.setTextColor(...color);
+      const lines = pdf.splitTextToSize(text, contentWidth);
+      lines.forEach(line => {
+        if (y > 270) { pdf.addPage(); y = margin; }
+        pdf.text(line, margin, y);
+        y += fontSize * 0.5;
+      });
+      y += 2;
+    };
 
-    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-    heightLeft -= pdf.internal.pageSize.getHeight();
+    const addSection = (title) => {
+      y += 4;
+      if (y > 260) { pdf.addPage(); y = margin; }
+      pdf.setFillColor(250, 245, 255);
+      pdf.roundedRect(margin, y - 5, contentWidth, 10, 2, 2, 'F');
+      addLine(title, 12, true, [180, 60, 120]);
+    };
 
-    while (heightLeft > 0) {
-      position = heightLeft - pdfHeight;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pdf.internal.pageSize.getHeight();
+    const addBar = (label, value, max = 10) => {
+      if (y > 270) { pdf.addPage(); y = margin; }
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(80, 80, 80);
+      pdf.text(label, margin, y);
+      pdf.text(`${value}/${max}`, margin + contentWidth - 10, y);
+      y += 4;
+      pdf.setFillColor(230, 230, 230);
+      pdf.roundedRect(margin, y, contentWidth, 3, 1, 1, 'F');
+      const barColor = value <= 3 ? [34, 197, 94] : value <= 6 ? [234, 179, 8] : [239, 68, 68];
+      pdf.setFillColor(...barColor);
+      pdf.roundedRect(margin, y, (value / max) * contentWidth, 3, 1, 1, 'F');
+      y += 8;
+    };
+
+    // Header
+    pdf.setFillColor(236, 72, 153);
+    pdf.rect(0, 0, pageWidth, 35, 'F');
+    pdf.setFontSize(22);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(255, 255, 255);
+    pdf.text('GlowAI Skin Health Report', margin, 16);
+    pdf.setFontSize(10);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`${user?.full_name || user?.email || 'User'} • ${new Date().toLocaleDateString()}`, margin, 26);
+    pdf.text(`${analyses.length} analyses • ${logs.length} lifestyle logs`, margin, 32);
+    y = 45;
+
+    // Overall Score
+    addSection('📊 Overall Score');
+    addLine(`Skin Score: ${latestAnalysis.overall_score}/100`, 14, true, [180, 60, 120]);
+    addLine(`Skin Type: ${latestAnalysis.skin_type || 'Unknown'} • Skin Tone: ${latestAnalysis.skin_tone || 'Not specified'}`, 10);
+    if (improvement !== null) {
+      addLine(`Progress: ${Number(improvement) >= 0 ? '+' : ''}${improvement} points vs first analysis`, 10, false, Number(improvement) >= 0 ? [34, 197, 94] : [239, 68, 68]);
     }
+
+    // Metrics
+    addSection('📈 Skin Metrics');
+    SKIN_METRICS.forEach(m => addBar(m.label, latestAnalysis[m.key] ?? 0));
+
+    // Lifestyle
+    addSection('🌿 Lifestyle Averages (Last 30 Days)');
+    addLine(`💧 Average Water: ${avgWater} glasses/day`);
+    addLine(`🌙 Average Sleep: ${avgSleep} hours/night`);
+    addLine(`🏃 Average Exercise: ${avgExercise} min/day`);
+    addLine(`📋 Active Routines: ${routines.length}`);
+
+    if (aiInsights) {
+      addSection('🧬 Executive Summary');
+      addLine(aiInsights.executive_summary);
+
+      if (aiInsights.key_strengths?.length) {
+        addSection('✅ Key Strengths');
+        aiInsights.key_strengths.forEach(s => addLine(`• ${s}`));
+      }
+
+      if (aiInsights.priority_concerns?.length) {
+        addSection('⚠️ Priority Concerns');
+        aiInsights.priority_concerns.forEach(c => addLine(`• ${c}`));
+      }
+
+      addSection('📅 90-Day Action Plan');
+      addLine('Days 1–30:', 10, true);
+      addLine(aiInsights.action_plan_30);
+      addLine('Days 31–60:', 10, true);
+      addLine(aiInsights.action_plan_60);
+      addLine('Days 61–90:', 10, true);
+      addLine(aiInsights.action_plan_90);
+
+      if (aiInsights.dietary_recommendations?.length) {
+        addSection('🥗 Dietary Recommendations');
+        aiInsights.dietary_recommendations.forEach(r => addLine(`• ${r}`));
+      }
+
+      if (aiInsights.lifestyle_recommendations?.length) {
+        addSection('🧘 Lifestyle Recommendations');
+        aiInsights.lifestyle_recommendations.forEach(r => addLine(`• ${r}`));
+      }
+
+      addSection('👩‍⚕️ Dermatologist Note');
+      addLine(aiInsights.doctor_note);
+      if (aiInsights.expected_improvement) addLine(`Expected: ${aiInsights.expected_improvement}`, 9, false, [100, 100, 100]);
+    }
+
+    // Footer
+    y = pdf.internal.pageSize.getHeight() - 10;
+    pdf.setFontSize(8);
+    pdf.setTextColor(150, 150, 150);
+    pdf.text('Generated by GlowAI • For reference only, not medical advice', margin, y);
 
     pdf.save(`GlowAI_Skin_Report_${new Date().toISOString().split('T')[0]}.pdf`);
   };
