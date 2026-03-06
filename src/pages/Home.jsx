@@ -61,10 +61,22 @@ export default function Home() {
     queryKey: ['todayLog', user?.email],
     queryFn: async () => {
       if (!user?.email) return null;
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Calcutta' });
       const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: today });
       return logs[0] || null;
     },
+    enabled: !!user?.email,
+  });
+
+  const { data: routines = [] } = useQuery({
+    queryKey: ['routines', user?.email],
+    queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }),
+    enabled: !!user?.email,
+  });
+
+  const { data: allLogs = [] } = useQuery({
+    queryKey: ['allLogs', user?.email],
+    queryFn: () => base44.entities.DietLog.filter({ user_email: user.email }, '-log_date', 30),
     enabled: !!user?.email,
   });
 
