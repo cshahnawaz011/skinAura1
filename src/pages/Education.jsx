@@ -238,7 +238,10 @@ Make them informative and practical.`,
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <GlassCard className="h-full cursor-pointer group hover:shadow-lg">
+                  <GlassCard
+                    className="h-full cursor-pointer group hover:shadow-lg"
+                    onClick={() => setOpenArticle(article)}
+                  >
                     <Badge className="mb-3">{article.readingTime} min read</Badge>
                     <h3 className="font-semibold text-lg mb-2 group-hover:text-pink-500 transition-colors">
                       {article.title}
@@ -246,7 +249,7 @@ Make them informative and practical.`,
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
                       {article.summary}
                     </p>
-                    <Button variant="ghost" size="sm" className="mt-4 text-pink-500">
+                    <Button variant="ghost" size="sm" className="mt-4 text-pink-500 pointer-events-none">
                       Read More <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </GlassCard>
