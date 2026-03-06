@@ -14,6 +14,7 @@ import CircularProgress from '@/components/ui/CircularProgress';
 import Confetti from '@/components/ui/Confetti';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis';
 
 const skinConcerns = [
   {
