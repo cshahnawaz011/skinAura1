@@ -300,6 +300,9 @@ Make them informative and practical.`,
         </div>
       )}
 
+      {/* Article Modal */}
+      <ArticleModal article={openArticle} onClose={() => setOpenArticle(null)} />
+
       {/* Myths vs Facts Tab */}
       {activeTab === 'myths' && (
         <div className="space-y-4">
