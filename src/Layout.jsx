@@ -23,7 +23,6 @@ const NAV_KEYS = [
   { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress', color: 'text-pink-500' },
   { key: 'report', icon: FileText, page: 'SkinReport', label: 'My Report', color: 'text-pink-500' },
   // --- AI Tools (Violet) ---
-  { key: 'dermAI', icon: Bot, page: 'DermAI', label: 'Dr. Glow AI', color: 'text-violet-500' },
   { key: 'skinAge', icon: Clock, page: 'SkinAgePrediction', label: 'Skin Age AI', color: 'text-violet-500' },
   { key: 'aiInsights', icon: Zap, page: 'AiInsights', label: 'AI Insights', color: 'text-violet-500' },
   { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Skin Chat', color: 'text-violet-500' },
