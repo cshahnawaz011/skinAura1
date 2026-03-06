@@ -182,8 +182,7 @@ html {
 }
 
 button, a, [role="button"] {
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 36px;
 }
 
 @supports (padding: env(safe-area-inset-bottom)) {
