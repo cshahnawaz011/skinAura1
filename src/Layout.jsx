@@ -120,6 +120,27 @@ export default function Layout({ children, currentPageName }) {
             {darkMode ? tr('lightMode') : tr('darkMode')}
           </Button>
           <LanguageSelector />
+          {user ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => base44.auth.logout()}
+              className="w-full justify-start gap-3 text-red-500 hover:text-red-600"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm truncate">{user.full_name || user.email}</span>
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => base44.auth.redirectToLogin()}
+              className="w-full justify-start gap-3 text-pink-500 hover:text-pink-600"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </Button>
+          )}
         </div>
       </aside>
 
