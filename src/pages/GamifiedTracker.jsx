@@ -513,7 +513,7 @@ export default function GamifiedTracker() {
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {filteredBadges.map((badge) => {
             const earned = earnedBadgeIds.includes(badge.id);
             return (
