@@ -184,7 +184,7 @@ Examples of good insights (use their real data, not these examples):
     setInsights(result.insights || []);
     setHealthScore({ score: result.overall_health_score, summary: result.health_summary });
     recordAIUsage('health_insights');
-    setCooldownLeft(5 * 60);
+    setCooldownLeft(3 * 60);
     setLoading(false);
   };
 
