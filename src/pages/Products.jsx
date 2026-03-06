@@ -239,11 +239,11 @@ Overall product analysis:
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="recommendations">AI Recs</TabsTrigger>
-          <TabsTrigger value="shelf">My Shelf ({savedProducts.length})</TabsTrigger>
-          <TabsTrigger value="ingredients">Ingredient Scanner</TabsTrigger>
-          <TabsTrigger value="saved">Saved ({savedProducts.length})</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
+          <TabsTrigger value="recommendations" className="text-xs sm:text-sm">AI Recs</TabsTrigger>
+          <TabsTrigger value="shelf" className="text-xs sm:text-sm">My Shelf ({savedProducts.length})</TabsTrigger>
+          <TabsTrigger value="ingredients" className="text-xs sm:text-sm">Ingredients</TabsTrigger>
+          <TabsTrigger value="saved" className="text-xs sm:text-sm">Saved ({savedProducts.length})</TabsTrigger>
         </TabsList>
       </Tabs>
 
