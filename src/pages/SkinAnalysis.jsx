@@ -341,14 +341,14 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
       <Confetti trigger={showConfetti} />
 
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h1 className="text-3xl font-bold">AI Skin Analysis</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Clinical-grade skin assessment with deep insights</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">AI Skin Analysis</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm sm:text-base">Clinical-grade skin assessment with deep insights</p>
         </div>
         {user && pastAnalyses.length > 0 && (
-          <Button variant="outline" onClick={() => setShowHistory(!showHistory)} className="gap-2">
-            <History className="w-4 h-4" /> History ({pastAnalyses.length})
+          <Button variant="outline" onClick={() => setShowHistory(!showHistory)} className="gap-2 flex-shrink-0">
+            <History className="w-4 h-4" /> <span className="hidden sm:inline">History</span> ({pastAnalyses.length})
           </Button>
         )}
       </div>
