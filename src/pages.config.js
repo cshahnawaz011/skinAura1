@@ -67,6 +67,7 @@ import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
 import SkinRoutine from './pages/SkinRoutine';
+import IngredientChecker from './pages/IngredientChecker';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +92,7 @@ export const PAGES = {
     "SkinChat": SkinChat,
     "SkinReport": SkinReport,
     "SkinRoutine": SkinRoutine,
+    "IngredientChecker": IngredientChecker,
 }
 
 export const pagesConfig = {
