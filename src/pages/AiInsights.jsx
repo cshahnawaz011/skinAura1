@@ -237,9 +237,15 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
           </div>
 
           {!analysis && (
-            <div className="text-center py-6">
+            <div className="text-center py-6 space-y-3">
               <AlertCircle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-              <p className="text-gray-500 text-sm">Complete a Skin Analysis first for better results</p>
+              <p className="text-gray-600 dark:text-gray-300 font-medium">पहले Skin Analysis करें</p>
+              <p className="text-gray-500 text-sm">AI Insights आपकी skin analysis data का उपयोग करता है — बेहतर results के लिए पहले analysis करें।</p>
+              <a href="/SkinAnalysis">
+                <button className="mt-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">
+                  📸 Skin Analysis करें →
+                </button>
+              </a>
             </div>
           )}
 
