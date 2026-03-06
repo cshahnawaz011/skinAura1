@@ -20,7 +20,7 @@ import { useTranslation } from '@/components/i18n/translations';
 
 export default function Home() {
   const [user, setUser] = useState(null);
-  const [showDnsPopup, setShowDnsPopup] = useState(false);
+  const [showIntro, setShowIntro] = useState(() => !localStorage.getItem('glowai-intro-seen'));
   const { tr } = useTranslation();
 
   const features = [
