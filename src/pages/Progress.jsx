@@ -190,8 +190,12 @@ Give a structured, personalized progress analysis.`,
           <h1 className="text-3xl font-bold">Progress Tracker</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-1">Watch your skin transform over time</p>
         </div>
-        <Button
-          onClick={() => setShowUpload(true)}
+        <div className="flex items-center gap-2 flex-wrap">
+          {analyses.length > 0 && (
+            <GlowShareCard analysis={analyses[analyses.length - 1]} userName={user?.full_name || user?.email} />
+          )}
+          <Button
+            onClick={() => setShowUpload(true)}
           disabled={uploadCooldown > 0}
           className="bg-gradient-to-r from-pink-500 to-amber-500 disabled:opacity-60"
         >
@@ -199,7 +203,8 @@ Give a structured, personalized progress analysis.`,
           {uploadCooldown > 0
             ? `Wait ${Math.floor(uploadCooldown / 60)}:${String(uploadCooldown % 60).padStart(2, '0')}`
             : 'Add Progress Photo'}
-        </Button>
+          </Button>
+        </div>
       </div>
 
       {/* Stats Row */}
