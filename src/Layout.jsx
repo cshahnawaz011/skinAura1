@@ -66,7 +66,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className={`min-h-screen gradient-bg ${darkMode ? 'dark' : ''}`}>
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-64 flex-col glass z-50">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-full w-56 xl:w-64 flex-col glass z-50">
         <div className="p-6 border-b border-white/20">
           <Link to={createPageUrl('Home')} className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
