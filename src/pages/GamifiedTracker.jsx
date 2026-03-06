@@ -307,7 +307,8 @@ export default function GamifiedTracker() {
   const [prevLevelRef, setPrevLevelRef] = useState(null);
   const [expandedLevels, setExpandedLevels] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
-  const today = new Date().toISOString().split('T')[0];
+  // Use IST (Asia/Calcutta) local date as today
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Calcutta' }); // YYYY-MM-DD
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
