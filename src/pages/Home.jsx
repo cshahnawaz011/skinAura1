@@ -6,7 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Camera, Sparkles, TrendingUp, MessageCircle,
-  Palette, Sun, Users, Star, Droplets, Shield, ArrowRight
+  Palette, Sun, Users, Star, Droplets, Shield, ArrowRight,
+  Bot, Clock, Zap, BookOpen, FlaskConical, GitCompare, Trophy, Globe, FileText, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassCard from '@/components/ui/GlassCard';
