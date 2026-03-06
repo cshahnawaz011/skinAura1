@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
 import t from '@/components/i18n/translations';
+import { base44 } from '@/api/base44Client';
 
 // color groups: pink=core skin, violet=AI tools, emerald=wellness, blue=social/learn
 const NAV_KEYS = [
