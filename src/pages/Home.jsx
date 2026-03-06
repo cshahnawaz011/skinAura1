@@ -244,49 +244,8 @@ export default function Home() {
           </div>
         </div>
 
-      {/* Features Grid */}
-      <div>
-        <h2 className="text-xl lg:text-2xl font-bold mb-4 text-center">
-          {tr('exploreFeatures')}
-        </h2>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          {features.map((feature, index) => {
-            const Icon = feature.icon;
-            return (
-              <Link key={feature.page} to={createPageUrl(feature.page)}>
-                <GlassCard
-                  delay={0.1 * index}
-                  className="h-full cursor-pointer group !p-4"
-                >
-                  <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <Icon className="w-7 h-7 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-sm mb-1 leading-tight">{feature.title}</h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-snug line-clamp-2">{feature.desc}</p>
-                </GlassCard>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Stats Banner */}
-      <GlassCard className="!p-4">
-        <div className="grid grid-cols-3 gap-2 text-center">
-          <div>
-            <p className="text-2xl font-bold gold-shimmer">10+</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('aiFeatures')}</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold gold-shimmer">98%</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('accuracy')}</p>
-          </div>
-          <div>
-            <p className="text-2xl font-bold gold-shimmer">24/7</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{tr('aiSupport')}</p>
-          </div>
-        </div>
-      </GlassCard>
+      {/* Product Recommender */}
+      <ProductRecommender skinAnalysis={latestAnalysis} />
     </div>
   );
 }

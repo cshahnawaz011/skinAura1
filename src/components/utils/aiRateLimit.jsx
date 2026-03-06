@@ -1,5 +1,5 @@
-const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
-const UPLOAD_COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+const COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
+const UPLOAD_COOLDOWN_MS = 3 * 60 * 1000; // 3 minutes
 
 export function checkUploadCooldown(key) {
   try {
