@@ -132,15 +132,17 @@ export default function WeatherAdvisor({ skinAnalysis }) {
       let city = null;
 
       try {
-        const res = await fetch('https://ip-api.com/json/?fields=city,regionName,country');
+        const res = await fetch('https://ip-api.com/json/?fields=city,regionName,country,countryCode');
         const data = await res.json();
         if (data.city) city = data.city;
+        if (data.countryCode) setLanguageFromCountry(data.countryCode);
       } catch {}
 
       if (!city) {
         const res2 = await fetch('https://ipwho.is/');
         const data2 = await res2.json();
         if (data2.city) city = data2.city;
+        if (data2.country_code) setLanguageFromCountry(data2.country_code);
       }
 
       if (city) {
