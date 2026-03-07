@@ -34,6 +34,36 @@ function StatPill({ icon: Icon, label, value, color }) {
 const CACHE_KEY = 'glowai_weather_cache';
 const CACHE_DURATION_MS = 3 * 60 * 1000; // 3 minutes
 
+// Country code → language code mapping
+const COUNTRY_TO_LANG = {
+  IN: 'hi', SA: 'ar', AE: 'ar', EG: 'ar', MA: 'ar', DZ: 'ar', TN: 'ar', JO: 'ar', IQ: 'ar', SY: 'ar', LB: 'ar', KW: 'ar', QA: 'ar', BH: 'ar', OM: 'ar', YE: 'ar',
+  ES: 'es', MX: 'es', AR: 'es', CO: 'es', CL: 'es', PE: 'es', VE: 'es', EC: 'es', BO: 'es', PY: 'es', UY: 'es', CU: 'es',
+  FR: 'fr', BE: 'fr', CH: 'fr', SN: 'fr', CI: 'fr', CM: 'fr',
+  DE: 'de', AT: 'de',
+  CN: 'zh', TW: 'zh', HK: 'zh', SG: 'zh',
+  JP: 'ja', KR: 'ko',
+  BR: 'pt', PT: 'pt',
+  RU: 'ru', BY: 'ru', KZ: 'ru',
+  TR: 'tr',
+};
+
+const LANG_NAMES = {
+  en: 'English', hi: 'Hindi', ar: 'Arabic', es: 'Spanish', fr: 'French',
+  de: 'German', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', pt: 'Portuguese',
+  ru: 'Russian', tr: 'Turkish',
+};
+
+function setLanguageFromCountry(countryCode) {
+  // Only auto-set if user hasn't manually chosen a language
+  if (localStorage.getItem('glowai-lang-manual')) return;
+  const lang = COUNTRY_TO_LANG[countryCode];
+  if (lang && lang !== localStorage.getItem('glowai-lang')) {
+    localStorage.setItem('glowai-lang', lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    window.location.reload();
+  }
+}
+
 export default function WeatherAdvisor({ skinAnalysis }) {
   const [weather, setWeather] = useState(null);
   const [advice, setAdvice] = useState(null);

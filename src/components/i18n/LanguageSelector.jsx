@@ -13,6 +13,7 @@ export default function LanguageSelector({ compact = false }) {
   const select = (code) => {
     const lang = LANGUAGES.find(l => l.code === code);
     localStorage.setItem('glowai-lang', code);
+    localStorage.setItem('glowai-lang-manual', '1'); // mark as manually chosen
     setCurrent(code);
     setOpen(false);
     document.documentElement.dir = lang?.dir || 'ltr';
