@@ -264,7 +264,7 @@ Lifestyle factors to consider:
     setGeneratingPhase('Selecting optimal ingredients...');
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert cosmetic dermatologist. Create a highly advanced, deeply personalized ${activeTab} skincare routine.
+      prompt: `You are an expert cosmetic dermatologist. Create a highly advanced, deeply personalized ${activeTab} skincare routine. Respond entirely in ${getUserLang()}.
 
 PATIENT SKIN PROFILE:
 - Skin type: ${latestAnalysis.skin_type}
