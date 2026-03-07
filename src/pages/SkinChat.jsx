@@ -113,6 +113,11 @@ User's skin profile:
 `;
   };
 
+  const getUserLang = () => {
+    const langMap = { en: 'English', hi: 'Hindi', ar: 'Arabic', es: 'Spanish', fr: 'French', de: 'German', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', pt: 'Portuguese', ru: 'Russian', tr: 'Turkish' };
+    return langMap[localStorage.getItem('glowai-lang') || 'en'] || 'English';
+  };
+
   const sendMessage = async (text) => {
     if (!text.trim()) return;
     const { allowed } = checkAICooldown('skin_chat');
