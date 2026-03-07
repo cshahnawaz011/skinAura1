@@ -234,6 +234,11 @@ export default function SkinAnalysis() {
     }
   };
 
+  const getUserLang = () => {
+    const langMap = { en: 'English', hi: 'Hindi', ar: 'Arabic', es: 'Spanish', fr: 'French', de: 'German', zh: 'Chinese', ja: 'Japanese', ko: 'Korean', pt: 'Portuguese', ru: 'Russian', tr: 'Turkish' };
+    return langMap[localStorage.getItem('glowai-lang') || 'en'] || 'English';
+  };
+
   const analyzeImage = async () => {
     if (!selectedImage) return;
     const { allowed } = checkAICooldown('skin_analysis');
@@ -243,7 +248,7 @@ export default function SkinAnalysis() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedImage });
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert dermatologist AI. Perform a deep, clinical-grade skin health assessment of this face photo.
+      prompt: `You are an expert dermatologist AI. Perform a deep, clinical-grade skin health assessment of this face photo. Respond in ${getUserLang()}.
 
 SCORING GUIDE (be realistic, precise, and granular):
 - Overall score (0-100): a holistic skin health index. 85-100 = excellent, 70-84 = good, 50-69 = moderate, below 50 = needs significant attention.

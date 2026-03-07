@@ -140,6 +140,7 @@ User's skin profile:
 You provide personalized skincare advice based on the user's skin profile.
 Be helpful, encouraging, and provide specific actionable advice.
 Keep responses concise but informative (2-3 paragraphs max).
+Respond in ${getUserLang()}.
 
 ${getSkinContext()}
 

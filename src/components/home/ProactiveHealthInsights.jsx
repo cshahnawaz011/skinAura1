@@ -128,7 +128,7 @@ Good foods eaten: ${dietLog.foods_good?.join(', ') || 'none logged'}
 Bad foods eaten: ${dietLog.foods_bad?.join(', ') || 'none logged'}` : 'No lifestyle data logged today';
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a proactive health coach generating real-time skin health insights.
+      prompt: `You are a proactive health coach generating real-time skin health insights. Respond entirely in ${getUserLang()}.
 
 DATA:
 ${skinProfile}
