@@ -215,10 +215,11 @@ Use real current data. Respond in ${userLang}.`,
   const loadWeatherByCity = async (city) => {
     if (!loading) setLoading(true);
     setLocationError(null);
+    const userLang = LANG_NAMES[localStorage.getItem('glowai-lang') || 'en'] || 'English';
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Get current real-time weather for the city: "${city}".
 Return: city name (official), temperature (°C), feels_like (°C), humidity (%), uv_index (0-11), aqi (air quality index number), weather condition (one word), wind_speed (km/h).
-Use real current data.`,
+Use real current data. Respond in ${userLang}.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
