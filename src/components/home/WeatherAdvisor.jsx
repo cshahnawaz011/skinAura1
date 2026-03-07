@@ -179,10 +179,20 @@ export default function WeatherAdvisor({ skinAnalysis }) {
 
     setLocationName(cityName);
 
+    // Try to detect country from GPS reverse geocode for language setting
+    try {
+      const geoRes2 = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&accept-language=en`);
+      const geoData2 = await geoRes2.json();
+      const countryCode = geoData2.address?.country_code?.toUpperCase();
+      if (countryCode) setLanguageFromCountry(countryCode);
+    } catch {}
+
+    const userLang = LANG_NAMES[localStorage.getItem('glowai-lang') || 'en'] || 'English';
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Get current real-time weather for the city "${cityName}" (GPS: lat=${lat}, lon=${lon}).
 Return: city name, temperature (°C), feels_like (°C), humidity (%), uv_index (0-11), aqi (air quality index number), weather condition (one word: sunny/cloudy/rainy/etc), wind_speed (km/h).
-Use real current data.`,
+Use real current data. Respond in ${userLang}.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
