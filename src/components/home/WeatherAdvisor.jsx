@@ -245,8 +245,10 @@ Use real current data. Respond in ${userLang}.`,
       ? `Patient has ${skinAnalysis.skin_type} skin (score ${skinAnalysis.overall_score}/100). Oiliness: ${skinAnalysis.oiliness}/10, Dryness: ${skinAnalysis.dryness}/10, Sensitivity: ${skinAnalysis.sensitivity}/10, Redness: ${skinAnalysis.redness}/10, Acne: ${skinAnalysis.acne_level}/10.`
       : 'No skin profile — give general advice for all skin types.';
 
+    const userLang = LANG_NAMES[localStorage.getItem('glowai-lang') || 'en'] || 'English';
+
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a dermatologist sending a morning skin briefing to a patient.
+      prompt: `You are a dermatologist sending a morning skin briefing to a patient. Respond entirely in ${userLang}.
 
 TODAY'S WEATHER in ${w.city}:
 - Temp: ${w.temperature}°C (feels ${w.feels_like || w.temperature}°C)
