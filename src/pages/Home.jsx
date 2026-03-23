@@ -221,29 +221,28 @@ export default function Home() {
 
           {/* Quick Actions */}
           <GlassCard className="lg:col-span-1" delay={0.3}>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5 text-emerald-500" />
-              {tr('quickActions')}
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Shield className="w-5 h-5 text-emerald-400" style={{ filter: 'drop-shadow(0 0 6px #34d399)' }} />
+              <span style={{ textShadow: '0 0 8px rgba(52,211,153,0.6)' }}>{tr('quickActions')}</span>
             </h3>
             <div className="space-y-3">
-              <Link to={createPageUrl('SkinAnalysis')} className="block">
-                <Button variant="outline" className="w-full justify-start h-12 text-base">
-                  <Camera className="w-5 h-5 mr-2 text-pink-500" />
-                  {tr('newSkinAnalysis')}
-                </Button>
-              </Link>
-              <Link to={createPageUrl('SkinRoutine')} className="block">
-                <Button variant="outline" className="w-full justify-start h-12 text-base">
-                  <Sparkles className="w-5 h-5 mr-2 text-amber-500" />
-                  {tr('viewMyRoutine')}
-                </Button>
-              </Link>
-              <Link to={createPageUrl('SkinChat')} className="block">
-                <Button variant="outline" className="w-full justify-start h-12 text-base">
-                  <MessageCircle className="w-5 h-5 mr-2 text-violet-500" />
-                  {tr('askAICoach')}
-                </Button>
-              </Link>
+              {[
+                { to: 'SkinAnalysis', icon: Camera, label: tr('newSkinAnalysis'), color: '#f472b6', glow: 'rgba(244,114,182,0.4)' },
+                { to: 'SkinRoutine', icon: Sparkles, label: tr('viewMyRoutine'), color: '#fbbf24', glow: 'rgba(251,191,36,0.4)' },
+                { to: 'SkinChat', icon: MessageCircle, label: tr('askAICoach'), color: '#a78bfa', glow: 'rgba(167,139,250,0.4)' },
+              ].map(({ to, icon: Icon, label, color, glow }) => (
+                <Link key={to} to={createPageUrl(to)} className="block">
+                  <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
+                    className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/30 bg-white/30 dark:bg-white/5 backdrop-blur cursor-pointer transition-all hover:border-pink-300"
+                    style={{ boxShadow: `0 0 0px 0px ${glow}`, transition: 'box-shadow 0.3s' }}
+                    onMouseEnter={e => e.currentTarget.style.boxShadow = `0 0 16px 4px ${glow}`}
+                    onMouseLeave={e => e.currentTarget.style.boxShadow = '0 0 0px 0px transparent'}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" style={{ color, filter: `drop-shadow(0 0 5px ${color})` }} />
+                    <span className="font-medium text-sm">{label}</span>
+                  </motion.div>
+                </Link>
+              ))}
             </div>
           </GlassCard>
 
