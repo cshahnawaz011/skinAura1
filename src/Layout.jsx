@@ -198,10 +198,10 @@ export default function Layout({ children, currentPageName }) {
           </div>
           {/* Center: logo */}
           <Link to={createPageUrl('Home')} className="flex items-center gap-1.5 shrink-0 touch-manipulation">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center" style={{ boxShadow: '0 0 12px 3px rgba(244,114,182,0.5)' }}>
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-lg font-bold gold-shimmer">GlowAI</span>
+            <span className="text-lg font-black gold-shimmer">GlowAI</span>
           </Link>
           {/* Right: language */}
           <div className="shrink-0">
