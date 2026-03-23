@@ -237,14 +237,21 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
 
       {/* Active Tab Content */}
       {currentTab && (
-        <GlassCard className={`bg-gradient-to-br ${currentTab.color.replace('from-', 'from-').replace('to-', 'to-')}/10 dark:${currentTab.color.replace('from-', 'from-').replace('to-', 'to-')}/5`}>
-          <div className="flex items-start justify-between mb-4 gap-3 flex-wrap">
+        <GlassCard className="relative overflow-hidden">
+          {/* Background glow orb */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20 blur-3xl pointer-events-none"
+            style={{ background: `linear-gradient(135deg, #f472b6, #fbbf24)` }} />
+          <div className="flex items-start justify-between mb-4 gap-3 flex-wrap relative z-10">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${currentTab.color} flex items-center justify-center flex-shrink-0`}>
-                <currentTab.icon className="w-5 h-5 text-white" />
-              </div>
+              <motion.div
+                animate={{ boxShadow: ['0 0 8px 2px rgba(244,114,182,0.4)', '0 0 20px 6px rgba(251,191,36,0.5)', '0 0 8px 2px rgba(244,114,182,0.4)'] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+                className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${currentTab.color} flex items-center justify-center flex-shrink-0`}
+              >
+                <currentTab.icon className="w-6 h-6 text-white" />
+              </motion.div>
               <div>
-                <h3 className="font-bold text-lg">{currentTab.label}</h3>
+                <h3 className="font-black text-lg">{currentTab.label}</h3>
                 <p className="text-sm text-gray-500">{currentTab.desc}</p>
               </div>
             </div>
@@ -252,9 +259,9 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
               cooldownKey={`ai_insights_${activeTab}`}
               onClick={() => run(activeTab)}
               loading={loading === activeTab}
-              className={`bg-gradient-to-r ${currentTab.color} text-white`}
+              className={`bg-gradient-to-r ${currentTab.color} text-white shadow-lg shadow-pink-400/30 font-bold`}
             >
-              <Sparkles className="w-4 h-4 mr-2" /> Run Analysis
+              <Sparkles className="w-4 h-4 mr-2 animate-spin" style={{ animationDuration: '3s' }} /> Run Analysis
             </CooldownButton>
           </div>
 
