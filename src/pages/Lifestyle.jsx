@@ -6,7 +6,7 @@ import {
   Droplets, Moon, Dumbbell, Brain, Apple, Coffee,
   Plus, Minus, Check, TrendingUp, Calendar, Smile,
   Monitor, Footprints, Sun, Pill, Sparkles, Wind,
-  Wine, Pencil
+  Wine, Pencil, Search, Heart, Thermometer
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import GlassCard from '@/components/ui/GlassCard';
 import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import AiFoodSearch from '@/components/lifestyle/AiFoodSearch';
 
 const goodFoods = ['Salmon', 'Avocado', 'Berries', 'Nuts', 'Green Tea', 'Spinach', 'Sweet Potato', 'Olive Oil', 'Turmeric', 'Cucumber', 'Walnuts', 'Dark Chocolate'];
 const badFoods = ['Sugar', 'Dairy', 'Fried Food', 'Alcohol', 'Processed Food', 'Soda', 'White Bread', 'Fast Food', 'Chips'];
@@ -149,6 +150,17 @@ export default function Lifestyle() {
   const updateField = useCallback((field, value) => {
     setLocalLog(prev => {
       const next = { ...prev, [field]: value };
+      scheduleSave(next);
+      return next;
+    });
+  }, [scheduleSave]);
+
+  const addCustomFood = useCallback((foodName, isGood) => {
+    const field = isGood ? 'foods_good' : 'foods_bad';
+    setLocalLog(prev => {
+      const cur = prev[field] || [];
+      if (cur.includes(foodName)) return prev;
+      const next = { ...prev, [field]: [...cur, foodName] };
       scheduleSave(next);
       return next;
     });
@@ -465,6 +477,17 @@ export default function Lifestyle() {
         </div>
       </GlassCard>
 
+      {/* AI Food Search */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+            <Search className="w-5 h-5 text-violet-500" />
+          </div>
+          <div><h3 className="font-semibold">AI Food Search</h3><p className="text-xs text-gray-500">Search any food to check its skin impact</p></div>
+        </div>
+        <AiFoodSearch onAddFood={addCustomFood} />
+      </GlassCard>
+
       {/* Food Trackers */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <GlassCard>
@@ -507,6 +530,28 @@ export default function Lifestyle() {
           </div>
         </GlassCard>
       </div>
+
+      {/* Period Tracker */}
+      <GlassCard>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+            <Heart className="w-5 h-5 text-rose-500" />
+          </div>
+          <div><h3 className="font-semibold">Period & Hormones</h3><p className="text-xs text-gray-500">Hormonal changes affect your skin</p></div>
+        </div>
+        <div className="flex gap-3 flex-wrap">
+          <button onClick={() => updateField('period_day', !localLog.period_day)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-medium text-sm transition-all ${localLog.period_day ? 'bg-rose-500 text-white border-transparent' : 'border-gray-200 dark:border-gray-700 hover:border-rose-300'}`}>
+            {localLog.period_day && <Check className="w-4 h-4" />}
+            🩸 Period Day
+          </button>
+        </div>
+        {localLog.period_day && (
+          <div className="mt-3 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl">
+            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">💡 Hormonal tip: Expect more oiliness & breakouts around period. Increase zinc intake, reduce dairy, and use gentle BHA cleanser.</p>
+          </div>
+        )}
+      </GlassCard>
 
       {/* Daily Notes */}
       <GlassCard>
