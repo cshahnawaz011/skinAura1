@@ -33,6 +33,7 @@ const NAV_KEYS = [
   { key: 'products', icon: Droplets, page: 'Products', label: 'Products', color: 'text-emerald-500' },
   { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare', color: 'text-emerald-500' },
   { key: 'ingredients', icon: FlaskConical, page: 'IngredientChecker', label: 'Ingredient Check', color: 'text-emerald-500' },
+  { key: 'productAnalytics', icon: BarChart2, page: 'ProductAnalytics', label: 'Product Analytics', color: 'text-emerald-500' },
   // --- Social / Learn (Blue) ---
   { key: 'community', icon: Users, page: 'Community', label: 'Community', color: 'text-blue-500' },
   { key: 'glowMap', icon: Globe, page: 'GlowMap', label: 'Glow Map', color: 'text-blue-500' },
