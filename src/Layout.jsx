@@ -112,8 +112,10 @@ export default function Layout({ children, currentPageName }) {
                       }`}
                       style={isActive ? { boxShadow: '0 0 12px 2px rgba(236,72,153,0.2)' } : {}}
                     >
-                      <Icon className={`w-4 h-4 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`} />
-                      <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}>{item.name}</span>
+                      <Icon className={`w-4 h-4 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`}
+                        style={isActive ? { filter: 'drop-shadow(0 0 4px currentColor)' } : {}} />
+                      <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}
+                        style={isActive ? { textShadow: '0 0 8px rgba(236,72,153,0.4)' } : {}}>{item.name}</span>
                     </Link>
                   </li>
                 </React.Fragment>
