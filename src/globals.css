@@ -150,15 +150,62 @@ body {
 }
 
 .glow-card {
-  animation: glow-pulse 3s ease-in-out infinite;
-  border: 1px solid rgba(236,72,153,0.2);
-  transition: box-shadow 0.3s ease;
+  animation: glow-pulse 2.5s ease-in-out infinite;
+  border: 1.5px solid rgba(236,72,153,0.25);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .glow-card:hover {
   animation: none;
-  box-shadow: 0 0 28px 8px rgba(236,72,153,0.5), 0 0 60px 16px rgba(251,191,36,0.25), 0 8px 32px rgba(0,0,0,0.12);
-  border-color: rgba(251,191,36,0.5);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 0 36px 10px rgba(236,72,153,0.55), 0 0 70px 20px rgba(251,191,36,0.28), 0 10px 40px rgba(0,0,0,0.14);
+  border-color: rgba(251,191,36,0.6);
+}
+
+/* Glowing button */
+.glow-btn {
+  position: relative;
+  overflow: hidden;
+}
+.glow-btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.25) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer-card 2s linear infinite;
+}
+
+/* Neon text */
+.neon-pink {
+  text-shadow: 0 0 8px rgba(236,72,153,0.8), 0 0 20px rgba(236,72,153,0.4);
+}
+.neon-gold {
+  text-shadow: 0 0 8px rgba(251,191,36,0.8), 0 0 20px rgba(251,191,36,0.4);
+}
+
+/* Sparkle burst */
+@keyframes sparkle-burst {
+  0% { transform: scale(0) rotate(0deg); opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: scale(1.8) rotate(180deg); opacity: 0; }
+}
+.sparkle-burst {
+  animation: sparkle-burst 0.6s ease-out forwards;
+}
+
+/* Floating glow orbs background */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  opacity: 0.18;
+  animation: orb-float 8s ease-in-out infinite alternate;
+}
+@keyframes orb-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -20px) scale(1.1); }
 }
 
 .spark {
