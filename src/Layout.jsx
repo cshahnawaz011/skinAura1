@@ -107,9 +107,10 @@ export default function Layout({ children, currentPageName }) {
                       to={createPageUrl(item.page)}
                       className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
                         isActive
-                          ? 'bg-white/70 dark:bg-white/10 shadow-sm font-semibold'
+                          ? 'bg-gradient-to-r from-pink-100/90 to-amber-100/90 dark:from-pink-900/40 dark:to-amber-900/30 shadow-md font-semibold'
                           : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
                       }`}
+                      style={isActive ? { boxShadow: '0 0 12px 2px rgba(236,72,153,0.2)' } : {}}
                     >
                       <Icon className={`w-4 h-4 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`} />
                       <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}>{item.name}</span>
