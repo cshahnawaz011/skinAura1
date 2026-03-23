@@ -92,18 +92,36 @@ export default function Home() {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center py-6 lg:py-12"
+        className="text-center py-6 lg:py-12 relative"
       >
+        {/* Floating sparks background */}
+        {[...Array(8)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full pointer-events-none"
+            style={{
+              width: 6 + (i % 3) * 4,
+              height: 6 + (i % 3) * 4,
+              left: `${10 + i * 11}%`,
+              top: `${15 + (i % 4) * 20}%`,
+              background: ['#f472b6','#fbbf24','#a78bfa','#34d399','#60a5fa','#fb7185','#facc15','#c084fc'][i],
+              boxShadow: `0 0 8px 3px ${['#f472b6','#fbbf24','#a78bfa','#34d399','#60a5fa','#fb7185','#facc15','#c084fc'][i]}80`,
+            }}
+            animate={{ y: [0, -12, 0], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 2 + i * 0.4, repeat: Infinity, delay: i * 0.25 }}
+          />
+        ))}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', delay: 0.2 }}
-          className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-400 via-amber-300 to-emerald-300 flex items-center justify-center shadow-lg"
+          className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-pink-400 via-amber-300 to-emerald-300 flex items-center justify-center shadow-2xl"
+          style={{ boxShadow: '0 0 32px 8px rgba(236,72,153,0.4), 0 0 64px 16px rgba(251,191,36,0.2)' }}
         >
-          <Sparkles className="w-8 h-8 text-white" />
+          <Sparkles className="w-10 h-10 text-white drop-shadow-lg" />
         </motion.div>
-        <h1 className="text-3xl lg:text-5xl font-bold mb-2">
-          Welcome
+        <h1 className="text-3xl lg:text-5xl font-bold mb-2 gold-shimmer">
+          GlowAI
         </h1>
         <p className="text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
           {tr('homeSubtitle')}
