@@ -265,6 +265,39 @@ export default function Home() {
           </div>
         </div>
 
+      {/* Glowing Feature Cards */}
+      <div>
+        <h2 className="text-xl font-black mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-amber-400" style={{ filter: 'drop-shadow(0 0 6px #fbbf24)' }} />
+          <span className="gold-shimmer">Explore Features</span>
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {features.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <Link key={f.page} to={createPageUrl(f.page)}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.07 }}
+                  whileHover={{ scale: 1.04, y: -4 }}
+                  className="glass rounded-2xl p-4 cursor-pointer group transition-all"
+                  style={{ boxShadow: '0 0 0 1px rgba(244,114,182,0.1)' }}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow = '0 0 20px 4px rgba(244,114,182,0.25), 0 0 40px 8px rgba(251,191,36,0.15)'}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow = '0 0 0 1px rgba(244,114,182,0.1)'}
+                >
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-3 shadow-lg`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <p className="font-bold text-sm mb-1">{f.title}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{f.desc}</p>
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
       {/* User Journey — clear flow guide */}
       <UserJourney latestAnalysis={latestAnalysis} />
 
