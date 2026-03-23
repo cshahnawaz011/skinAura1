@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sun, Moon, Sparkles, Loader2, Clock, Check, ChevronDown,
   ChevronUp, Bell, BellOff, RefreshCw, Trash2, Info, Zap,
-  Droplets, Shield, Target, ChevronRight
+  Droplets, Shield, Target, ChevronRight, BarChart2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -15,6 +15,10 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import GlassCard from '@/components/ui/GlassCard';
 import ReminderSection from '@/components/routine/ReminderSection';
+import StepTimer from '@/components/routine/StepTimer';
+import ProductPicker from '@/components/routine/ProductPicker';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 
 const ROUTINE_PHASES = {
   morning: [
