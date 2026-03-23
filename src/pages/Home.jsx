@@ -139,9 +139,9 @@ export default function Home() {
           </div>
           {/* Skin Score Card */}
           <GlassCard className="lg:col-span-1" delay={0.1}>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Star className="w-5 h-5 text-amber-500" />
-              {tr('yourSkinScore')}
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Star className="w-5 h-5 text-amber-400 drop-shadow" style={{ filter: 'drop-shadow(0 0 6px #fbbf24)' }} />
+              <span className="neon-gold">{tr('yourSkinScore')}</span>
             </h3>
             {analysisLoading ? (
               <div className="flex justify-center py-4">
