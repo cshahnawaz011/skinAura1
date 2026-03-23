@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  GitCompare, Trophy, FileText, Clock, Globe, Zap, FlaskConical, LogIn, LogOut, BarChart2
+  GitCompare, Trophy, FileText, Clock, Globe, Zap, FlaskConical, LogIn, LogOut, BarChart2,
+  BookMarked, Target, BedDouble, Flame, Apple, Scan, HelpCircle, Library
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
@@ -34,11 +35,20 @@ const NAV_KEYS = [
   { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare', color: 'text-emerald-500' },
   { key: 'ingredients', icon: FlaskConical, page: 'IngredientChecker', label: 'Ingredient Check', color: 'text-emerald-500' },
   { key: 'productAnalytics', icon: BarChart2, page: 'ProductAnalytics', label: 'Product Analytics', color: 'text-emerald-500' },
+  { key: 'skinDiet', icon: Apple, page: 'SkinDiet', label: 'Skin Diet', color: 'text-emerald-500' },
+  { key: 'habitStreaks', icon: Flame, page: 'HabitStreaks', label: 'Habit Streaks', color: 'text-orange-500' },
+  { key: 'glowGoals', icon: Target, page: 'GlowGoals', label: 'Glow Goals', color: 'text-emerald-500' },
+  { key: 'sleepCoach', icon: BedDouble, page: 'SleepCoach', label: 'Sleep Coach', color: 'text-indigo-500' },
+  { key: 'uvTracker', icon: Sun, page: 'UVTracker', label: 'UV Tracker', color: 'text-amber-500' },
+  { key: 'bodyScanner', icon: Scan, page: 'BodyScanner', label: 'Body Scanner', color: 'text-violet-500' },
   // --- Social / Learn (Blue) ---
   { key: 'community', icon: Users, page: 'Community', label: 'Community', color: 'text-blue-500' },
   { key: 'glowMap', icon: Globe, page: 'GlowMap', label: 'Glow Map', color: 'text-blue-500' },
   { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn', color: 'text-blue-500' },
   { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup', color: 'text-blue-500' },
+  { key: 'skinJournal', icon: BookMarked, page: 'SkinJournal', label: 'Skin Journal', color: 'text-blue-500' },
+  { key: 'skincareQuiz', icon: HelpCircle, page: 'SkincareQuiz', label: 'Skin Quiz', color: 'text-blue-500' },
+  { key: 'dermDictionary', icon: BookOpen, page: 'DermDictionary', label: 'Derm Dictionary', color: 'text-blue-500' },
 ];
 
 export default function Layout({ children, currentPageName }) {
