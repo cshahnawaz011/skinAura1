@@ -6,7 +6,7 @@ import {
   Droplets, Moon, Dumbbell, Brain, Apple, Coffee,
   Plus, Minus, Check, TrendingUp, Calendar, Smile,
   Monitor, Footprints, Sun, Pill, Sparkles, Wind,
-  Wine, Pencil, Search, Heart, Thermometer
+  Wine, Pencil, Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +16,83 @@ import { Textarea } from '@/components/ui/textarea';
 import GlassCard from '@/components/ui/GlassCard';
 import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import AiFoodSearch from '@/components/lifestyle/AiFoodSearch';
 
 const goodFoods = ['Salmon', 'Avocado', 'Berries', 'Nuts', 'Green Tea', 'Spinach', 'Sweet Potato', 'Olive Oil', 'Turmeric', 'Cucumber', 'Walnuts', 'Dark Chocolate'];
 const badFoods = ['Sugar', 'Dairy', 'Fried Food', 'Alcohol', 'Processed Food', 'Soda', 'White Bread', 'Fast Food', 'Chips'];
+
+function AiFoodSearch({ onAddGood, onAddBad }) {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+
+  const searchFood = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setResult(null);
+    const res = await base44.integrations.Core.InvokeLLM({
+      prompt: `Is "${query}" good or bad for skin health? Give a quick verdict and reason.`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          food: { type: 'string' },
+          verdict: { type: 'string', enum: ['good', 'bad', 'neutral'] },
+          reason: { type: 'string' },
+          emoji: { type: 'string' }
+        }
+      }
+    });
+    setResult(res);
+    setLoading(false);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && searchFood()}
+            placeholder="Search any food (e.g. matcha, oats, spicy food)..."
+            className="pl-9"
+          />
+        </div>
+        <Button onClick={searchFood} disabled={loading} size="sm" className="bg-gradient-to-r from-emerald-500 to-teal-500">
+          {loading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+        </Button>
+      </div>
+      {result && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={`p-3 rounded-xl flex items-start gap-3 ${result.verdict === 'good' ? 'bg-emerald-50 dark:bg-emerald-900/20' : result.verdict === 'bad' ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}
+        >
+          <span className="text-2xl">{result.emoji || (result.verdict === 'good' ? '✅' : result.verdict === 'bad' ? '❌' : '😐')}</span>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-bold capitalize">{result.food}</span>
+              <Badge className={result.verdict === 'good' ? 'bg-emerald-500' : result.verdict === 'bad' ? 'bg-red-500' : 'bg-gray-400'}>
+                {result.verdict === 'good' ? 'Skin-Friendly' : result.verdict === 'bad' ? 'Avoid' : 'Neutral'}
+              </Badge>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-300">{result.reason}</p>
+          </div>
+          {result.verdict === 'good' && (
+            <Button size="sm" variant="outline" onClick={() => { onAddGood(result.food); setResult(null); setQuery(''); }} className="flex-shrink-0 border-emerald-400 text-emerald-600">
+              <Plus className="w-3 h-3 mr-1" />Add
+            </Button>
+          )}
+          {result.verdict === 'bad' && (
+            <Button size="sm" variant="outline" onClick={() => { onAddBad(result.food); setResult(null); setQuery(''); }} className="flex-shrink-0 border-red-400 text-red-600">
+              <Plus className="w-3 h-3 mr-1" />Log
+            </Button>
+          )}
+        </motion.div>
+      )}
+    </div>
+  );
+}
 const vitaminOptions = ['Vitamin C', 'Vitamin D', 'Vitamin E', 'Zinc', 'Omega-3', 'Collagen', 'Biotin', 'Magnesium', 'Iron', 'B12'];
 const moodOptions = [
   { value: 'great', emoji: '😄', label: 'Great', color: 'bg-emerald-500' },
@@ -155,12 +228,12 @@ export default function Lifestyle() {
     });
   }, [scheduleSave]);
 
-  const addCustomFood = useCallback((foodName, isGood) => {
+  const addCustomFood = useCallback((food, isGood) => {
     const field = isGood ? 'foods_good' : 'foods_bad';
     setLocalLog(prev => {
       const cur = prev[field] || [];
-      if (cur.includes(foodName)) return prev;
-      const next = { ...prev, [field]: [...cur, foodName] };
+      if (cur.includes(food)) return prev;
+      const next = { ...prev, [field]: [...cur, food] };
       scheduleSave(next);
       return next;
     });
@@ -481,11 +554,14 @@ export default function Lifestyle() {
       <GlassCard>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-            <Search className="w-5 h-5 text-violet-500" />
+            <Sparkles className="w-5 h-5 text-violet-500" />
           </div>
-          <div><h3 className="font-semibold">AI Food Search</h3><p className="text-xs text-gray-500">Search any food to check its skin impact</p></div>
+          <div><h3 className="font-semibold">AI Food Analyzer</h3><p className="text-xs text-gray-500">Search any food to know its skin impact</p></div>
         </div>
-        <AiFoodSearch onAddFood={addCustomFood} />
+        <AiFoodSearch
+          onAddGood={(food) => addCustomFood(food, true)}
+          onAddBad={(food) => addCustomFood(food, false)}
+        />
       </GlassCard>
 
       {/* Food Trackers */}
@@ -530,28 +606,6 @@ export default function Lifestyle() {
           </div>
         </GlassCard>
       </div>
-
-      {/* Period Tracker */}
-      <GlassCard>
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-            <Heart className="w-5 h-5 text-rose-500" />
-          </div>
-          <div><h3 className="font-semibold">Period & Hormones</h3><p className="text-xs text-gray-500">Hormonal changes affect your skin</p></div>
-        </div>
-        <div className="flex gap-3 flex-wrap">
-          <button onClick={() => updateField('period_day', !localLog.period_day)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 font-medium text-sm transition-all ${localLog.period_day ? 'bg-rose-500 text-white border-transparent' : 'border-gray-200 dark:border-gray-700 hover:border-rose-300'}`}>
-            {localLog.period_day && <Check className="w-4 h-4" />}
-            🩸 Period Day
-          </button>
-        </div>
-        {localLog.period_day && (
-          <div className="mt-3 p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl">
-            <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">💡 Hormonal tip: Expect more oiliness & breakouts around period. Increase zinc intake, reduce dairy, and use gentle BHA cleanser.</p>
-          </div>
-        )}
-      </GlassCard>
 
       {/* Daily Notes */}
       <GlassCard>
