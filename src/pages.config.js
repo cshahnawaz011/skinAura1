@@ -68,6 +68,15 @@ import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
 import SkinRoutine from './pages/SkinRoutine';
+import SkinJournal from './pages/SkinJournal';
+import GlowGoals from './pages/GlowGoals';
+import UVTracker from './pages/UVTracker';
+import SleepCoach from './pages/SleepCoach';
+import HabitStreaks from './pages/HabitStreaks';
+import SkinDiet from './pages/SkinDiet';
+import BodyScanner from './pages/BodyScanner';
+import SkincareQuiz from './pages/SkincareQuiz';
+import DermDictionary from './pages/DermDictionary';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +102,15 @@ export const PAGES = {
     "SkinChat": SkinChat,
     "SkinReport": SkinReport,
     "SkinRoutine": SkinRoutine,
+    "SkinJournal": SkinJournal,
+    "GlowGoals": GlowGoals,
+    "UVTracker": UVTracker,
+    "SleepCoach": SleepCoach,
+    "HabitStreaks": HabitStreaks,
+    "SkinDiet": SkinDiet,
+    "BodyScanner": BodyScanner,
+    "SkincareQuiz": SkincareQuiz,
+    "DermDictionary": DermDictionary,
 }
 
 export const pagesConfig = {
