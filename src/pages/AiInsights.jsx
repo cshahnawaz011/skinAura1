@@ -440,7 +440,7 @@ function StressResult({ data }) {
 function DnaResult({ data }) {
   return (
     <div className="space-y-4 mt-4">
-      <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl text-center">
+      <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-2xl text-center border-2 border-violet-300 dark:border-violet-700" style={{ boxShadow: '0 0 24px 6px rgba(167,139,250,0.25)' }}>
         <p className="text-xs text-gray-500 mb-1">Your Skin Archetype</p>
         <p className="text-2xl font-black text-violet-600">{data.skin_archetype}</p>
         {data.personalized_mantra && <p className="text-sm italic text-purple-500 mt-2">"{data.personalized_mantra}"</p>}
