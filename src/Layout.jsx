@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  GitCompare, Trophy, FileText, Clock, Globe, Zap, FlaskConical, LogIn, LogOut
+  GitCompare, Trophy, FileText, Clock, Globe, Zap, FlaskConical, LogIn, LogOut, BarChart2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
