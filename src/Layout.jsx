@@ -110,7 +110,7 @@ export default function Layout({ children, currentPageName }) {
               const Icon = item.icon;
               const isActive = currentPageName === item.page;
               // Section dividers
-              const sectionBreaks = { 4: '🌸 AI Tools', 8: '🌿 Wellness', 12: '🌐 Explore' };
+              const sectionBreaks = { 4: '🌸 AI Tools', 8: '🌿 Wellness', 12: '💎 New Features', 22: '🌐 Explore' };
               return (
                 <React.Fragment key={item.page}>
                   {sectionBreaks[idx] && (
