@@ -190,25 +190,47 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">AI Skin Insights</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Advanced AI-powered skin intelligence tools</p>
+      <div className="relative">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <h1 className="text-3xl font-black gold-shimmer">✨ AI Skin Insights</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Advanced AI-powered skin intelligence tools</p>
+        </motion.div>
+        {/* Floating sparkles */}
+        <span className="absolute top-0 right-0 text-2xl animate-bounce">🌟</span>
       </div>
 
       {/* Tab Selection */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-        {TABS.map((tab) => {
+        {TABS.map((tab, idx) => {
           const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
           return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-              className={`p-3 rounded-xl text-left transition-all border-2 ${activeTab === tab.id ? 'border-transparent shadow-lg scale-[1.02]' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}
-              style={activeTab === tab.id ? { background: `linear-gradient(135deg, var(--tw-gradient-stops))` } : {}}
+            <motion.button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.07 }}
+              whileHover={{ scale: 1.06 }}
+              whileTap={{ scale: 0.97 }}
+              className={`p-3 rounded-2xl text-left transition-all relative overflow-hidden ${
+                isActive
+                  ? 'shadow-xl border-0'
+                  : 'border-2 border-white/40 dark:border-white/10 hover:border-pink-300 bg-white/40 dark:bg-white/5'
+              }`}
+              style={isActive ? { background: `linear-gradient(135deg, #f472b6 0%, #fbbf24 100%)`, boxShadow: '0 0 24px 6px rgba(244,114,182,0.4)' } : {}}
             >
-              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${tab.color} flex items-center justify-center mb-2`}>
+              {isActive && (
+                <span className="absolute inset-0 pointer-events-none" style={{
+                  background: 'linear-gradient(120deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%)',
+                }} />
+              )}
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${tab.color} flex items-center justify-center mb-2 shadow-lg`}
+                style={isActive ? { boxShadow: '0 0 12px 3px rgba(255,255,255,0.5)' } : {}}>
                 <Icon className="w-4 h-4 text-white" />
               </div>
-              <p className="font-semibold text-xs">{tab.label}</p>
-            </button>
+              <p className={`font-bold text-xs ${isActive ? 'text-white' : ''}`}>{tab.label}</p>
+            </motion.button>
           );
         })}
       </div>
