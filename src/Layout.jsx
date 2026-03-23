@@ -72,6 +72,11 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className={`min-h-screen gradient-bg ${darkMode ? 'dark' : ''}`}>
+      {/* Floating glow orbs */}
+      <div className="orb w-96 h-96 bg-pink-400 fixed top-0 left-0 -z-0 pointer-events-none" style={{ opacity: 0.10 }} />
+      <div className="orb w-80 h-80 bg-amber-300 fixed bottom-20 right-10 -z-0 pointer-events-none" style={{ animationDelay: '3s', opacity: 0.10 }} />
+      <div className="orb w-72 h-72 bg-violet-400 fixed top-1/2 right-1/4 -z-0 pointer-events-none" style={{ animationDelay: '5s', opacity: 0.07 }} />
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-56 xl:w-64 flex-col glass z-50">
         <div className="p-6 border-b border-white/20">
