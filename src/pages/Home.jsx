@@ -120,12 +120,14 @@ export default function Home() {
         >
           <Sparkles className="w-10 h-10 text-white drop-shadow-lg" />
         </motion.div>
-        <h1 className="text-3xl lg:text-5xl font-bold mb-2 gold-shimmer">
-          GlowAI
+        <h1 className="text-4xl lg:text-6xl font-black mb-3 gold-shimmer neon-gold">
+          ✨ GlowAI ✨
         </h1>
         <p className="text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto px-4">
           {tr('homeSubtitle')}
         </p>
+        {/* Glowing divider */}
+        <div className="mt-5 mx-auto w-32 h-1 rounded-full" style={{ background: 'linear-gradient(90deg,#f472b6,#fbbf24,#a78bfa)', boxShadow: '0 0 12px 4px rgba(244,114,182,0.5)' }} />
       </motion.div>
 
       {/* User Dashboard */}
