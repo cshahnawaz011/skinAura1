@@ -81,10 +81,14 @@ export default function Layout({ children, currentPageName }) {
       <aside className="hidden lg:flex fixed left-0 top-0 h-full w-56 xl:w-64 flex-col glass z-50">
         <div className="p-6 border-b border-white/20">
           <Link to={createPageUrl('Home')} className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-2xl font-bold gold-shimmer">GlowAI</span>
+            <motion.div
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-amber-300 flex items-center justify-center"
+              animate={{ boxShadow: ['0 0 8px 2px rgba(244,114,182,0.5)', '0 0 20px 6px rgba(251,191,36,0.6)', '0 0 8px 2px rgba(244,114,182,0.5)'] }}
+              transition={{ duration: 2.5, repeat: Infinity }}
+            >
+              <Sparkles className="w-6 h-6 text-white drop-shadow" />
+            </motion.div>
+            <span className="text-2xl font-black gold-shimmer">GlowAI</span>
           </Link>
         </div>
         
