@@ -518,11 +518,16 @@ IMPORTANT RULES:
           </div>
 
           {/* Actions */}
-          <div className="flex gap-4">
+          <div className="flex gap-3 flex-wrap">
             <Button variant="outline" onClick={generateRoutine} disabled={generating || !latestAnalysis || cooldownLeft > 0} className="flex-1">
               <RefreshCw className={`w-4 h-4 mr-2 ${generating ? 'animate-spin' : ''}`} />
               {cooldownLeft > 0 ? `${Math.floor(cooldownLeft/60)}:${String(cooldownLeft%60).padStart(2,'0')}` : 'Regenerate'}
             </Button>
+            <Link to={createPageUrl('ProductAnalytics')}>
+              <Button className="bg-gradient-to-r from-violet-500 to-pink-500">
+                <BarChart2 className="w-4 h-4 mr-2" /> Product Analytics
+              </Button>
+            </Link>
             <Button variant="destructive" onClick={() => deleteMutation.mutate(currentRoutine.id)} className="px-4">
               <Trash2 className="w-4 h-4" />
             </Button>
