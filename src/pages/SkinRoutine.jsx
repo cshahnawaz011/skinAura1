@@ -314,6 +314,8 @@ For EACH step, provide:
 9. benefits: deep mechanistic explanation of WHY this helps THIS patient's specific skin scores — reference their actual concerns and skin type. Minimum 3 sentences.
 10. product_look_for: what ingredients/labels to look for when buying — be specific
 11. avoid: what ingredients or product types to strictly avoid in this step given their skin profile
+12. apply_seconds: how many seconds to spend applying this product (e.g. 30 for a quick cleanser, 60 for a serum massage)
+13. wait_seconds: how many seconds to wait after applying before the next step (e.g. 30 for toner, 120 for vitamin C to absorb)
 
 IMPORTANT RULES:
 - If oiliness > 6: NO heavy oils in morning; use lightweight water-based products
