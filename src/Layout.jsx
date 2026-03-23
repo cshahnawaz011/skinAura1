@@ -107,15 +107,15 @@ export default function Layout({ children, currentPageName }) {
                       to={createPageUrl(item.page)}
                       className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
                         isActive
-                          ? 'bg-gradient-to-r from-pink-100/90 to-amber-100/90 dark:from-pink-900/40 dark:to-amber-900/30 shadow-md font-semibold'
+                          ? 'bg-gradient-to-r from-pink-100/80 to-amber-100/60 dark:from-pink-900/30 dark:to-amber-900/20 shadow-md font-semibold'
                           : 'hover:bg-white/50 dark:hover:bg-white/10 text-gray-600 dark:text-gray-300'
                       }`}
-                      style={isActive ? { boxShadow: '0 0 12px 2px rgba(236,72,153,0.2)' } : {}}
+                      style={isActive ? { boxShadow: '0 0 12px 2px rgba(244,114,182,0.25)' } : {}}
                     >
                       <Icon className={`w-4 h-4 ${isActive ? item.color || 'text-pink-500' : item.color || 'text-gray-400'}`}
                         style={isActive ? { filter: 'drop-shadow(0 0 4px currentColor)' } : {}} />
-                      <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}
-                        style={isActive ? { textShadow: '0 0 8px rgba(236,72,153,0.4)' } : {}}>{item.name}</span>
+                      <span className={`text-sm font-medium ${isActive ? item.color || 'text-pink-600' : ''}`}>{item.name}</span>
+                      {isActive && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-400 shadow" style={{ boxShadow: '0 0 6px 2px rgba(244,114,182,0.8)' }} />}
                     </Link>
                   </li>
                 </React.Fragment>
