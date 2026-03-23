@@ -512,6 +512,7 @@ IMPORTANT RULES:
                 index={index}
                 isActive={false}
                 isMorning={activeTab === 'morning'}
+                userEmail={user?.email}
               />
             ))}
           </div>
