@@ -344,7 +344,9 @@ IMPORTANT RULES:
                 duration: { type: "string" },
                 benefits: { type: "string" },
                 product_look_for: { type: "string" },
-                avoid: { type: "string" }
+                avoid: { type: "string" },
+                apply_seconds: { type: "number" },
+                wait_seconds: { type: "number" }
               }
             }
           },
