@@ -156,6 +156,25 @@ function StepCard({ step, index, isActive, isMorning, userEmail }) {
                     <p className="text-xs text-red-700 dark:text-red-300">{step.avoid}</p>
                   </div>
                 )}
+
+                {/* Step Timer */}
+                <div onClick={e => e.stopPropagation()}>
+                  <StepTimer
+                    applySeconds={step.apply_seconds || 30}
+                    waitSeconds={step.wait_seconds || 60}
+                    stepName={step.product_type}
+                  />
+                </div>
+
+                {/* Product Picker */}
+                <div onClick={e => e.stopPropagation()}>
+                  <ProductPicker
+                    step={step}
+                    userEmail={userEmail}
+                    selectedProduct={selectedProduct}
+                    onSelect={setSelectedProduct}
+                  />
+                </div>
               </div>
             </motion.div>
           )}
