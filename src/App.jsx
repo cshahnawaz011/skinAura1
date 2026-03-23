@@ -5,6 +5,15 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ProductAnalytics from './pages/ProductAnalytics';
+import SkinJournal from './pages/SkinJournal';
+import GlowGoals from './pages/GlowGoals';
+import UVTracker from './pages/UVTracker';
+import SleepCoach from './pages/SleepCoach';
+import HabitStreaks from './pages/HabitStreaks';
+import SkinDiet from './pages/SkinDiet';
+import BodyScanner from './pages/BodyScanner';
+import SkincareQuiz from './pages/SkincareQuiz';
+import DermDictionary from './pages/DermDictionary';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -59,6 +68,15 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/ProductAnalytics" element={<LayoutWrapper currentPageName="ProductAnalytics"><ProductAnalytics /></LayoutWrapper>} />
+      <Route path="/SkinJournal" element={<LayoutWrapper currentPageName="SkinJournal"><SkinJournal /></LayoutWrapper>} />
+      <Route path="/GlowGoals" element={<LayoutWrapper currentPageName="GlowGoals"><GlowGoals /></LayoutWrapper>} />
+      <Route path="/UVTracker" element={<LayoutWrapper currentPageName="UVTracker"><UVTracker /></LayoutWrapper>} />
+      <Route path="/SleepCoach" element={<LayoutWrapper currentPageName="SleepCoach"><SleepCoach /></LayoutWrapper>} />
+      <Route path="/HabitStreaks" element={<LayoutWrapper currentPageName="HabitStreaks"><HabitStreaks /></LayoutWrapper>} />
+      <Route path="/SkinDiet" element={<LayoutWrapper currentPageName="SkinDiet"><SkinDiet /></LayoutWrapper>} />
+      <Route path="/BodyScanner" element={<LayoutWrapper currentPageName="BodyScanner"><BodyScanner /></LayoutWrapper>} />
+      <Route path="/SkincareQuiz" element={<LayoutWrapper currentPageName="SkincareQuiz"><SkincareQuiz /></LayoutWrapper>} />
+      <Route path="/DermDictionary" element={<LayoutWrapper currentPageName="DermDictionary"><DermDictionary /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
