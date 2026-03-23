@@ -74,11 +74,20 @@ body {
 
 /* Gradient backgrounds */
 .gradient-bg {
-  background: linear-gradient(135deg, #fff5f7 0%, #e6f7f3 50%, #fff9e6 100%);
+  background: linear-gradient(135deg, #fff0f5 0%, #fdf0ff 25%, #e6f7f3 60%, #fffbe6 100%);
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite;
 }
 
 .dark .gradient-bg {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background: linear-gradient(135deg, #1a0a1e 0%, #0d1b2e 40%, #0f1f1a 70%, #1e1a0a 100%);
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* Gold shimmer animation */
