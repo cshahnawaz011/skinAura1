@@ -52,7 +52,7 @@ export default function Layout({ children, currentPageName }) {
     queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
     enabled: !!user?.email,
   });
-  const navItems = NAV_KEYS.filter(item => !item.hidden).map(item => ({ ...item, name: t[lang]?.[item.key] || item.label }));
+  const navItems = NAV_KEYS.filter(item => !item.hidden).map(item => ({ ...item, name: (t[lang] && t[lang][item.key]) || item.label }));
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
