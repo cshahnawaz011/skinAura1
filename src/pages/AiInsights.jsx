@@ -298,7 +298,7 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
 function CelebrityResult({ data }) {
   return (
     <div className="space-y-4 mt-4">
-      <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+      <div className="p-4 bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 rounded-2xl border-2 border-amber-300 dark:border-amber-700" style={{ boxShadow: '0 0 18px 4px rgba(251,191,36,0.2)' }}>
         <div className="flex items-center justify-between mb-2">
           <span className="font-bold text-lg">⭐ {data.top_match?.name}</span>
           <Badge className="bg-amber-500 text-white">{data.top_match?.similarity_pct}% Match</Badge>
