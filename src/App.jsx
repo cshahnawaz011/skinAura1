@@ -5,15 +5,16 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import ProductAnalytics from './pages/ProductAnalytics';
-import SkinJournal from './pages/SkinJournal';
-import GlowGoals from './pages/GlowGoals';
-import UVTracker from './pages/UVTracker';
-import SleepCoach from './pages/SleepCoach';
-import HabitStreaks from './pages/HabitStreaks';
-import SkinDiet from './pages/SkinDiet';
-import BodyScanner from './pages/BodyScanner';
-import SkincareQuiz from './pages/SkincareQuiz';
-import DermDictionary from './pages/DermDictionary';
+import SmartScheduler from './pages/SmartScheduler';
+import SkinDiary from './pages/SkinDiary';
+import SkinGoals from './pages/SkinGoals';
+import NutritionScanner from './pages/NutritionScanner';
+import FaceYoga from './pages/FaceYoga';
+import SkinDetox from './pages/SkinDetox';
+import BeautyCalendar from './pages/BeautyCalendar';
+import TravelSkincare from './pages/TravelSkincare';
+import HormoneTracker from './pages/HormoneTracker';
+import GlowChallenge from './pages/GlowChallenge';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -68,15 +69,16 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/ProductAnalytics" element={<LayoutWrapper currentPageName="ProductAnalytics"><ProductAnalytics /></LayoutWrapper>} />
-      <Route path="/SkinJournal" element={<LayoutWrapper currentPageName="SkinJournal"><SkinJournal /></LayoutWrapper>} />
-      <Route path="/GlowGoals" element={<LayoutWrapper currentPageName="GlowGoals"><GlowGoals /></LayoutWrapper>} />
-      <Route path="/UVTracker" element={<LayoutWrapper currentPageName="UVTracker"><UVTracker /></LayoutWrapper>} />
-      <Route path="/SleepCoach" element={<LayoutWrapper currentPageName="SleepCoach"><SleepCoach /></LayoutWrapper>} />
-      <Route path="/HabitStreaks" element={<LayoutWrapper currentPageName="HabitStreaks"><HabitStreaks /></LayoutWrapper>} />
-      <Route path="/SkinDiet" element={<LayoutWrapper currentPageName="SkinDiet"><SkinDiet /></LayoutWrapper>} />
-      <Route path="/BodyScanner" element={<LayoutWrapper currentPageName="BodyScanner"><BodyScanner /></LayoutWrapper>} />
-      <Route path="/SkincareQuiz" element={<LayoutWrapper currentPageName="SkincareQuiz"><SkincareQuiz /></LayoutWrapper>} />
-      <Route path="/DermDictionary" element={<LayoutWrapper currentPageName="DermDictionary"><DermDictionary /></LayoutWrapper>} />
+      <Route path="/SmartScheduler" element={<LayoutWrapper currentPageName="SmartScheduler"><SmartScheduler /></LayoutWrapper>} />
+      <Route path="/SkinDiary" element={<LayoutWrapper currentPageName="SkinDiary"><SkinDiary /></LayoutWrapper>} />
+      <Route path="/SkinGoals" element={<LayoutWrapper currentPageName="SkinGoals"><SkinGoals /></LayoutWrapper>} />
+      <Route path="/NutritionScanner" element={<LayoutWrapper currentPageName="NutritionScanner"><NutritionScanner /></LayoutWrapper>} />
+      <Route path="/FaceYoga" element={<LayoutWrapper currentPageName="FaceYoga"><FaceYoga /></LayoutWrapper>} />
+      <Route path="/SkinDetox" element={<LayoutWrapper currentPageName="SkinDetox"><SkinDetox /></LayoutWrapper>} />
+      <Route path="/BeautyCalendar" element={<LayoutWrapper currentPageName="BeautyCalendar"><BeautyCalendar /></LayoutWrapper>} />
+      <Route path="/TravelSkincare" element={<LayoutWrapper currentPageName="TravelSkincare"><TravelSkincare /></LayoutWrapper>} />
+      <Route path="/HormoneTracker" element={<LayoutWrapper currentPageName="HormoneTracker"><HormoneTracker /></LayoutWrapper>} />
+      <Route path="/GlowChallenge" element={<LayoutWrapper currentPageName="GlowChallenge"><GlowChallenge /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
