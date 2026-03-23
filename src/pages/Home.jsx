@@ -180,9 +180,9 @@ export default function Home() {
 
           {/* Today's Wellness */}
           <GlassCard className="lg:col-span-1" delay={0.2}>
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Sun className="w-5 h-5 text-amber-500" />
-              {tr('todaysWellness')}
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Sun className="w-5 h-5 text-amber-400" style={{ filter: 'drop-shadow(0 0 6px #fbbf24)' }} />
+              <span className="neon-gold">{tr('todaysWellness')}</span>
             </h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
