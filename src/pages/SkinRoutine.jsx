@@ -37,8 +37,9 @@ const ROUTINE_PHASES = {
   ]
 };
 
-function StepCard({ step, index, isActive, isMorning, onClick }) {
+function StepCard({ step, index, isActive, isMorning, userEmail }) {
   const [expanded, setExpanded] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   return (
     <motion.div
@@ -47,7 +48,7 @@ function StepCard({ step, index, isActive, isMorning, onClick }) {
       transition={{ delay: index * 0.08 }}
     >
       <div
-        className={`glass rounded-2xl overflow-hidden border ${
+        className={`glass rounded-2xl overflow-hidden border glow-card ${
           isActive ? 'border-pink-300 dark:border-pink-700' : 'border-white/20'
         } cursor-pointer`}
         onClick={() => setExpanded(!expanded)}
