@@ -15,6 +15,7 @@ import BeautyCalendar from './pages/BeautyCalendar';
 import TravelSkincare from './pages/TravelSkincare';
 import HormoneTracker from './pages/HormoneTracker';
 import GlowChallenge from './pages/GlowChallenge';
+import FacialHeatmap from './pages/FacialHeatmap';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -79,6 +80,7 @@ const AuthenticatedApp = () => {
       <Route path="/TravelSkincare" element={<LayoutWrapper currentPageName="TravelSkincare"><TravelSkincare /></LayoutWrapper>} />
       <Route path="/HormoneTracker" element={<LayoutWrapper currentPageName="HormoneTracker"><HormoneTracker /></LayoutWrapper>} />
       <Route path="/GlowChallenge" element={<LayoutWrapper currentPageName="GlowChallenge"><GlowChallenge /></LayoutWrapper>} />
+      <Route path="/FacialHeatmap" element={<LayoutWrapper currentPageName="FacialHeatmap"><FacialHeatmap /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

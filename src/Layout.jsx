@@ -37,6 +37,7 @@ const NAV_SECTIONS = [
       { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Skin Chat' },
       { key: 'nutritionScanner', icon: Apple, page: 'NutritionScanner', label: 'Nutrition Scanner' },
       { key: 'faceYoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
+      { key: 'facialHeatmap', icon: Activity, page: 'FacialHeatmap', label: 'Facial Heatmap' },
     ]
   },
   {
