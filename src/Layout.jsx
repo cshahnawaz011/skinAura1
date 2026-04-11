@@ -17,39 +17,33 @@ import { useQuery } from '@tanstack/react-query';
 
 const NAV_SECTIONS = [
   {
-    label: 'Skin Care',
+    label: 'Skin',
     color: 'text-rose-400',
     items: [
       { key: 'home', icon: Home, page: 'Home', label: 'Home' },
       { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Skin Analysis' },
-      { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
+      { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'My Routine' },
       { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
-      { key: 'report', icon: FileText, page: 'SkinReport', label: 'My Report' },
-      { key: 'skinDiary', icon: BookOpen, page: 'SkinDiary', label: 'Skin Diary' },
     ]
   },
   {
     label: 'AI Tools',
     color: 'text-violet-400',
     items: [
-      { key: 'skinAge', icon: Clock, page: 'SkinAgePrediction', label: 'Skin Age AI' },
+      { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'AI Skin Coach' },
       { key: 'aiInsights', icon: Zap, page: 'AiInsights', label: 'AI Insights' },
-      { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Skin Chat' },
-      { key: 'nutritionScanner', icon: Apple, page: 'NutritionScanner', label: 'Nutrition Scanner' },
-      { key: 'faceYoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
       { key: 'facialHeatmap', icon: Activity, page: 'FacialHeatmap', label: 'Facial Heatmap' },
+      { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup Try-On' },
     ]
   },
   {
     label: 'Wellness',
     color: 'text-emerald-400',
     items: [
-      { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
-      { key: 'tracker', icon: Trophy, page: 'GamifiedTracker', label: 'Glow Tracker' },
-      { key: 'skinGoals', icon: Target, page: 'SkinGoals', label: 'Skin Goals' },
-      { key: 'hormoneTracker', icon: Activity, page: 'HormoneTracker', label: 'Hormone Tracker' },
-      { key: 'smartScheduler', icon: Clock, page: 'SmartScheduler', label: 'Smart Scheduler' },
-      { key: 'skinDetox', icon: Sparkles, page: 'SkinDetox', label: 'Skin Detox' },
+      { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Daily Log' },
+      { key: 'glowChallenge', icon: Trophy, page: 'GlowChallenge', label: 'Challenges' },
+      { key: 'faceYoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
+      { key: 'hormoneTracker', icon: Activity, page: 'HormoneTracker', label: 'Cycle Tracker' },
     ]
   },
   {
@@ -57,27 +51,15 @@ const NAV_SECTIONS = [
     color: 'text-sky-400',
     items: [
       { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
-      { key: 'compare', icon: GitCompare, page: 'ProductComparison', label: 'Compare' },
       { key: 'ingredients', icon: FlaskConical, page: 'IngredientChecker', label: 'Ingredient Check' },
-      { key: 'productAnalytics', icon: BarChart2, page: 'ProductAnalytics', label: 'Product Analytics' },
+      { key: 'nutritionScanner', icon: Apple, page: 'NutritionScanner', label: 'Food Scanner' },
     ]
   },
   {
-    label: 'Lifestyle',
+    label: 'Explore',
     color: 'text-amber-400',
     items: [
-      { key: 'beautyCalendar', icon: Calendar, page: 'BeautyCalendar', label: 'Beauty Calendar' },
-      { key: 'travelSkincare', icon: Globe, page: 'TravelSkincare', label: 'Travel Skincare' },
-      { key: 'glowChallenge', icon: Trophy, page: 'GlowChallenge', label: 'Glow Challenge' },
-      { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup Try-On' },
-    ]
-  },
-  {
-    label: 'Community',
-    color: 'text-blue-400',
-    items: [
       { key: 'community', icon: Users, page: 'Community', label: 'Community' },
-      { key: 'glowMap', icon: Globe, page: 'GlowMap', label: 'Glow Map' },
       { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn' },
     ]
   },
