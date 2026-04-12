@@ -19,6 +19,7 @@ const NAV_SECTIONS = [
     items: [
       { key: 'home', icon: Home, page: 'Home', label: 'Home' },
       { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
+      { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
       { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
       { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
     ]
@@ -43,7 +44,7 @@ const NAV_SECTIONS = [
     label: 'Products',
     items: [
       { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
-      { key: 'ingredients', icon: FlaskConical, page: 'IngredientChecker', label: 'Ingredients' },
+      { key: 'ingredients', icon: FlaskConical, page: 'IngredientLibrary', label: 'Ingredient Library' },
       { key: 'nutritionScanner', icon: Apple, page: 'NutritionScanner', label: 'Food Scanner' },
     ]
   },

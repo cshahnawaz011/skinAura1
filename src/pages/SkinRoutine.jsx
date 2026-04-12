@@ -14,8 +14,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import GlassCard from '@/components/ui/GlassCard';
-import ReminderSection from '@/components/routine/ReminderSection';
 import RoutineScheduler from '@/components/routine/RoutineScheduler';
+import FaceZoneRoutine from '@/components/routine/FaceZoneRoutine';
+import SmartNotifications from '@/components/routine/SmartNotifications';
 import StepTimer from '@/components/routine/StepTimer';
 import ProductPicker from '@/components/routine/ProductPicker';
 import { Link } from 'react-router-dom';
@@ -403,6 +404,14 @@ IMPORTANT RULES:
         <p className="text-gray-500 dark:text-gray-400 mt-1">Expert-level routines engineered for your exact skin profile</p>
       </div>
 
+      {/* Face Zone Heatmap */}
+      {latestAnalysis && (
+        <div className="rounded-2xl p-4" style={{ background: '#faf6f2', border: '1px solid #ede8e3' }}>
+          <h2 className="font-bold text-base mb-3" style={{ color: '#3d2a2a' }}>🗺️ Face Zone Routine Map</h2>
+          <FaceZoneRoutine skinAnalysis={latestAnalysis} />
+        </div>
+      )}
+
       {/* Tab Switcher */}
       <div className="flex gap-4">
         <Button
@@ -490,6 +499,13 @@ IMPORTANT RULES:
               </div>
             </GlassCard>
           )}
+
+          {/* Smart Notifications */}
+          <SmartNotifications
+            routine={currentRoutine}
+            routineType={activeTab}
+            onSave={(data) => saveMutation.mutate(data)}
+          />
 
           {/* Smart Scheduler */}
           <RoutineScheduler
