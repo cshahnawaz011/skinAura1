@@ -28,7 +28,6 @@ const NAV_SECTIONS = [
     label: 'AI Tools',
     items: [
       { key: 'aiInsights', icon: Zap, page: 'AiInsights', label: 'AI Insights' },
-      { key: 'facialHeatmap', icon: Activity, page: 'FacialHeatmap', label: 'Facial Heatmap' },
       { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup Try-On' },
     ]
   },
