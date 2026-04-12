@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import WeatherAdvisor from '@/components/home/WeatherAdvisor';
+import FamilyConsistency from '@/components/routine/FamilyConsistency';
 import { checkAICooldown, recordAIUsage, getCooldownSeconds } from '@/components/utils/aiRateLimit';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -403,6 +405,12 @@ IMPORTANT RULES:
         <h1 className="text-3xl font-bold">Your Skin Routine</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Expert-level routines engineered for your exact skin profile</p>
       </div>
+
+      {/* Weather Advisory */}
+      <WeatherAdvisor skinAnalysis={latestAnalysis} />
+
+      {/* Family Consistency */}
+      <FamilyConsistency />
 
       {/* Face Zone Heatmap */}
       {latestAnalysis && (
