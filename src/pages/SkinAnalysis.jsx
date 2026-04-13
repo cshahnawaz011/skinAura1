@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis';
 import GlowShareCard from '@/components/share/GlowShareCard';
+import DermatologyReport from '@/components/analysis/DermatologyReport';
+import { Stethoscope } from 'lucide-react';
 
 const skinConcerns = [
   {
@@ -179,6 +181,9 @@ export default function SkinAnalysis() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [dermResult, setDermResult] = useState(null);
+  const [dermAnalyzing, setDermAnalyzing] = useState(false);
+  const [activeTab, setActiveTab] = useState('standard');
   const [showConfetti, setShowConfetti] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [cooldownLeft, setCooldownLeft] = useState(getCooldownSeconds('skin_analysis'));
@@ -313,6 +318,67 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
     recordAIUsage('skin_analysis');
     setCooldownLeft(3 * 60);
     setAnalyzing(false);
+
+    // Auto-run deep derm analysis
+    setDermAnalyzing(true);
+    const dermRes = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are a board-certified clinical dermatologist. Perform a clinic-grade dermatological assessment of this face photo. Based on what you observe, identify any dermatological conditions or skin disorders.
+
+Provide:
+1. skin_health_grade: A letter grade (A, B, C, D, F) for overall clinical skin health
+2. summary: 1-sentence clinical summary
+3. overall_assessment: 2-3 sentence clinical paragraph describing the skin's dermatological status
+4. conditions: array of dermatological conditions detected (include even mild ones). For each:
+   - name: clinical name of condition (e.g. "Comedonal Acne", "Melasma", "Perioral Dermatitis", "Seborrhoeic Dermatitis", "Rosacea Type I", "Post-Inflammatory Hyperpigmentation", "Milia", "Syringoma", "Enlarged Sebaceous Glands", etc.)
+   - emoji: relevant emoji
+   - severity: one of [none, mild, moderate, severe]
+   - description: 1-2 sentence clinical description of what was observed
+   - triggers: array of common triggers for this condition
+   - skincare_dos: array of 3-4 specific skincare actions that help
+   - skincare_donts: array of 2-3 things to absolutely avoid
+   - key_ingredients: array of clinically proven ingredients for this condition
+   - rx_options: prescription treatment options (mention they need a doctor)
+   - routine_modification: specific change to make in their daily routine
+   - expected_improvement: realistic timeline with proper treatment
+   - requires_dermatologist: true if this condition needs professional evaluation
+5. routine_changes_required: overall summary of how their routine needs to change based on ALL detected conditions
+
+Be clinical, specific, and honest. If the skin is healthy, still report it but with severity: none. Always include at least 2-3 conditions in the array even if mild.`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          skin_health_grade: { type: 'string' },
+          summary: { type: 'string' },
+          overall_assessment: { type: 'string' },
+          routine_changes_required: { type: 'string' },
+          conditions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                emoji: { type: 'string' },
+                severity: { type: 'string' },
+                description: { type: 'string' },
+                triggers: { type: 'array', items: { type: 'string' } },
+                skincare_dos: { type: 'array', items: { type: 'string' } },
+                skincare_donts: { type: 'array', items: { type: 'string' } },
+                key_ingredients: { type: 'array', items: { type: 'string' } },
+                rx_options: { type: 'string' },
+                routine_modification: { type: 'string' },
+                expected_improvement: { type: 'string' },
+                requires_dermatologist: { type: 'boolean' },
+              }
+            }
+          }
+        }
+      }
+    });
+    setDermResult(dermRes);
+    setDermAnalyzing(false);
+    // Save derm result to sessionStorage so SkinRoutine can use it
+    try { sessionStorage.setItem('glowai-derm-result', JSON.stringify(dermRes)); } catch(e) {}
   };
 
   const saveAnalysis = async () => {
@@ -475,6 +541,27 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
         {analysisResult && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
+            {/* Tab Switcher */}
+            <div className="flex gap-2 p-1 rounded-2xl" style={{ background: '#f0ebe6' }}>
+              <button
+                onClick={() => setActiveTab('standard')}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'standard' ? 'bg-white shadow text-pink-600' : 'text-gray-500'
+                }`}>
+                <Sparkles className="w-4 h-4" /> Standard Analysis
+              </button>
+              <button
+                onClick={() => setActiveTab('dermatology')}
+                className={`flex-1 py-2 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === 'dermatology' ? 'bg-white shadow text-purple-600' : 'text-gray-500'
+                }`}>
+                <Stethoscope className="w-4 h-4" /> Clinic-Grade Derm
+                {dermAnalyzing && <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse" />}
+              </button>
+            </div>
+
+            {activeTab === 'standard' && (
+              <>
             {/* Score Hero */}
             <GlassCard className="bg-gradient-to-r from-pink-50 to-amber-50 dark:from-pink-900/20 dark:to-amber-900/20">
               <div className="flex flex-col md:flex-row items-center gap-6">
@@ -583,6 +670,27 @@ Be honest, clinical, and deeply personalized. Do not give generic advice.`,
                 ))}
               </div>
             </GlassCard>
+              </>
+            )}
+
+            {activeTab === 'dermatology' && (
+              <GlassCard>
+                {dermAnalyzing ? (
+                  <div className="text-center py-10 space-y-3">
+                    <div className="w-14 h-14 mx-auto rounded-full bg-purple-100 flex items-center justify-center">
+                      <Stethoscope className="w-7 h-7 text-purple-500 animate-pulse" />
+                    </div>
+                    <p className="font-semibold text-purple-700">Running Clinic-Grade Dermatology Analysis...</p>
+                    {['Identifying dermatological conditions...', 'Assessing severity levels...', 'Generating treatment protocols...', 'Preparing routine modifications...'].map((s, i) => (
+                      <motion.p key={i} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 1.2 }}
+                        className="text-xs text-gray-500">{s}</motion.p>
+                    ))}
+                  </div>
+                ) : (
+                  <DermatologyReport dermData={dermResult} />
+                )}
+              </GlassCard>
+            )}
 
             {/* Actions */}
             <div className="flex gap-4">

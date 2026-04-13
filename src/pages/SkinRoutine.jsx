@@ -236,6 +236,12 @@ export default function SkinRoutine() {
     enabled: !!user?.email,
   });
 
+  const { data: allAnalyses = [] } = useQuery({
+    queryKey: ['allAnalyses', user?.email],
+    queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 3),
+    enabled: !!user?.email,
+  });
+
   const currentRoutine = routines.find(r => r.routine_type === activeTab);
 
   const saveMutation = useMutation({
@@ -287,6 +293,22 @@ Lifestyle factors to consider:
 
     const phases = ROUTINE_PHASES[activeTab].map(p => p.phase).join(', ');
 
+    // Fetch derm data from localStorage (set during analysis session)
+    let dermContext = '';
+    try {
+      const dermRaw = sessionStorage.getItem('glowai-derm-result');
+      if (dermRaw) {
+        const derm = JSON.parse(dermRaw);
+        const activeConditions = (derm.conditions || []).filter(c => c.severity !== 'none');
+        if (activeConditions.length > 0) {
+          dermContext = `
+DERMATOLOGICAL CONDITIONS DETECTED (MUST modify routine for these):
+${activeConditions.map(c => `- ${c.name} (${c.severity}): DO: ${c.skincare_dos?.join(', ')}. AVOID: ${c.skincare_donts?.join(', ')}. Key ingredients: ${c.key_ingredients?.join(', ')}`).join('\n')}
+Overall routine modification needed: ${derm.routine_changes_required || 'adjust for detected conditions'}`;
+        }
+      }
+    } catch(e) {}
+
     setGeneratingPhase('Building your skin profile...');
     await new Promise(r => setTimeout(r, 400));
     setGeneratingPhase('Selecting optimal ingredients...');
@@ -329,7 +351,13 @@ IMPORTANT RULES:
 - If wrinkles > 5: night = retinol or peptides; morning = antioxidant vitamin C
 - Always add SPF as final morning step regardless
 - Night routine should include at least one active treatment step
-- Give 5-7 steps for comprehensive care`,
+- Give 5-7 steps for comprehensive care
+${dermContext ? `
+CRITICAL DERM MODIFICATIONS: The patient has diagnosed dermatological conditions. You MUST:
+1. Add a SPECIAL DERM PROTOCOL section in relevant steps addressing these conditions
+2. Flag incompatible products for their conditions
+3. Prioritize ingredients proven for their specific conditions
+4. Add extra caution steps for severe conditions` : ''}`,
       response_json_schema: {
         type: "object",
         properties: {
