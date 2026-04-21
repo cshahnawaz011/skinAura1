@@ -1,0 +1,93 @@
+{
+  "name": "SkinAnalysis",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Front face photo URL (primary)"
+    },
+    "photo_left_url": {
+      "type": "string",
+      "description": "Left face photo URL"
+    },
+    "photo_right_url": {
+      "type": "string",
+      "description": "Right face photo URL"
+    },
+    "analysis_type": {
+      "type": "string",
+      "enum": [
+        "single",
+        "triple"
+      ],
+      "default": "single"
+    },
+    "overall_score": {
+      "type": "number"
+    },
+    "skin_type": {
+      "type": "string"
+    },
+    "skin_tone": {
+      "type": "string"
+    },
+    "acne_level": {
+      "type": "number"
+    },
+    "dark_spots": {
+      "type": "number"
+    },
+    "wrinkles": {
+      "type": "number"
+    },
+    "pores": {
+      "type": "number"
+    },
+    "redness": {
+      "type": "number"
+    },
+    "oiliness": {
+      "type": "number"
+    },
+    "dryness": {
+      "type": "number"
+    },
+    "sensitivity": {
+      "type": "number"
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "skin_strengths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "priority_concerns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "concern_insights": {
+      "type": "object"
+    },
+    "zone_notes": {
+      "type": "object",
+      "description": "Per-zone notes: front, left, right"
+    },
+    "analysis_date": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}
