@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Activity, Apple, ChevronDown, Salad
+  Zap, FlaskConical, LogIn, LogOut, Activity, Apple, ChevronDown, Salad, Star
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
@@ -35,6 +35,7 @@ const NAV_SECTIONS = [
     label: 'Wellness',
     items: [
       { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
+      { key: 'glowDashboard', icon: Star, page: 'GlowDashboard', label: 'Glow Dashboard' },
       { key: 'glowChallenge', icon: Sparkles, page: 'GlowChallenge', label: 'Challenges' },
       { key: 'faceYoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
     ]

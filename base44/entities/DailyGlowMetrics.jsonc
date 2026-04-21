@@ -1,0 +1,41 @@
+{
+  "name": "DailyGlowMetrics",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "glow_score": {
+      "type": "number"
+    },
+    "tasks_done": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "streak_days": {
+      "type": "number"
+    },
+    "badges_earned": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mood": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "date"
+  ]
+}

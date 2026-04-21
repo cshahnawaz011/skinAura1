@@ -18,6 +18,7 @@ import GlowChallenge from './pages/GlowChallenge';
 import FacialHeatmap from './pages/FacialHeatmap';
 import IngredientLibrary from './pages/IngredientLibrary';
 import Diet from './pages/Diet';
+import GlowDashboard from './pages/GlowDashboard';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -85,6 +86,7 @@ const AuthenticatedApp = () => {
       <Route path="/FacialHeatmap" element={<LayoutWrapper currentPageName="FacialHeatmap"><FacialHeatmap /></LayoutWrapper>} />
       <Route path="/IngredientLibrary" element={<LayoutWrapper currentPageName="IngredientLibrary"><IngredientLibrary /></LayoutWrapper>} />
       <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />
+      <Route path="/GlowDashboard" element={<LayoutWrapper currentPageName="GlowDashboard"><GlowDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
