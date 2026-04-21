@@ -5,12 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Apple, Sparkles, Loader2, Flame, Droplets, Leaf, Target,
   Calendar, Map, BookOpen, Zap, Moon, Sun, TrendingUp, Heart,
-  ChevronDown, ChevronUp, Star, Clock, AlertTriangle, CheckCircle
+  ChevronDown, ChevronUp, Star, Clock, AlertTriangle, CheckCircle,
+  Link as LinkIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 const TABS = [
   { id: 'smart_plan', label: 'Smart Plan', icon: Sparkles, emoji: '🧬' },
@@ -71,42 +73,109 @@ export default function Diet() {
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
-  // Load data from related features
+  // ── DB Data ──────────────────────────────────────────────────────────
   const { data: skinAnalysis } = useQuery({
     queryKey: ['dietSkinAnalysis', user?.email],
     queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0]),
     enabled: !!user?.email,
   });
 
-  const hormoneData = (() => {
-    const saved = localStorage.getItem('hormone-tracker');
-    if (!saved) return null;
-    return JSON.parse(saved);
-  })();
+  // Last 7 days of Lifestyle/DietLog entries
+  const { data: lifestyleLogs = [] } = useQuery({
+    queryKey: ['dietLifestyleLogs', user?.email],
+    queryFn: () => base44.entities.DietLog.filter({ user_email: user.email }, '-log_date', 7),
+    enabled: !!user?.email,
+  });
 
-  const skinDiaryEntries = (() => {
-    const saved = localStorage.getItem('skin-diary');
-    if (!saved) return [];
-    try { return JSON.parse(saved); } catch { return []; }
+  // Today's lifestyle log
+  const todayDate = new Date().toLocaleDateString('en-CA');
+  const { data: todayLog } = useQuery({
+    queryKey: ['dietTodayLog', user?.email, todayDate],
+    queryFn: () => base44.entities.DietLog.filter({ user_email: user.email, log_date: todayDate }).then(r => r[0] || null),
+    enabled: !!user?.email,
+  });
+
+  // Skin journal entries
+  const { data: skinJournalEntries = [] } = useQuery({
+    queryKey: ['dietSkinJournal', user?.email],
+    queryFn: () => base44.entities.SkinJournal.filter({ created_by: user.email }, '-created_date', 10),
+    enabled: !!user?.email,
+  });
+
+  // Glow Goals
+  const { data: glowGoals = [] } = useQuery({
+    queryKey: ['dietGlowGoals', user?.email],
+    queryFn: () => base44.entities.GlowGoals.filter({ created_by: user.email }, '-created_date', 10),
+    enabled: !!user?.email,
+  });
+
+  // Skin Routine
+  const { data: skinRoutine } = useQuery({
+    queryKey: ['dietSkinRoutine', user?.email],
+    queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
+    enabled: !!user?.email,
+  });
+
+  // ── LocalStorage Data ─────────────────────────────────────────────────
+  const hormoneData = (() => {
+    try { const s = localStorage.getItem('hormone-tracker'); return s ? JSON.parse(s) : null; } catch { return null; }
   })();
 
   const travelData = (() => {
-    const saved = localStorage.getItem('travel-skincare');
-    if (!saved) return null;
-    try { return JSON.parse(saved); } catch { return null; }
+    try { const s = localStorage.getItem('travel-skincare'); return s ? JSON.parse(s) : null; } catch { return null; }
   })();
 
-  const glowChallengeData = (() => {
-    const saved = localStorage.getItem('glow-challenge');
-    if (!saved) return null;
-    try { return JSON.parse(saved); } catch { return null; }
-  })();
+  // ── Derived / computed data ───────────────────────────────────────────
+  // Avg lifestyle metrics over last 7 days
+  const avgLifestyle = lifestyleLogs.length > 0 ? {
+    water: (lifestyleLogs.reduce((s, l) => s + (l.water_glasses || 0), 0) / lifestyleLogs.length).toFixed(1),
+    sleep: (lifestyleLogs.reduce((s, l) => s + (l.sleep_hours || 0), 0) / lifestyleLogs.length).toFixed(1),
+    stress: (lifestyleLogs.reduce((s, l) => s + (l.stress_level || 3), 0) / lifestyleLogs.length).toFixed(1),
+    coffee: (lifestyleLogs.reduce((s, l) => s + (l.coffee_cups || 0), 0) / lifestyleLogs.length).toFixed(1),
+    alcohol: (lifestyleLogs.reduce((s, l) => s + (l.alcohol_drinks || 0), 0) / lifestyleLogs.length).toFixed(1),
+    skincare_morning_pct: Math.round(lifestyleLogs.filter(l => l.skincare_done_morning).length / lifestyleLogs.length * 100),
+    foods_good: [...new Set(lifestyleLogs.flatMap(l => l.foods_good || []))],
+    foods_bad: [...new Set(lifestyleLogs.flatMap(l => l.foods_bad || []))],
+    vitamins: [...new Set(lifestyleLogs.flatMap(l => l.vitamins_taken || []))],
+  } : null;
+
+  // Build a comprehensive context string for AI prompts
+  const buildContext = () => {
+    const parts = [];
+    if (skinAnalysis) {
+      parts.push(`SKIN ANALYSIS: type=${skinAnalysis.skin_type}, score=${skinAnalysis.overall_score}/100, acne=${skinAnalysis.acne_level}/10, oiliness=${skinAnalysis.oiliness}/10, dryness=${skinAnalysis.dryness}/10, dark_spots=${skinAnalysis.dark_spots}/10, redness=${skinAnalysis.redness}/10, sensitivity=${skinAnalysis.sensitivity}/10.`);
+    }
+    if (currentPhase) {
+      parts.push(`HORMONE CYCLE: Currently in ${currentPhase} phase (Day of cycle based on tracker).`);
+    }
+    if (avgLifestyle) {
+      parts.push(`LIFESTYLE (7-day avg): water=${avgLifestyle.water} glasses/day, sleep=${avgLifestyle.sleep}h/night, stress=${avgLifestyle.stress}/5, coffee=${avgLifestyle.coffee} cups/day, alcohol=${avgLifestyle.alcohol} drinks/day, morning skincare done ${avgLifestyle.skincare_morning_pct}% of days.`);
+      if (avgLifestyle.foods_good.length) parts.push(`Good foods recently eaten: ${avgLifestyle.foods_good.join(', ')}.`);
+      if (avgLifestyle.foods_bad.length) parts.push(`Bad foods recently eaten: ${avgLifestyle.foods_bad.join(', ')}.`);
+      if (avgLifestyle.vitamins.length) parts.push(`Supplements taken: ${avgLifestyle.vitamins.join(', ')}.`);
+    }
+    if (todayLog) {
+      parts.push(`TODAY'S LOG: water=${todayLog.water_glasses || 0} glasses, sleep=${todayLog.sleep_hours || 0}h, stress=${todayLog.stress_level || 'unknown'}/5, mood=${todayLog.mood || 'unknown'}.`);
+    }
+    if (skinJournalEntries.length > 0) {
+      const recentMoods = skinJournalEntries.slice(0, 3).map(e => e.mood || e.skin_feel || e.notes).filter(Boolean);
+      if (recentMoods.length) parts.push(`SKIN JOURNAL (recent): ${recentMoods.join('; ')}.`);
+    }
+    if (glowGoals.length > 0) {
+      const activeGoals = glowGoals.filter(g => g.status === 'active' || !g.status).map(g => g.title || g.goal).filter(Boolean).slice(0, 3);
+      if (activeGoals.length) parts.push(`ACTIVE GLOW GOALS: ${activeGoals.join(', ')}.`);
+    }
+    if (skinRoutine) {
+      parts.push(`HAS SKINCARE ROUTINE: Yes (${skinRoutine.skin_type || ''} routine active).`);
+    }
+    return parts.join(' ') || 'No personal data available yet — provide general advice.'
+  };
 
   const getCurrentPhase = () => {
     if (!hormoneData?.lastPeriod) return null;
-    const today = new Date();
+    const now = new Date();
     const period = new Date(hormoneData.lastPeriod + 'T00:00:00');
-    const day = Math.floor((today - period) / (1000 * 60 * 60 * 24)) + 1;
+    const day = Math.floor((now - period) / (1000 * 60 * 60 * 24)) + 1;
     if (day <= 5) return 'Menstrual';
     if (day <= 13) return 'Follicular';
     if (day <= 16) return 'Ovulation';
@@ -115,6 +184,8 @@ export default function Diet() {
 
   const currentPhase = getCurrentPhase();
   const phaseFoods = currentPhase ? HORMONE_FOODS[currentPhase] : null;
+
+  // buildContext is defined below after currentPhase is available
 
   const invokeAI = async (prompt, schema) => {
     setLoading(true);
@@ -153,19 +224,39 @@ export default function Diet() {
       </div>
 
       {/* Stats Bar */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <GlassCard className="text-center p-3">
           <p className="text-2xl font-bold text-emerald-500">{glowPoints}</p>
           <p className="text-xs text-gray-500">Glow Points Today</p>
         </GlassCard>
         <GlassCard className="text-center p-3">
-          <p className="text-2xl font-bold text-rose-500">{currentPhase || '—'}</p>
+          <p className="text-xl font-bold text-rose-500">{currentPhase || '—'}</p>
           <p className="text-xs text-gray-500">Cycle Phase</p>
         </GlassCard>
         <GlassCard className="text-center p-3">
-          <p className="text-2xl font-bold text-violet-500">{glowTasksDone.length}/{GLOW_TASKS.length}</p>
-          <p className="text-xs text-gray-500">Tasks Done</p>
+          <p className="text-2xl font-bold text-blue-500">{todayLog?.water_glasses ?? avgLifestyle?.water ?? '—'}</p>
+          <p className="text-xs text-gray-500">Glasses Water</p>
         </GlassCard>
+        <GlassCard className="text-center p-3">
+          <p className="text-2xl font-bold text-indigo-500">{todayLog?.sleep_hours ?? avgLifestyle?.sleep ?? '—'}</p>
+          <p className="text-xs text-gray-500">Sleep Hours</p>
+        </GlassCard>
+      </div>
+
+      {/* Data Connection Banner */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { label: 'Skin Analysis', ok: !!skinAnalysis, href: '/SkinAnalysis' },
+          { label: 'Lifestyle Log', ok: lifestyleLogs.length > 0, href: '/Lifestyle' },
+          { label: 'Hormone Tracker', ok: !!currentPhase, href: '/HormoneTracker' },
+          { label: 'Skin Journal', ok: skinJournalEntries.length > 0, href: '/SkinJournal' },
+          { label: 'Glow Goals', ok: glowGoals.length > 0, href: '/GlowGoals' },
+        ].map(({ label, ok, href }) => (
+          <Link key={label} to={href}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all border ${ok ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300' : 'bg-gray-50 dark:bg-gray-800/40 border-gray-200 dark:border-gray-700 text-gray-400 hover:text-gray-600'}`}>
+            <span>{ok ? '✅' : '➕'}</span> {label}
+          </Link>
+        ))}
       </div>
 
       {/* Tabs */}
@@ -194,21 +285,40 @@ export default function Diet() {
                 <h3 className="font-bold text-lg mb-1 flex items-center gap-2">🧬 Smart Diet Plan</h3>
                 <p className="text-sm text-gray-500 mb-4">Generated using your hormone cycle phase & skin analysis data</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-                  {skinAnalysis && (
+                  {skinAnalysis ? (
                     <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20">
-                      <p className="text-xs font-bold text-rose-600 mb-1">📊 Skin Profile Detected</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Type: {skinAnalysis.skin_type} | Acne: {skinAnalysis.acne_level}/10 | Oiliness: {skinAnalysis.oiliness}/10</p>
+                      <p className="text-xs font-bold text-rose-600 mb-1">📊 Skin Profile Connected</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">Type: {skinAnalysis.skin_type} | Acne: {skinAnalysis.acne_level}/10 | Oiliness: {skinAnalysis.oiliness}/10 | Score: {skinAnalysis.overall_score}/100</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
+                      <p className="text-xs font-bold text-gray-500 mb-1">📊 No Skin Analysis</p>
+                      <Link to="/SkinAnalysis" className="text-xs text-rose-500 underline">Run Skin Analysis →</Link>
                     </div>
                   )}
-                  {currentPhase && (
+                  {currentPhase ? (
                     <div className="p-3 rounded-xl bg-violet-50 dark:bg-violet-900/20">
-                      <p className="text-xs font-bold text-violet-600 mb-1">🌙 Hormone Phase Detected</p>
-                      <p className="text-xs text-gray-600 dark:text-gray-300">Currently in {currentPhase} phase — diet adjusted accordingly</p>
+                      <p className="text-xs font-bold text-violet-600 mb-1">🌙 Hormone Phase Connected</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">{currentPhase} phase — diet adjusted accordingly</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/40">
+                      <p className="text-xs font-bold text-gray-500 mb-1">🌙 No Hormone Data</p>
+                      <Link to="/HormoneTracker" className="text-xs text-violet-500 underline">Set up Hormone Tracker →</Link>
+                    </div>
+                  )}
+                  {avgLifestyle && (
+                    <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 md:col-span-2">
+                      <p className="text-xs font-bold text-blue-600 mb-1">📋 Lifestyle Data Connected (7-day avg)</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300">
+                        💧 {avgLifestyle.water} glasses water · 😴 {avgLifestyle.sleep}h sleep · 😟 Stress {avgLifestyle.stress}/5 · ☕ {avgLifestyle.coffee} coffees/day
+                        {avgLifestyle.foods_bad.length > 0 ? ` · ⚠️ Bad foods: ${avgLifestyle.foods_bad.slice(0,3).join(', ')}` : ''}
+                      </p>
                     </div>
                   )}
                 </div>
                 <Button onClick={() => invokeAI(
-                  `Create a personalized 1-day skin diet plan. ${skinAnalysis ? `Skin: type ${skinAnalysis.skin_type}, acne ${skinAnalysis.acne_level}/10, oiliness ${skinAnalysis.oiliness}/10, dryness ${skinAnalysis.dryness}/10.` : ''} ${currentPhase ? `Hormone phase: ${currentPhase} - adjust foods accordingly.` : ''} Include breakfast, lunch, dinner, snack. Make it science-backed and skin-focused.`,
+                  `Create a personalized 1-day skin diet plan using this user's data:\n${buildContext()}\nInclude breakfast, lunch, dinner, snack. Make it science-backed and skin-focused. Tailor every meal to their specific skin issues and lifestyle patterns.`,
                   { type: 'object', properties: { goal_summary: { type: 'string' }, meals: { type: 'array', items: { type: 'object', properties: { meal_type: { type: 'string' }, name: { type: 'string' }, foods: { type: 'array', items: { type: 'string' } }, skin_benefits: { type: 'string' }, calories_approx: { type: 'number' } } } }, daily_tip: { type: 'string' }, foods_to_avoid: { type: 'array', items: { type: 'string' } } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-emerald-500 to-teal-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating...</> : <><Sparkles className="w-4 h-4 mr-2" />Generate My Smart Plan</>}
@@ -261,19 +371,29 @@ export default function Diet() {
               <GlassCard>
                 <h3 className="font-bold text-lg mb-1">💆 Skin-Food Connection</h3>
                 <p className="text-sm text-gray-500 mb-4">Discover which foods help or harm your skin based on your diary</p>
-                {skinDiaryEntries.length > 0 ? (
-                  <div className="mb-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20">
-                    <p className="text-xs font-bold text-blue-600 mb-1">📔 Skin Diary Data Found ({skinDiaryEntries.length} entries)</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Using your skin diary history to personalize food recommendations</p>
+                {avgLifestyle ? (
+                  <div className="mb-4 space-y-2">
+                    {avgLifestyle.foods_good.length > 0 && (
+                      <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+                        <p className="text-xs font-bold text-emerald-600 mb-1">✅ Good Foods You've Been Eating</p>
+                        <div className="flex flex-wrap gap-1">{avgLifestyle.foods_good.map((f, i) => <Badge key={i} className="bg-emerald-500 text-xs">{f}</Badge>)}</div>
+                      </div>
+                    )}
+                    {avgLifestyle.foods_bad.length > 0 && (
+                      <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20">
+                        <p className="text-xs font-bold text-red-600 mb-1">⚠️ Bad Foods You've Been Eating</p>
+                        <div className="flex flex-wrap gap-1">{avgLifestyle.foods_bad.map((f, i) => <Badge key={i} className="bg-red-500 text-xs">{f}</Badge>)}</div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="mb-4 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20">
-                    <p className="text-xs font-bold text-amber-600 mb-1">💡 No Skin Diary Found</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Log entries in Skin Diary for personalized food triggers</p>
+                    <p className="text-xs font-bold text-amber-600 mb-1">💡 No Lifestyle Data Found</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">Log food entries in <Link to="/Lifestyle" className="underline text-amber-600">Lifestyle Tracker</Link> for personalized food analysis</p>
                   </div>
                 )}
                 <Button onClick={() => invokeAI(
-                  `I want to understand the skin-food connection. ${skinAnalysis ? `My skin type is ${skinAnalysis.skin_type}, acne level ${skinAnalysis.acne_level}/10.` : ''} Give me a comprehensive list of foods that help my skin and foods that trigger skin issues like breakouts, dullness, and inflammation. Be specific and science-backed.`,
+                  `Analyze this user's skin-food connection using their real data:\n${buildContext()}\nGive me a comprehensive personalized list of foods that help THIS user's specific skin concerns and foods that are likely triggering their issues. Mention specific issues (acne, dryness, oiliness etc.) from their profile. Be specific and science-backed.`,
                   { type: 'object', properties: { glow_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, benefit: { type: 'string' }, how_to_eat: { type: 'string' } } } }, trigger_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, why: { type: 'string' } } } }, summary: { type: 'string' } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-rose-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Analyzing...</> : <><Heart className="w-4 h-4 mr-2" />Analyze Skin-Food Link</>}
@@ -313,7 +433,7 @@ export default function Diet() {
                 <h3 className="font-bold text-lg mb-1">🎯 Nutrition Goal Tracker</h3>
                 <p className="text-sm text-gray-500 mb-4">Align your nutrition with your skin goals</p>
                 <Button onClick={() => invokeAI(
-                  `Create a personalized nutrition goal plan that aligns with skin health. ${skinAnalysis ? `Skin: type ${skinAnalysis.skin_type}, acne ${skinAnalysis.acne_level}/10, oiliness ${skinAnalysis.oiliness}/10.` : ''} Give me 5 specific nutrition goals with daily targets, what foods to eat, and how each goal improves my skin.`,
+                  `Create a personalized nutrition goal plan based on this user's real data:\n${buildContext()}\nGive me 5 specific nutrition goals with daily targets, what foods to eat, and how each goal directly improves their specific skin concerns. Prioritize goals based on what the data shows they need most.`,
                   { type: 'object', properties: { goals: { type: 'array', items: { type: 'object', properties: { goal: { type: 'string' }, daily_target: { type: 'string' }, foods: { type: 'array', items: { type: 'string' } }, skin_benefit: { type: 'string' }, difficulty: { type: 'string' } } } }, overall_strategy: { type: 'string' } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-violet-500 to-purple-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Building Goals...</> : <><Target className="w-4 h-4 mr-2" />Generate Nutrition Goals</>}
@@ -405,7 +525,7 @@ export default function Diet() {
                   </div>
                 ) : null}
                 <Button onClick={() => invokeAI(
-                  `I'm traveling and need diet advice for skin health. ${travelData ? `Travel context: ${JSON.stringify(travelData)}` : 'Give general travel diet advice.'} Consider climate changes, time zones, and local cuisine options. How should I adjust my diet to maintain glowing skin while traveling?`,
+                  `Give personalized travel diet advice for skin health using this data:\n${buildContext()}\n${travelData ? `Travel context: ${JSON.stringify(travelData)}.` : ''} Consider how their specific skin type and current lifestyle patterns should adapt when traveling. Climate changes, time zones, and local cuisine options.`,
                   { type: 'object', properties: { travel_tips: { type: 'array', items: { type: 'string' } }, local_foods_to_try: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, skin_benefit: { type: 'string' } } } }, foods_to_avoid_when_traveling: { type: 'array', items: { type: 'string' } }, hydration_tips: { type: 'array', items: { type: 'string' } } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-blue-500 to-cyan-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Planning...</> : <><Map className="w-4 h-4 mr-2" />Get Travel Diet Plan</>}
@@ -442,7 +562,7 @@ export default function Diet() {
                 <h3 className="font-bold text-lg mb-1">🌿 Ingredient-to-Food Map</h3>
                 <p className="text-sm text-gray-500 mb-4">Skincare ingredients you can also eat for double the benefits</p>
                 <Button onClick={() => invokeAI(
-                  `Create a comprehensive guide showing how popular skincare ingredients (like Vitamin C, Retinol/Vitamin A, Hyaluronic Acid, Niacinamide, Collagen, Peptides, Ceramides, Zinc, Vitamin E) can also be consumed through food. For each ingredient, list food sources and how eating them benefits skin.`,
+                  `User profile:\n${buildContext()}\nBased on their specific skin concerns, prioritize the most relevant skincare ingredients (like Vitamin C, Retinol/Vitamin A, Hyaluronic Acid, Niacinamide, Collagen, Zinc, Vitamin E, Omega-3) that can also be consumed as food. Show food sources for each and explain why THEIR skin specifically benefits.`,
                   { type: 'object', properties: { ingredient_foods: { type: 'array', items: { type: 'object', properties: { ingredient: { type: 'string' }, food_sources: { type: 'array', items: { type: 'string' } }, skin_benefit: { type: 'string' }, daily_tip: { type: 'string' } } } } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-teal-500 to-emerald-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Mapping...</> : <><BookOpen className="w-4 h-4 mr-2" />Map Ingredients to Foods</>}
@@ -473,7 +593,7 @@ export default function Diet() {
                 <h3 className="font-bold text-lg mb-1">📅 Beauty Meal Calendar</h3>
                 <p className="text-sm text-gray-500 mb-4">Plan meals alongside your beauty routine — {today}</p>
                 <Button onClick={() => invokeAI(
-                  `Create a 7-day beauty meal calendar that integrates with skincare routines. For each day, suggest a theme meal plan (e.g., Monday = Collagen Day, Tuesday = Detox Day, etc.) that supports skin health. Include morning, afternoon, and evening eating windows aligned with skincare routines.`,
+                  `Create a personalized 7-day beauty meal calendar using this user's data:\n${buildContext()}\nFor each day, suggest a theme meal plan tailored to their skin type and current concerns (e.g., if acne is high, include more anti-acne days). Sync eating windows with their skincare routine if available.`,
                   { type: 'object', properties: { week_plan: { type: 'array', items: { type: 'object', properties: { day: { type: 'string' }, theme: { type: 'string' }, emoji: { type: 'string' }, morning: { type: 'string' }, afternoon: { type: 'string' }, evening: { type: 'string' }, skincare_sync: { type: 'string' } } } } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-rose-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Planning week...</> : <><Calendar className="w-4 h-4 mr-2" />Generate 7-Day Beauty Calendar</>}
@@ -515,7 +635,7 @@ export default function Diet() {
                   ))}
                 </div>
                 <Button onClick={() => invokeAI(
-                  `Create a ${detoxDay || 3}-day skin detox diet plan that works alongside a skincare detox. Focus on anti-inflammatory, gut-healing, and skin-clearing foods. Include specific daily meals, what to drink, and what to eliminate completely.`,
+                  `Create a personalized ${detoxDay || 3}-day skin detox diet plan using this user's data:\n${buildContext()}\nFocus on eliminating the specific bad foods this user has been eating and replace with anti-inflammatory, gut-healing alternatives. Address their specific skin concerns (acne, dullness, oiliness etc.) in each day's plan.`,
                   { type: 'object', properties: { detox_rules: { type: 'array', items: { type: 'string' } }, daily_plans: { type: 'array', items: { type: 'object', properties: { day: { type: 'number' }, focus: { type: 'string' }, meals: { type: 'array', items: { type: 'string' } }, detox_drink: { type: 'string' }, avoid: { type: 'string' } } } }, expected_results: { type: 'string' } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-teal-500 to-cyan-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating plan...</> : <><Zap className="w-4 h-4 mr-2" />Start {detoxDay || 3}-Day Detox Plan</>}
@@ -570,7 +690,7 @@ export default function Diet() {
                   ))}
                 </div>
                 <Button onClick={() => invokeAI(
-                  `Create a personalized post-face-yoga nutrition plan. Face yoga exercises activate facial muscles and improve circulation. What specific foods should someone eat before and after face yoga to maximize results? Include anti-inflammatory foods, collagen boosters, and muscle recovery nutrients.`,
+                  `Create a personalized face yoga + nutrition plan using this user's data:\n${buildContext()}\nSuggest pre and post face yoga foods that specifically support their skin type and concerns. Include anti-inflammatory foods, collagen boosters, and recovery nutrients tailored to their profile.`,
                   { type: 'object', properties: { pre_yoga_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, timing: { type: 'string' }, reason: { type: 'string' } } } }, post_yoga_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, timing: { type: 'string' }, reason: { type: 'string' } } } }, weekly_routine: { type: 'string' } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-orange-400 to-amber-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating plan...</> : <><Sun className="w-4 h-4 mr-2" />Get Yoga + Diet Plan</>}
@@ -614,22 +734,23 @@ export default function Diet() {
               <GlassCard>
                 <h3 className="font-bold text-lg mb-1">🤖 AI Diet Insights</h3>
                 <p className="text-sm text-gray-500 mb-4">Weekly personalized diet recommendations based on all your data</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-                  <div className={`p-3 rounded-xl ${skinAnalysis ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}>
-                    <p className="text-xs font-bold mb-1">{skinAnalysis ? '✅' : '❌'} Skin Analysis</p>
-                    <p className="text-xs text-gray-500">{skinAnalysis ? 'Data connected' : 'No data yet'}</p>
-                  </div>
-                  <div className={`p-3 rounded-xl ${currentPhase ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}>
-                    <p className="text-xs font-bold mb-1">{currentPhase ? '✅' : '❌'} Hormone Tracker</p>
-                    <p className="text-xs text-gray-500">{currentPhase ? `${currentPhase} phase` : 'No data yet'}</p>
-                  </div>
-                  <div className={`p-3 rounded-xl ${glowTasksDone.length > 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}>
-                    <p className="text-xs font-bold mb-1">{glowTasksDone.length > 0 ? '✅' : '❌'} Glow Log</p>
-                    <p className="text-xs text-gray-500">{glowTasksDone.length > 0 ? `${glowTasksDone.length} tasks done` : 'No tasks done'}</p>
-                  </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                  {[
+                    { label: 'Skin Analysis', ok: !!skinAnalysis, detail: skinAnalysis ? `Score ${skinAnalysis.overall_score}/100` : '', href: '/SkinAnalysis' },
+                    { label: 'Lifestyle Log', ok: lifestyleLogs.length > 0, detail: lifestyleLogs.length > 0 ? `${lifestyleLogs.length} days logged` : '', href: '/Lifestyle' },
+                    { label: 'Hormone Tracker', ok: !!currentPhase, detail: currentPhase ? `${currentPhase} phase` : '', href: '/HormoneTracker' },
+                    { label: 'Skin Journal', ok: skinJournalEntries.length > 0, detail: skinJournalEntries.length > 0 ? `${skinJournalEntries.length} entries` : '', href: '/SkinJournal' },
+                    { label: 'Glow Goals', ok: glowGoals.length > 0, detail: glowGoals.length > 0 ? `${glowGoals.length} goals` : '', href: '/GlowGoals' },
+                    { label: 'Glow Log Tasks', ok: glowTasksDone.length > 0, detail: glowTasksDone.length > 0 ? `${glowTasksDone.length} done today` : '', href: null },
+                  ].map(({ label, ok, detail, href }) => (
+                    <div key={label} className={`p-3 rounded-xl ${ok ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-gray-50 dark:bg-gray-800/40'}`}>
+                      <p className="text-xs font-bold mb-0.5">{ok ? '✅' : '❌'} {label}</p>
+                      <p className="text-xs text-gray-500">{ok ? detail : href ? <Link to={href} className="text-rose-400 underline">Add data →</Link> : 'No data yet'}</p>
+                    </div>
+                  ))}
                 </div>
                 <Button onClick={() => invokeAI(
-                  `Generate a comprehensive weekly AI diet insights report for skin health. ${skinAnalysis ? `Skin profile: type ${skinAnalysis.skin_type}, acne ${skinAnalysis.acne_level}/10, oiliness ${skinAnalysis.oiliness}/10.` : ''} ${currentPhase ? `Hormonal phase: ${currentPhase}.` : ''} ${glowTasksDone.length > 0 ? `Completed glow tasks: ${glowTasksDone.join(', ')}.` : ''} Provide specific weekly nutrition recommendations, patterns to improve, key nutrients to focus on, and a 3-step action plan.`,
+                  `Generate a comprehensive weekly AI diet insights report using ALL this user's real data:\n${buildContext()}\n${glowTasksDone.length > 0 ? `Completed glow tasks today: ${glowTasksDone.join(', ')}.` : ''}\nProvide specific weekly nutrition recommendations based on what the data actually shows. Identify patterns, what they're doing well, what needs improvement, and a 3-step action plan. Be concrete and data-driven.`,
                   { type: 'object', properties: { weekly_summary: { type: 'string' }, key_insights: { type: 'array', items: { type: 'string' } }, nutrient_focus: { type: 'array', items: { type: 'object', properties: { nutrient: { type: 'string' }, why: { type: 'string' }, sources: { type: 'array', items: { type: 'string' } } } } }, action_plan: { type: 'array', items: { type: 'string' } }, skin_diet_score: { type: 'number' } } }
                 )} disabled={loading} className="w-full bg-gradient-to-r from-indigo-500 to-violet-500">
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Analyzing all data...</> : <><TrendingUp className="w-4 h-4 mr-2" />Generate AI Weekly Insights</>}
