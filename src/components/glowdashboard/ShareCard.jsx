@@ -1,27 +1,46 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Download, Share2, Sparkles } from 'lucide-react';
+import { X, Download, Share2, Sparkles, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 
 export default function ShareCard({ score, streak, badge, userName, onClose }) {
   const cardRef = useRef(null);
-
-  const handleShare = () => {
-    const text = `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #GlowAI #SkincareRoutine\n${window.location.origin}`;
-    if (navigator.share) {
-      navigator.share({ title: 'My GlowAI Daily Score', text }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => {});
-    }
-  };
+  const [downloading, setDownloading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const scoreColor = score >= 75 ? '#22c55e' : score >= 50 ? '#f59e0b' : '#ef4444';
   const bg = score >= 75
-    ? 'from-emerald-400 via-teal-400 to-cyan-400'
+    ? 'linear-gradient(135deg, #10b981, #06b6d4)'
     : score >= 50
-    ? 'from-amber-400 via-orange-400 to-rose-400'
-    : 'from-rose-400 via-pink-400 to-purple-400';
+    ? 'linear-gradient(135deg, #f59e0b, #ef4444)'
+    : 'linear-gradient(135deg, #f43f5e, #a855f7)';
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 3,
+        backgroundColor: null,
+        useCORS: true,
+        logging: false,
+      });
+      const link = document.createElement('a');
+      link.download = 'GlowAI-Score.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (e) {}
+    setDownloading(false);
+  };
+
+  const handleCopy = () => {
+    const text = `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #GlowAI #SkincareRoutine\n${window.location.origin}`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  };
 
   return (
     <motion.div
@@ -32,47 +51,83 @@ export default function ShareCard({ score, streak, badge, userName, onClose }) {
       onClick={onClose}
     >
       <div onClick={e => e.stopPropagation()} className="flex flex-col items-center gap-4 w-full max-w-sm">
-        {/* Share Card */}
-        <div ref={cardRef} className={`w-full rounded-3xl bg-gradient-to-br ${bg} p-[2px] shadow-2xl`}>
-          <div className="bg-white dark:bg-gray-900 rounded-[22px] p-6 text-center space-y-3">
-            <div className="flex items-center justify-center gap-2 mb-1">
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center"
-                style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)' }}>
-                <Sparkles className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-black text-lg text-gray-800 dark:text-gray-100">GlowAI</span>
+
+        {/* Downloadable Card */}
+        <div
+          ref={cardRef}
+          style={{
+            width: '100%',
+            borderRadius: 28,
+            padding: 3,
+            background: bg,
+            boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
+          }}
+        >
+          <div style={{
+            background: 'linear-gradient(145deg, #fff5f8, #fdf4ff, #fffbf0)',
+            borderRadius: 26,
+            padding: '28px 24px',
+            textAlign: 'center',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}>
+            {/* Logo */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✨</div>
+              <span style={{ fontWeight: 900, fontSize: 20, background: 'linear-gradient(90deg,#d4a853,#f5e3a0,#d4a853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>GlowAI</span>
             </div>
-            <p className="text-sm text-gray-500">{format(new Date(), 'EEEE, MMM d yyyy')}</p>
-            <div className="flex flex-col items-center">
-              <span className="text-7xl font-black" style={{ color: scoreColor }}>{score}</span>
-              <span className="text-gray-400 text-sm font-medium">Glow Score / 100</span>
+            <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 20 }}>{format(new Date(), 'EEEE, MMM d yyyy')}</p>
+
+            {/* Score */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 80, fontWeight: 900, color: scoreColor, lineHeight: 1 }}>{score}</div>
+              <div style={{ fontSize: 14, color: '#6b7280', fontWeight: 600, marginTop: 4 }}>Glow Score / 100</div>
             </div>
-            <div className="flex justify-center gap-4 text-sm">
-              <div className="flex flex-col items-center">
-                <span className="text-2xl font-bold text-orange-500">🔥{streak}</span>
-                <span className="text-xs text-gray-400">Day Streak</span>
+
+            {/* Stats */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 20 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: '#f97316' }}>🔥{streak}</div>
+                <div style={{ fontSize: 11, color: '#9ca3af' }}>Day Streak</div>
               </div>
               {badge && (
-                <div className="flex flex-col items-center">
-                  <span className="text-2xl">{badge.emoji}</span>
-                  <span className="text-xs text-gray-400">{badge.label}</span>
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ fontSize: 28 }}>{badge.emoji}</div>
+                  <div style={{ fontSize: 11, color: '#9ca3af' }}>{badge.label}</div>
                 </div>
               )}
             </div>
-            <p className="text-xs text-gray-400 italic">"{userName ? `@${userName.split(' ')[0]}` : 'Glowing'}'s Daily Glow Report"</p>
-            <div className="text-xs text-gray-300 dark:text-gray-600">#GlowAI #SkincareRoutine #GlowUp</div>
+
+            {/* Username */}
+            <p style={{ fontSize: 12, color: '#9ca3af', fontStyle: 'italic', marginBottom: 8 }}>
+              "{userName ? `@${userName.split(' ')[0]}` : 'Glowing'}'s Daily Report"
+            </p>
+            <div style={{ fontSize: 11, color: '#d1d5db' }}>#GlowAI #SkincareRoutine #GlowUp</div>
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Action Buttons */}
         <div className="flex gap-3 w-full">
-          <Button onClick={handleShare} className="flex-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white">
-            <Share2 className="w-4 h-4 mr-2" /> Share
+          <Button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="flex-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-semibold"
+          >
+            {downloading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Download className="w-4 h-4 mr-2" />}
+            {downloading ? 'Saving...' : 'Download'}
+          </Button>
+          <Button
+            onClick={handleCopy}
+            variant="outline"
+            className="flex-1"
+          >
+            {copied ? <Check className="w-4 h-4 mr-2 text-emerald-500" /> : <Share2 className="w-4 h-4 mr-2" />}
+            {copied ? 'Copied!' : 'Copy Link'}
           </Button>
           <Button variant="outline" onClick={onClose} className="px-4">
             <X className="w-4 h-4" />
           </Button>
         </div>
+        <p className="text-xs text-gray-400">📲 Download & share on Instagram, TikTok, WhatsApp</p>
       </div>
     </motion.div>
   );

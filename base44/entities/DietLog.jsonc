@@ -1,0 +1,65 @@
+{
+  "name": "DietLog",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "water_glasses": {
+      "type": "number"
+    },
+    "sleep_hours": {
+      "type": "number"
+    },
+    "stress_level": {
+      "type": "number"
+    },
+    "mood": {
+      "type": "string"
+    },
+    "coffee_cups": {
+      "type": "number"
+    },
+    "alcohol_drinks": {
+      "type": "number"
+    },
+    "skincare_done_morning": {
+      "type": "boolean"
+    },
+    "skincare_done_night": {
+      "type": "boolean"
+    },
+    "sunscreen_applied": {
+      "type": "boolean"
+    },
+    "exercise_minutes": {
+      "type": "number"
+    },
+    "foods_good": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "foods_bad": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "vitamins_taken": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "user_email",
+    "log_date"
+  ]
+}

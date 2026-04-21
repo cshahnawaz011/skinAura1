@@ -1,0 +1,38 @@
+{
+  "name": "GlowGoals",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "paused"
+      ],
+      "default": "active"
+    },
+    "target_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "progress": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "title"
+  ]
+}

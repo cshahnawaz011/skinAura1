@@ -1,0 +1,40 @@
+{
+  "name": "SkinJournal",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "mood": {
+      "type": "string"
+    },
+    "skin_feel": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "concerns": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "products_used": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "photo_url": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}
