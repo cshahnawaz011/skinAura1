@@ -7,13 +7,12 @@ import { format } from 'date-fns';
 export default function ShareCard({ score, streak, badge, userName, onClose }) {
   const cardRef = useRef(null);
 
-  const handleShare = async () => {
+  const handleShare = () => {
+    const text = `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #GlowAI #SkincareRoutine\n${window.location.origin}`;
     if (navigator.share) {
-      await navigator.share({
-        title: 'My GlowAI Daily Score',
-        text: `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #GlowAI #SkincareRoutine`,
-        url: window.location.origin,
-      });
+      navigator.share({ title: 'My GlowAI Daily Score', text }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(text).then(() => alert('Copied to clipboard!')).catch(() => {});
     }
   };
 
