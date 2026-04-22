@@ -1,0 +1,70 @@
+{
+  "name": "SavedProduct",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "product_name": {
+      "type": "string"
+    },
+    "brand": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "cleanser",
+        "toner",
+        "serum",
+        "moisturizer",
+        "sunscreen",
+        "eye_cream",
+        "face_mask",
+        "exfoliant",
+        "retinol",
+        "treatment",
+        "other"
+      ]
+    },
+    "key_ingredients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "full_ingredients": {
+      "type": "string"
+    },
+    "benefits": {
+      "type": "string"
+    },
+    "price_range": {
+      "type": "string",
+      "enum": [
+        "budget",
+        "mid",
+        "premium"
+      ]
+    },
+    "rating": {
+      "type": "number"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "routine_step": {
+      "type": "string"
+    },
+    "skin_compatibility_score": {
+      "type": "number"
+    },
+    "skin_analysis_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "user_email",
+    "product_name"
+  ]
+}

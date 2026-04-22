@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Heart, Star, Loader2, Sparkles,
-  AlertTriangle, Check, X, Plus, Package
+  AlertTriangle, Check, X, Plus, Package, FlaskConical, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +44,8 @@ export default function Products() {
   const [ingredientAnalysis, setIngredientAnalysis] = useState(null);
   const [analyzingIngredients, setAnalyzingIngredients] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [analyzingProduct, setAnalyzingProduct] = useState(null);
+  const [productAnalysisResults, setProductAnalysisResults] = useState({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -226,6 +228,36 @@ Overall product analysis:
     saveMutation.mutate(product);
   };
 
+  const analyzeProductForSkin = async (product) => {
+    if (!latestAnalysis) return;
+    setAnalyzingProduct(product.product_name);
+    const a = latestAnalysis;
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze if the product "${product.product_name}" (category: ${product.category}, ingredients: ${(product.key_ingredients || []).join(', ')}) is suitable for this patient.
+
+Patient: ${a.skin_type} skin, Acne: ${a.acne_level}/10, Oiliness: ${a.oiliness}/10, Dryness: ${a.dryness}/10, Sensitivity: ${a.sensitivity}/10, Dark spots: ${a.dark_spots}/10.
+
+Provide:
+- suitability_score: 1–10
+- verdict: "excellent" | "good" | "caution" | "avoid"
+- summary: 2-sentence analysis for this specific skin
+- key_benefit: biggest benefit for this skin
+- key_concern: biggest concern if any (or null)`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          suitability_score: { type: 'number' },
+          verdict: { type: 'string' },
+          summary: { type: 'string' },
+          key_benefit: { type: 'string' },
+          key_concern: { type: 'string' },
+        }
+      }
+    });
+    setProductAnalysisResults(prev => ({ ...prev, [product.product_name]: result }));
+    setAnalyzingProduct(null);
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <AddProductModal open={showAddModal} onClose={() => setShowAddModal(false)} onSave={handleAddProduct} />
@@ -292,11 +324,38 @@ Overall product analysis:
                         <Badge key={j} variant="outline" className="text-xs">{ing}</Badge>
                       ))}
                     </div>
-                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                      <Badge className={`text-xs capitalize ${
-                        product.price_range === 'budget' ? 'bg-emerald-100 text-emerald-700' :
-                        product.price_range === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                      }`}>{product.price_range || 'mid'}</Badge>
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Badge className={`text-xs capitalize ${
+                          product.price_range === 'budget' ? 'bg-emerald-100 text-emerald-700' :
+                          product.price_range === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                        }`}>{product.price_range || 'mid'}</Badge>
+                        {latestAnalysis && (
+                          <Button size="sm" variant="outline"
+                            onClick={() => analyzeProductForSkin(product)}
+                            disabled={analyzingProduct === product.product_name}
+                            className="text-xs h-7 gap-1">
+                            {analyzingProduct === product.product_name
+                              ? <><Loader2 className="w-3 h-3 animate-spin" /> Analyzing...</>
+                              : <><FlaskConical className="w-3 h-3" /> Analyze</>}
+                          </Button>
+                        )}
+                      </div>
+                      {productAnalysisResults[product.product_name] && (() => {
+                        const r = productAnalysisResults[product.product_name];
+                        const col = { excellent: 'bg-emerald-50 text-emerald-700 border-emerald-200', good: 'bg-blue-50 text-blue-700 border-blue-200', caution: 'bg-amber-50 text-amber-700 border-amber-200', avoid: 'bg-red-50 text-red-700 border-red-200' };
+                        return (
+                          <div className={`p-2.5 rounded-xl border text-xs ${col[r.verdict] || 'bg-gray-50 border-gray-200'}`}>
+                            <div className="flex justify-between mb-1">
+                              <span className="font-bold capitalize">{r.verdict}</span>
+                              <span className="font-black">{r.suitability_score}/10</span>
+                            </div>
+                            <p>{r.summary}</p>
+                            {r.key_benefit && <p className="mt-1 font-medium">✅ {r.key_benefit}</p>}
+                            {r.key_concern && <p className="mt-0.5 font-medium">⚠️ {r.key_concern}</p>}
+                          </div>
+                        );
+                      })()}
                     </div>
                   </GlassCard>
                 </motion.div>
@@ -450,16 +509,36 @@ Overall product analysis:
                     ))}
                   </div>
 
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <Badge
-                      className={`capitalize ${
+                  <div className="mt-auto pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Badge className={`capitalize ${
                         product.price_range === 'budget' ? 'bg-emerald-100 text-emerald-700' :
-                        product.price_range === 'mid' ? 'bg-blue-100 text-blue-700' :
-                        'bg-purple-100 text-purple-700'
-                      }`}
-                    >
-                      {product.price_range}
-                    </Badge>
+                        product.price_range === 'mid' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+                      }`}>{product.price_range}</Badge>
+                      {latestAnalysis && (
+                        <Button size="sm" variant="outline"
+                          onClick={() => analyzeProductForSkin(product)}
+                          disabled={analyzingProduct === product.product_name}
+                          className="text-xs h-7 gap-1">
+                          {analyzingProduct === product.product_name
+                            ? <><Loader2 className="w-3 h-3 animate-spin" /> Checking...</>
+                            : <><FlaskConical className="w-3 h-3" /> Analyze for My Skin</>}
+                        </Button>
+                      )}
+                    </div>
+                    {productAnalysisResults[product.product_name] && (() => {
+                      const r = productAnalysisResults[product.product_name];
+                      const col = { excellent: 'bg-emerald-50 text-emerald-700 border-emerald-200', good: 'bg-blue-50 text-blue-700 border-blue-200', caution: 'bg-amber-50 text-amber-700 border-amber-200', avoid: 'bg-red-50 text-red-700 border-red-200' };
+                      return (
+                        <div className={`p-2.5 rounded-xl border text-xs ${col[r.verdict] || 'bg-gray-50 border-gray-200'}`}>
+                          <div className="flex justify-between mb-1">
+                            <span className="font-bold capitalize">{r.verdict}</span>
+                            <span className="font-black">{r.suitability_score}/10</span>
+                          </div>
+                          <p>{r.summary}</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </GlassCard>
               </motion.div>

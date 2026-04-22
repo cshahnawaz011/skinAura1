@@ -67,7 +67,7 @@ import SkinAgePrediction from './pages/SkinAgePrediction';
 import SkinAnalysis from './pages/SkinAnalysis';
 import SkinChat from './pages/SkinChat';
 import SkinReport from './pages/SkinReport';
-import SkinRoutine from './pages/SkinRoutine';
+import SkinRoutine from './pages/SkinRoutine.jsx';
 import SkinJournal from './pages/SkinJournal';
 import GlowGoals from './pages/GlowGoals';
 import UVTracker from './pages/UVTracker';

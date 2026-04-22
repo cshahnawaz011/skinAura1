@@ -5,26 +5,45 @@
     "user_email": {
       "type": "string"
     },
+    "routine_type": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "night",
+        "weekly"
+      ],
+      "default": "morning"
+    },
     "skin_type": {
       "type": "string"
     },
-    "morning_steps": {
+    "steps": {
       "type": "array",
       "items": {
         "type": "object"
       }
     },
-    "night_steps": {
-      "type": "array",
-      "items": {
-        "type": "object"
-      }
+    "routine_summary": {
+      "type": "string"
     },
-    "weekly_treatments": {
+    "total_time": {
+      "type": "string"
+    },
+    "priority_note": {
+      "type": "string"
+    },
+    "skin_concerns": {
       "type": "array",
       "items": {
         "type": "string"
       }
+    },
+    "reminder_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "reminder_time": {
+      "type": "string"
     },
     "notes": {
       "type": "string"
