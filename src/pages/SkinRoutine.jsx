@@ -11,10 +11,13 @@ import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import DailyFeedbackPanel from '@/components/routine/DailyFeedbackPanel';
 import WeekPlanGrid from '@/components/routine/WeekPlanGrid';
+import UserLevelTracker from '@/components/routine/UserLevelTracker';
+import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
+import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
 
 // ─── AI Prompt Builder ────────────────────────────────────────────────────────
-function buildRoutinePrompt(analysis, feedbackHistory) {
+function buildRoutinePrompt(analysis, feedbackHistory, userLevel = {}) {
   const today = format(new Date(), 'yyyy-MM-dd');
 
   // Map feedback to signals
@@ -49,9 +52,14 @@ High damage signals present: ${hasHighDamage}. Mild damage: ${hasMildDamage}.
 Breakout signals: ${hasBreakout}. Oil signals: ${hasOil}.`
     : 'No feedback history yet. This is the first routine — start at Level 1 for all actives.';
 
+  const computedLevel = userLevel.currentLevel || 'Level 1';
+  const isRecovery    = userLevel.recoveryMode || false;
+
   return `You are an advanced AI dermatologist assistant. Generate a complete, safe, minimal, rotational, and adaptive skincare routine.
 
 TODAY: ${today}
+USER'S CURRENT CONCENTRATION LEVEL: ${computedLevel} (auto-computed from their feedback history — ${userLevel.daysAtLevel || 0} days at this level)
+RECOVERY MODE: ${isRecovery ? 'YES — do NOT include any actives. Recovery-only routine.' : 'NO'}
 
 === USER SKIN PROFILE ===
 ${skinProfile}
@@ -328,6 +336,9 @@ export default function SkinRoutine() {
   const today = format(new Date(), 'yyyy-MM-dd');
   const todayFeedback = feedbackHistory.find(f => f.date === today) || null;
 
+  // Auto-compute user's concentration level from feedback history
+  const userLevel = computeUserLevel(feedbackHistory);
+
   // Load saved routine into state on mount
   useEffect(() => {
     if (savedRoutine?.steps && !routineData) {
@@ -347,7 +358,7 @@ export default function SkinRoutine() {
 
   const generateRoutine = async () => {
     setGenerating(true);
-    const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory);
+    const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -482,6 +493,23 @@ export default function SkinRoutine() {
       <div className="px-4 py-2.5 rounded-2xl bg-gradient-to-r from-violet-50 to-pink-50 dark:from-violet-900/20 dark:to-pink-900/20 border border-violet-100 dark:border-violet-800 text-sm text-violet-700 dark:text-violet-300 font-medium text-center">
         🧩 "Start low → protect barrier → rotate → adjust → upgrade slowly"
       </div>
+
+      {/* User Level Tracker — auto-computed from feedback */}
+      {user && (
+        <UserLevelTracker
+          currentLevel={userLevel.currentLevel}
+          daysAtLevel={userLevel.daysAtLevel}
+          progressPercent={userLevel.progressPercent}
+          nextAction={userLevel.nextAction}
+          recoveryMode={userLevel.recoveryMode}
+          statusEmoji={userLevel.statusEmoji}
+        />
+      )}
+
+      {/* Concentration Level Guide — collapsible */}
+      {user && (
+        <ConcentrationLevelGuide currentLevel={userLevel.currentLevel} />
+      )}
 
       {/* Skin Profile Banner */}
       {latestAnalysis && (
