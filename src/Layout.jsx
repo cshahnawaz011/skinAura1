@@ -20,6 +20,7 @@ const NAV_SECTIONS = [
       { key: 'home', icon: Home, page: 'Home', label: 'Home' },
       { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
       { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
+      { key: 'progressDash', icon: TrendingUp, page: 'RoutineProgressDashboard', label: 'Progress Dashboard' },
       { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
       { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
     ]
