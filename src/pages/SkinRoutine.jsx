@@ -54,11 +54,12 @@ Breakout signals: ${hasBreakout}. Oil signals: ${hasOil}.`
 
   const computedLevel = userLevel.currentLevel || 'Level 1';
   const isRecovery    = userLevel.recoveryMode || false;
+  const frequencyLabel = userLevel.frequencyLabel || '1–2x / week';
 
   return `You are an advanced AI dermatologist assistant. Generate a complete, safe, minimal, rotational, and adaptive skincare routine.
 
 TODAY: ${today}
-USER'S CURRENT CONCENTRATION LEVEL: ${computedLevel} (auto-computed from their feedback history — ${userLevel.daysAtLevel || 0} days at this level)
+USER'S CURRENT FREQUENCY LEVEL: ${computedLevel} → ${frequencyLabel} (computed from ${userLevel.daysAtLevel || 0} days of feedback)
 RECOVERY MODE: ${isRecovery ? 'YES — do NOT include any actives. Recovery-only routine.' : 'NO'}
 
 === USER SKIN PROFILE ===
@@ -73,34 +74,44 @@ RULE 1 – MINIMAL ROUTINE (max 5 steps)
   Morning: Cleanser → (optional Vit-C serum) → Moisturizer → SPF
   Night: Cleanser → ONE active treatment → Moisturizer
 
-RULE 2 – CONCENTRATION SYSTEM
-  Level 1 = Low (beginner safe, always start here)
-  Level 2 = Moderate (only after 5–7 days positive response)
-  Level 3 = Advanced (only if sustained tolerance)
-  NEVER skip levels. NEVER raise frequency + concentration together.
+RULE 2 – FREQUENCY SYSTEM (levels = HOW OFTEN, NOT concentration)
+  CONCENTRATION stays fixed at safest effective range for each active.
+  Level 1 = 1–2 treatment nights/week (everyone starts here)
+  Level 2 = 3–4 treatment nights/week (after 7+ positive days at Level 1)
+  Level 3 = 5–7 treatment nights/week (after 21+ positive days total)
+  NEVER increase frequency and concentration at the same time.
+  ALWAYS assign correct frequency to each day's night_week_plan.
 
 RULE 3 – ROTATIONAL ACTIVES (ONE per night only)
   Options: Retinol, Salicylic Acid (BHA), Benzoyl Peroxide, AHA
-  Rotate with recovery days between actives.
-  Max exfoliation: 1x/week. Hydrating mask: 1–2x/week on recovery days.
+  Rotate with recovery/hydration days between treatment days.
+  At Level 1: max 2 treatment nights (rest = recovery/hydration)
+  At Level 2: 3–4 treatment nights (rest = recovery)
+  At Level 3: up to 5 nights, with at least 1 recovery day
+  Max AHA/BHA exfoliation: respect frequency limit per level.
 
 RULE 4 – HARD RESTRICTIONS
-  ❌ Retinol + Benzoyl Peroxide same day
-  ❌ Retinol + AHA/BHA same day
-  ❌ AHA + BHA together (beginner)
-  ❌ Over-exfoliation
+  ❌ Retinol + Benzoyl Peroxide same night
+  ❌ Retinol + AHA/BHA same night
+  ❌ AHA + BHA together (beginners)
+  ❌ More treatment nights than level allows
 
 RULE 5 – FEEDBACK ADAPTATION
-  - HIGH DAMAGE signals (4,6) → SAFETY OVERRIDE: stop ALL actives, 2–3 day recovery, restart Level 1
-  - MILD DAMAGE (3,5) → reduce frequency, decrease concentration -1 level, add recovery day
-  - 3 negative days → simplify routine
-  - POSITIVE (1,2) for 5+ days → increase frequency OR concentration (+1 level, NOT both)
-  - NEUTRAL (8) → increase frequency first; if no result after 7–10 days → increase concentration
-  - OIL (7) → add lightweight hydration, slightly increase BHA frequency
-  - BREAKOUT mild (9) → increase frequency; severe (10) + irritation → reduce concentration
+  - HIGH DAMAGE (4,6) → SAFETY OVERRIDE: 0 actives, full recovery mode, restart Level 1 next week
+  - MILD DAMAGE (3,5) → reduce by 1 treatment night this week, add recovery day
+  - 3 negative days → drop to Level 1 frequency
+  - POSITIVE (1,2) for 5+ days → increase frequency by 1 night (do NOT change concentration)
+  - NEUTRAL (8) → keep current frequency; reassess in 7 days
+  - OIL (7) → increase BHA frequency by 1 night
+  - BREAKOUT mild (9) → add 1 BHA treatment night; severe (10) → reduce frequency
 
 RULE 6 – BARRIER FIRST
-  Moisturizer is MANDATORY every day. If any irritation: stop actives, switch to recovery.
+  Moisturizer EVERY day. If irritation appears, drop to Level 1 frequency immediately.
+
+RULE 7 – frequency_note FIELD
+  In each night_week_plan day, add "frequency_note" field explaining:
+  e.g. "Treatment Night 1 of 2 this week (Level 1: 1–2x/week)"
+  or "Recovery Day — no actives, barrier support only"
 
 === OUTPUT FORMAT (return strict JSON) ===
 
@@ -396,6 +407,7 @@ export default function SkinRoutine() {
                 day_type: { type: 'string' },
                 active_name: { type: 'string' },
                 concentration_level: { type: 'string' },
+                frequency_note: { type: 'string' },
                 steps: {
                   type: 'array',
                   items: {
@@ -498,6 +510,7 @@ export default function SkinRoutine() {
       {user && (
         <UserLevelTracker
           currentLevel={userLevel.currentLevel}
+          frequencyLabel={userLevel.frequencyLabel}
           daysAtLevel={userLevel.daysAtLevel}
           progressPercent={userLevel.progressPercent}
           nextAction={userLevel.nextAction}

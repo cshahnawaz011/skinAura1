@@ -5,57 +5,57 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 const LEVELS = [
   {
     level: 'Level 1',
-    tag: 'Beginner Safe',
+    tag: '1–2x / week',
     emoji: '🟢',
     grad: 'from-emerald-400 to-teal-500',
     bg: 'bg-emerald-50 dark:bg-emerald-900/20',
     border: 'border-emerald-300 dark:border-emerald-700',
     text: 'text-emerald-700 dark:text-emerald-300',
     when: 'Days 1–7 (Everyone starts here)',
-    description: 'Lowest concentration of active ingredients. Your skin is just getting introduced. The goal is tolerance-building, not results.',
+    description: 'Use actives only 1–2 nights per week. Concentration stays at a safe effective range. Goal is frequency tolerance-building, not maximum strength.',
     examples: [
-      { ingredient: 'Retinol', conc: '0.025% – 0.05%', freq: '1–2x/week' },
-      { ingredient: 'Salicylic Acid (BHA)', conc: '0.5% – 1%', freq: '2x/week' },
-      { ingredient: 'AHA (Glycolic/Lactic)', conc: '5%', freq: '1x/week' },
-      { ingredient: 'Benzoyl Peroxide', conc: '2.5%', freq: '2x/week' },
+      { ingredient: 'Retinol', conc: '0.025% – 0.1% (fixed)', freq: '1–2x/week' },
+      { ingredient: 'Salicylic Acid (BHA)', conc: '1–2% (fixed)', freq: '1–2x/week' },
+      { ingredient: 'AHA (Glycolic/Lactic)', conc: '5–8% (fixed)', freq: '1x/week' },
+      { ingredient: 'Benzoyl Peroxide', conc: '2.5% (fixed)', freq: '1–2x/week' },
     ],
-    rule: 'Must complete 5–7 days with positive feedback before moving to Level 2.',
+    rule: '7 positive feedback days → unlock Level 2 (increase to 3–4x/week).',
   },
   {
     level: 'Level 2',
-    tag: 'Moderate',
+    tag: '3–4x / week',
     emoji: '🟡',
     grad: 'from-amber-400 to-orange-400',
     bg: 'bg-amber-50 dark:bg-amber-900/20',
     border: 'border-amber-300 dark:border-amber-700',
     text: 'text-amber-700 dark:text-amber-300',
-    when: 'Days 8–21 (Only after proven tolerance)',
-    description: 'Moderate concentrations. Your skin has adapted to Level 1 and is ready for slightly stronger actives. Results start becoming visible.',
+    when: 'Days 8–21 (After 7 positive feedback days)',
+    description: 'Increase treatment nights to 3–4x per week. Concentration stays the same as Level 1 — only frequency goes up. Recovery days still required between actives.',
     examples: [
-      { ingredient: 'Retinol', conc: '0.1% – 0.3%', freq: '2–3x/week' },
-      { ingredient: 'Salicylic Acid (BHA)', conc: '1.5% – 2%', freq: '3x/week' },
-      { ingredient: 'AHA (Glycolic/Lactic)', conc: '8–10%', freq: '2x/week' },
-      { ingredient: 'Benzoyl Peroxide', conc: '5%', freq: '3x/week' },
+      { ingredient: 'Retinol', conc: '0.025% – 0.1% (same)', freq: '3x/week' },
+      { ingredient: 'Salicylic Acid (BHA)', conc: '1–2% (same)', freq: '3–4x/week' },
+      { ingredient: 'AHA (Glycolic/Lactic)', conc: '5–8% (same)', freq: '2x/week' },
+      { ingredient: 'Benzoyl Peroxide', conc: '2.5% (same)', freq: '3x/week' },
     ],
-    rule: 'Never increase frequency AND concentration at the same time. Pick one.',
+    rule: 'Never raise frequency and concentration together. 14 more positive days → Level 3.',
   },
   {
     level: 'Level 3',
-    tag: 'Advanced',
+    tag: '5–7x / week',
     emoji: '🔴',
     grad: 'from-red-400 to-rose-500',
     bg: 'bg-red-50 dark:bg-red-900/20',
     border: 'border-red-300 dark:border-red-700',
     text: 'text-red-700 dark:text-red-300',
-    when: 'Day 22+ (Only with sustained tolerance)',
-    description: 'High-strength actives for experienced skin. Only reached after weeks of consistent positive response at Level 2. Barrier health is monitored closely.',
+    when: 'Day 22+ (21+ total positive days)',
+    description: 'Near-daily use of actives (5–7 nights/week). Skin has built strong tolerance to the frequency. At this point you may consider a concentration step-up with your dermatologist.',
     examples: [
-      { ingredient: 'Retinol', conc: '0.5% – 1%', freq: '3–5x/week' },
-      { ingredient: 'Salicylic Acid (BHA)', conc: '2%+', freq: '4–5x/week' },
-      { ingredient: 'AHA (Glycolic/Lactic)', conc: '12–15%', freq: '2–3x/week' },
-      { ingredient: 'Benzoyl Peroxide', conc: '10%', freq: 'Daily (if tolerated)' },
+      { ingredient: 'Retinol', conc: '0.025%–0.3% (can discuss ↑ with derm)', freq: '5x/week' },
+      { ingredient: 'Salicylic Acid (BHA)', conc: '1–2% (same)', freq: '5–6x/week' },
+      { ingredient: 'AHA (Glycolic/Lactic)', conc: '5–10% (same)', freq: '3x/week' },
+      { ingredient: 'Benzoyl Peroxide', conc: '2.5% (same)', freq: '5x/week' },
     ],
-    rule: 'Any negative feedback → immediate step-down to Level 1. No exceptions.',
+    rule: 'Any negative feedback → immediate step-down to Level 1 frequency. No exceptions.',
   },
 ];
 
@@ -70,8 +70,8 @@ export default function ConcentrationLevelGuide({ currentLevel }) {
         className="w-full flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all"
       >
         <div className="flex items-center gap-2">
-          <span className="text-lg">🧪</span>
-          <span className="font-bold text-sm">Concentration Level Guide</span>
+          <span className="text-lg">📅</span>
+          <span className="font-bold text-sm">Frequency Level Guide</span>
           {currentLevel && (
             <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
               currentLevel === 'Level 1' ? 'bg-emerald-100 text-emerald-700' :
@@ -152,13 +152,14 @@ export default function ConcentrationLevelGuide({ currentLevel }) {
 
               {/* Upgrade/Downgrade Rules */}
               <div className="rounded-xl bg-gradient-to-r from-violet-50 to-pink-50 dark:from-violet-900/20 dark:to-pink-900/20 border border-violet-200 dark:border-violet-800 p-4">
-                <p className="font-bold text-sm text-violet-700 dark:text-violet-300 mb-2">⚡ Auto-Adjustment Rules</p>
+                <p className="font-bold text-sm text-violet-700 dark:text-violet-300 mb-2">⚡ Auto-Adjustment Rules (Frequency-Based)</p>
                 <div className="space-y-1.5 text-xs text-gray-700 dark:text-gray-300">
-                  <p>✅ <strong>5+ positive days</strong> → Upgrade frequency OR concentration (+1 level)</p>
-                  <p>⚠️ <strong>Mild damage (3,5)</strong> → Reduce frequency, drop -1 level</p>
-                  <p>🚨 <strong>High damage (4,6)</strong> → Stop all actives, recovery mode, restart Level 1</p>
-                  <p>⚖️ <strong>Neutral (8)</strong> → Increase frequency first, then concentration after 7–10 days</p>
-                  <p>❌ <strong>NEVER</strong> → Jump levels or raise both frequency + concentration together</p>
+                  <p>✅ <strong>7 positive days</strong> → Add 1 more treatment night/week (Level 1 → Level 2)</p>
+                  <p>✅ <strong>21 total positive days</strong> → Reach Level 3 (near-daily use)</p>
+                  <p>⚠️ <strong>Mild damage (3,5)</strong> → Reduce by 1 treatment night this week</p>
+                  <p>🚨 <strong>High damage (4,6)</strong> → Stop all actives, recovery mode, restart at 1x/week</p>
+                  <p>⚖️ <strong>Neutral (8)</strong> → Keep current frequency for 7 more days</p>
+                  <p>❌ <strong>NEVER</strong> → Raise frequency and concentration at the same time</p>
                 </div>
               </div>
             </div>

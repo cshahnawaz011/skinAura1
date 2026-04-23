@@ -2,14 +2,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const LEVEL_CONFIG = {
-  'Level 1': { color: 'text-emerald-600', bar: 'bg-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300', label: 'Beginner Safe 🟢' },
-  'Level 2': { color: 'text-amber-600',   bar: 'bg-amber-400',   badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',   label: 'Moderate 🟡' },
-  'Level 3': { color: 'text-red-600',     bar: 'bg-red-400',     badge: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',           label: 'Advanced 🔴' },
+  'Level 1': { color: 'text-emerald-600', bar: 'bg-emerald-400', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300', label: '1–2x/week 🟢' },
+  'Level 2': { color: 'text-amber-600',   bar: 'bg-amber-400',   badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',   label: '3–4x/week 🟡' },
+  'Level 3': { color: 'text-red-600',     bar: 'bg-red-400',     badge: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',           label: '5–7x/week 🔴' },
 };
 
 const STEPS = ['Level 1', 'Level 2', 'Level 3'];
 
-export default function UserLevelTracker({ currentLevel, daysAtLevel, progressPercent, nextAction, recoveryMode, statusEmoji }) {
+export default function UserLevelTracker({ currentLevel, frequencyLabel, daysAtLevel, progressPercent, nextAction, recoveryMode, statusEmoji }) {
   const cfg = LEVEL_CONFIG[currentLevel] || LEVEL_CONFIG['Level 1'];
   const levelIndex = STEPS.indexOf(currentLevel);
 
@@ -23,10 +23,15 @@ export default function UserLevelTracker({ currentLevel, daysAtLevel, progressPe
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-0.5">Your Concentration Level</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-2xl">{statusEmoji}</span>
             <span className={`font-black text-xl ${cfg.color}`}>{currentLevel}</span>
             <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${cfg.badge}`}>{cfg.label}</span>
+            {frequencyLabel && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-white/70 dark:bg-white/10 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
+                📅 {frequencyLabel}
+              </span>
+            )}
           </div>
         </div>
         <div className="text-right">
