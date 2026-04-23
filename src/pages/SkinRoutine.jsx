@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Loader2, Sun, Moon, Calendar, Check, Trash2,
-  ShieldCheck, AlertTriangle, TrendingUp, RefreshCw, Info
+  ShieldCheck, AlertTriangle, TrendingUp, RefreshCw, Info,
+  ChevronDown, ChevronUp, BookOpen, Save
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -164,8 +165,7 @@ function SkinSummaryCard({ summary }) {
     high: 'bg-red-100 text-red-700',
   };
   return (
-    <GlassCard className="bg-gradient-to-r from-pink-50 to-amber-50 dark:from-pink-900/20 dark:to-amber-900/20">
-      <h3 className="font-bold text-base mb-3 flex items-center gap-2"><Info className="w-4 h-4 text-pink-500" /> Skin Summary</h3>
+    <div>
       <div className="flex flex-wrap gap-2 mb-2">
         <Badge className="capitalize bg-pink-500 text-white">{summary.skin_type} Skin</Badge>
         <Badge className={`capitalize ${sensitivityColor[summary.sensitivity_level] || 'bg-gray-100 text-gray-700'}`}>
@@ -180,40 +180,35 @@ function SkinSummaryCard({ summary }) {
           🛡️ {summary.current_barrier_status}
         </p>
       )}
-    </GlassCard>
+    </div>
   );
 }
 
 function MorningRoutineCard({ steps }) {
   if (!steps?.length) return null;
   return (
-    <GlassCard>
-      <h3 className="font-bold text-base mb-3 flex items-center gap-2">
-        <Sun className="w-4 h-4 text-amber-500" /> Morning Routine
-      </h3>
-      <div className="space-y-3">
-        {steps.map((step, i) => (
-          <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-            className="flex gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
-              {step.step || i + 1}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">{step.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{step.product_type}</p>
-              {step.key_ingredients?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {step.key_ingredients.slice(0, 3).map((ing, j) => (
-                    <Badge key={j} variant="secondary" className="text-[10px] px-1.5 py-0">{ing}</Badge>
-                  ))}
-                </div>
-              )}
-              {step.tip && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">💡 {step.tip}</p>}
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </GlassCard>
+    <div className="space-y-3">
+      {steps.map((step, i) => (
+        <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
+          className="flex gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
+            {step.step || i + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">{step.name}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{step.product_type}</p>
+            {step.key_ingredients?.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {step.key_ingredients.slice(0, 3).map((ing, j) => (
+                  <Badge key={j} variant="secondary" className="text-[10px] px-1.5 py-0">{ing}</Badge>
+                ))}
+              </div>
+            )}
+            {step.tip && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">💡 {step.tip}</p>}
+          </div>
+        </motion.div>
+      ))}
+    </div>
   );
 }
 
@@ -248,63 +243,83 @@ function TodaysAdjustmentCard({ adjustment, recoveryMode }) {
 function SafetyNotesCard({ notes }) {
   if (!notes?.length) return null;
   return (
-    <GlassCard>
-      <h3 className="font-bold text-base mb-3 flex items-center gap-2">
-        <ShieldCheck className="w-4 h-4 text-emerald-500" /> Safety Notes
-      </h3>
-      <div className="space-y-2">
-        {notes.map((note, i) => (
-          <div key={i} className="flex items-start gap-2 text-sm">
-            <span className="text-emerald-500 font-bold flex-shrink-0">✓</span>
-            <span className="text-gray-700 dark:text-gray-300">{note}</span>
-          </div>
-        ))}
-      </div>
-    </GlassCard>
+    <div className="space-y-2">
+      {notes.map((note, i) => (
+        <div key={i} className="flex items-start gap-2 text-sm">
+          <span className="text-emerald-500 font-bold flex-shrink-0">✓</span>
+          <span className="text-gray-700 dark:text-gray-300">{note}</span>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function AdaptiveGuidanceCard({ guidance }) {
   if (!guidance) return null;
   return (
-    <GlassCard>
-      <h3 className="font-bold text-base mb-3 flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-indigo-500" /> Adaptive Guidance
-      </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
-          <p className="text-xs font-bold text-emerald-600 mb-1">✅ If skin improves</p>
-          <p className="text-sm text-gray-700 dark:text-gray-300">{guidance.if_improves}</p>
-        </div>
-        <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20">
-          <p className="text-xs font-bold text-red-600 mb-1">⚠️ If skin worsens</p>
-          <p className="text-sm text-gray-700 dark:text-gray-300">{guidance.if_worsens}</p>
-        </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20">
+        <p className="text-xs font-bold text-emerald-600 mb-1">✅ If skin improves</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300">{guidance.if_improves}</p>
       </div>
-    </GlassCard>
+      <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20">
+        <p className="text-xs font-bold text-red-600 mb-1">⚠️ If skin worsens</p>
+        <p className="text-sm text-gray-700 dark:text-gray-300">{guidance.if_worsens}</p>
+      </div>
+    </div>
   );
 }
 
 function WeeklyAddonsCard({ addons }) {
   if (!addons?.length) return null;
   return (
-    <GlassCard>
-      <h3 className="font-bold text-base mb-3 flex items-center gap-2">
-        <Calendar className="w-4 h-4 text-teal-500" /> Weekly Add-ons
-      </h3>
-      <div className="space-y-2">
-        {addons.map((addon, i) => (
-          <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900/30">
-            <span className="text-lg">🧪</span>
-            <div>
-              <p className="font-semibold text-sm">{addon.name}</p>
-              <p className="text-xs text-teal-600 dark:text-teal-400">{addon.frequency}</p>
-              {addon.tip && <p className="text-xs text-gray-500 mt-0.5">{addon.tip}</p>}
-            </div>
+    <div className="space-y-2">
+      {addons.map((addon, i) => (
+        <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900/30">
+          <span className="text-lg">🧪</span>
+          <div>
+            <p className="font-semibold text-sm">{addon.name}</p>
+            <p className="text-xs text-teal-600 dark:text-teal-400">{addon.frequency}</p>
+            {addon.tip && <p className="text-xs text-gray-500 mt-0.5">{addon.tip}</p>}
           </div>
-        ))}
-      </div>
-    </GlassCard>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Collapsible Section Wrapper ─────────────────────────────────────────────
+function CollapsibleSection({ title, icon, defaultOpen = true, children, badge }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div className="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3 bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 transition-all"
+      >
+        <div className="flex items-center gap-2">
+          {icon}
+          <span className="font-bold text-sm">{title}</span>
+          {badge && <span className="ml-1">{badge}</span>}
+        </div>
+        {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+      </button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="overflow-hidden"
+          >
+            <div className="p-4 bg-white/40 dark:bg-white/3">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -571,48 +586,97 @@ export default function SkinRoutine() {
         </div>
       </GlassCard>
 
-      {/* Routine Output */}
-      <AnimatePresence>
-        {routineData && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="space-y-4"
-          >
-            {/* Recovery Mode Alert */}
-            <TodaysAdjustmentCard
-              adjustment={routineData.todays_adjustment}
-              recoveryMode={routineData.recovery_mode_active}
-            />
-
-            {/* Skin Summary */}
-            <SkinSummaryCard summary={routineData.skin_summary} />
-
-            {/* Morning Routine */}
-            <MorningRoutineCard steps={routineData.morning_routine} />
-
-            {/* Night 7-Day Plan */}
-            {routineData.night_week_plan?.length > 0 && (
-              <GlassCard>
-                <h3 className="font-bold text-base mb-3 flex items-center gap-2">
-                  <Moon className="w-4 h-4 text-indigo-500" /> Night Routine — 7-Day Rotation
-                </h3>
-                <WeekPlanGrid weekPlan={routineData.night_week_plan} />
-              </GlassCard>
+      {/* Routine Output — always visible if saved, collapsible */}
+      {routineData && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-3"
+        >
+          {/* Saved indicator */}
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
+            <Save className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              Routine saved — visible every time you open this page
+            </span>
+            {savedRoutine?.updated_date && (
+              <span className="ml-auto text-[10px] text-gray-400">
+                Last updated: {format(new Date(savedRoutine.updated_date), 'MMM d, HH:mm')}
+              </span>
             )}
+          </div>
 
-            {/* Weekly Add-ons */}
-            <WeeklyAddonsCard addons={routineData.weekly_addons} />
+          {/* Recovery Mode Alert (always shown inline, no collapse) */}
+          <TodaysAdjustmentCard
+            adjustment={routineData.todays_adjustment}
+            recoveryMode={routineData.recovery_mode_active}
+          />
 
-            {/* Safety Notes */}
-            <SafetyNotesCard notes={routineData.safety_notes} />
+          {/* Skin Summary */}
+          <CollapsibleSection
+            title="Skin Summary"
+            icon={<Info className="w-4 h-4 text-pink-500" />}
+            defaultOpen={true}
+          >
+            <SkinSummaryCard summary={routineData.skin_summary} />
+          </CollapsibleSection>
 
-            {/* Adaptive Guidance */}
-            <AdaptiveGuidanceCard guidance={routineData.adaptive_guidance} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+          {/* Morning Routine */}
+          <CollapsibleSection
+            title="Morning Routine"
+            icon={<Sun className="w-4 h-4 text-amber-500" />}
+            defaultOpen={true}
+            badge={<span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{routineData.morning_routine?.length || 0} steps</span>}
+          >
+            <MorningRoutineCard steps={routineData.morning_routine} />
+          </CollapsibleSection>
+
+          {/* Night 7-Day Plan */}
+          {routineData.night_week_plan?.length > 0 && (
+            <CollapsibleSection
+              title="Night Routine — 7-Day Rotation"
+              icon={<Moon className="w-4 h-4 text-indigo-500" />}
+              defaultOpen={true}
+              badge={<span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">7 days</span>}
+            >
+              <WeekPlanGrid weekPlan={routineData.night_week_plan} />
+            </CollapsibleSection>
+          )}
+
+          {/* Weekly Add-ons */}
+          {routineData.weekly_addons?.length > 0 && (
+            <CollapsibleSection
+              title="Weekly Add-ons"
+              icon={<Calendar className="w-4 h-4 text-teal-500" />}
+              defaultOpen={false}
+            >
+              <WeeklyAddonsCard addons={routineData.weekly_addons} />
+            </CollapsibleSection>
+          )}
+
+          {/* Safety Notes */}
+          {routineData.safety_notes?.length > 0 && (
+            <CollapsibleSection
+              title="Safety Notes"
+              icon={<ShieldCheck className="w-4 h-4 text-emerald-500" />}
+              defaultOpen={false}
+            >
+              <SafetyNotesCard notes={routineData.safety_notes} />
+            </CollapsibleSection>
+          )}
+
+          {/* Adaptive Guidance */}
+          {routineData.adaptive_guidance && (
+            <CollapsibleSection
+              title="Adaptive Guidance"
+              icon={<TrendingUp className="w-4 h-4 text-indigo-500" />}
+              defaultOpen={false}
+            >
+              <AdaptiveGuidanceCard guidance={routineData.adaptive_guidance} />
+            </CollapsibleSection>
+          )}
+        </motion.div>
+      )}
 
       {/* Daily Feedback Panel */}
       {user && (
