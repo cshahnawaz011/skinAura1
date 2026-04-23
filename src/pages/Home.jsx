@@ -72,6 +72,18 @@ export default function Home() {
     enabled: !!user?.email,
   });
 
+  const { data: savedRoutine } = useQuery({
+    queryKey: ['savedRoutine', user?.email],
+    queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
+    enabled: !!user?.email,
+  });
+
+  const routineData = savedRoutine?.steps || null;
+  const todayDayIndex = (new Date().getDay() + 6) % 7; // Mon=0
+  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const todayName = DAY_NAMES[todayDayIndex];
+  const todayNightPlan = routineData?.night_week_plan?.find(d => d.day_label === todayName) || routineData?.night_week_plan?.[todayDayIndex] || null;
+
   const { data: allLogs = [] } = useQuery({
     queryKey: ['allLogs', user?.email],
     queryFn: () => base44.entities.DietLog.filter({ user_email: user.email }, '-log_date', 30),
@@ -200,6 +212,65 @@ export default function Home() {
           </div>
         </motion.div>
       </div>
+
+      {/* TODAY'S ROUTINE */}
+      {routineData && (
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
+          className={card} style={cs}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-semibold flex items-center gap-1.5" style={{ color: textMuted }}>
+              <Sparkles className="w-3.5 h-3.5" style={{ color: '#c07030' }} /> Today's Routine — {todayName}
+            </p>
+            <Link to="/SkinRoutine">
+              <span className="text-xs font-medium" style={{ color: '#c07080' }}>Full Routine →</span>
+            </Link>
+          </div>
+
+          {/* Morning Steps */}
+          {routineData.morning_routine?.length > 0 && (
+            <div className="mb-3">
+              <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: '#c8a060' }}>☀️ Morning</p>
+              <div className="flex flex-wrap gap-1.5">
+                {routineData.morning_routine.map((step, i) => (
+                  <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: dark ? 'rgba(255,200,100,0.12)' : '#fef3e2', color: dark ? '#f5d090' : '#8a5a20', border: '1px solid rgba(200,160,60,0.2)' }}>
+                    {i + 1}. {step.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tonight's Plan */}
+          {todayNightPlan && (
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: '#a080c8' }}>
+                🌙 Tonight — {todayNightPlan.day_type === 'treatment' ? '💊 Treatment' : todayNightPlan.day_type === 'recovery' ? '🌿 Recovery' : '💧 Hydration'}
+                {todayNightPlan.active_name && <span style={{ color: '#8060b0', marginLeft: 6 }}>· {todayNightPlan.active_name}</span>}
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {(todayNightPlan.steps || []).map((step, i) => (
+                  <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium"
+                    style={{ background: dark ? 'rgba(160,120,220,0.12)' : '#f3eeff', color: dark ? '#c8a8f0' : '#5a3a90', border: '1px solid rgba(160,120,220,0.2)' }}>
+                    {i + 1}. {step.name}{step.active ? ' ✦' : ''}
+                  </span>
+                ))}
+              </div>
+              {todayNightPlan.frequency_note && (
+                <p className="text-[10px] mt-1.5" style={{ color: textMuted }}>📅 {todayNightPlan.frequency_note}</p>
+              )}
+            </div>
+          )}
+
+          {/* Recovery mode override */}
+          {routineData.recovery_mode_active && (
+            <p className="text-xs px-3 py-2 rounded-xl mt-2 font-medium"
+              style={{ background: dark ? 'rgba(220,60,60,0.12)' : '#fff0f0', color: '#c04040', border: '1px solid rgba(200,60,60,0.2)' }}>
+              🚨 Recovery Mode — No actives today. Gentle cleanse + moisturizer only.
+            </p>
+          )}
+        </motion.div>
+      )}
 
       {/* PROACTIVE INSIGHTS */}
       <ProactiveHealthInsights skinAnalysis={latestAnalysis} dietLog={todayLog} />
