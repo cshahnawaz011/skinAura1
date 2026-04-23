@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star
+  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, Trophy
 } from 'lucide-react';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import t from '@/components/i18n/translations';
@@ -42,6 +42,7 @@ const NAV_SECTIONS = [
       { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
       { key: 'glowDashboard', icon: Star, page: 'GlowDashboard', label: 'Glow Dashboard' },
       { key: 'glowChallenge', icon: Sparkles, page: 'GlowChallenge', label: 'Challenges' },
+      { key: 'skinGoalChallenge', icon: Trophy, page: 'SkinGoalChallenge', label: '21-Day Challenge' },
       { key: 'faceYoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
     ]
   },

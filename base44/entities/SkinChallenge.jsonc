@@ -1,0 +1,56 @@
+{
+  "name": "SkinChallenge",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string",
+      "description": "Selected skin goal e.g. Reduce Acne, Hydrate Skin"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "completed",
+        "abandoned"
+      ],
+      "default": "active"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "ai_plan": {
+      "type": "object",
+      "description": "AI-generated 21-day plan with tasks per day"
+    },
+    "completed_days": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "List of day numbers completed"
+    },
+    "total_points": {
+      "type": "number",
+      "default": 0
+    },
+    "badges": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "user_email",
+    "goal",
+    "start_date"
+  ]
+}
