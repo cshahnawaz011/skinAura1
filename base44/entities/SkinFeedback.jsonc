@@ -1,0 +1,35 @@
+{
+  "name": "SkinFeedback",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "feedback_codes": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "1=Comfortable, 2=More glowing, 3=Slight dryness, 4=Very dry/flaky, 5=Mild irritation, 6=Burning/stinging, 7=More oily, 8=No change, 9=New pimples, 10=Acne worsening"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "routine_day_type": {
+      "type": "string",
+      "description": "treatment / recovery / hydration"
+    },
+    "concentration_level": {
+      "type": "string",
+      "description": "Level 1 / Level 2 / Level 3"
+    }
+  },
+  "required": [
+    "user_email",
+    "date"
+  ]
+}
