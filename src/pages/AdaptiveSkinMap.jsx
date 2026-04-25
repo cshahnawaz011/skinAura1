@@ -30,12 +30,15 @@ export const SIGNAL_LAYERS = [
 ];
 
 export const FACE_ZONES = [
-  { id: 'forehead', label: 'Forehead', emoji: '👆', x: 42, y: 12, w: 16, h: 8, signals: ['oiliness', 'acne', 'texture'] },
-  { id: 'left_cheek', label: 'Left Cheek', emoji: '◀️', x: 20, y: 38, w: 14, h: 14, signals: ['dryness', 'sensitivity', 'redness'] },
-  { id: 'right_cheek', label: 'Right Cheek', emoji: '▶️', x: 66, y: 38, w: 14, h: 14, signals: ['dryness', 'sensitivity', 'redness'] },
-  { id: 'nose', label: 'T-Zone Nose', emoji: '👃', x: 42, y: 36, w: 16, h: 12, signals: ['oiliness', 'texture', 'acne'] },
-  { id: 'chin', label: 'Chin & Jaw', emoji: '🔽', x: 40, y: 64, w: 20, h: 10, signals: ['acne', 'oiliness'] },
-  { id: 'undereye', label: 'Under Eye', emoji: '👁️', x: 30, y: 30, w: 40, h: 7, signals: ['dryness', 'hydration', 'pigmentation'] },
+  { id: 'forehead', label: 'Forehead', emoji: '⬆️', cx: 50, cy: 33, signals: ['oiliness', 'acne', 'texture'], modifiers: { oiliness: 1.35, acne: 1.15, texture: 1.2 } },
+  { id: 'left_brow_temple', label: 'Left Temple', emoji: '◀', cx: 22, cy: 43, signals: ['redness', 'sensitivity'], modifiers: { redness: 1.1, sensitivity: 1.1 } },
+  { id: 'right_brow_temple', label: 'Right Temple', emoji: '▶', cx: 78, cy: 43, signals: ['redness', 'sensitivity'], modifiers: { redness: 1.1, sensitivity: 1.1 } },
+  { id: 'nose', label: 'T-Zone / Nose', emoji: '👃', cx: 50, cy: 62, signals: ['oiliness', 'texture', 'acne'], modifiers: { oiliness: 1.6, texture: 1.4, acne: 1.25 } },
+  { id: 'left_cheek', label: 'Left Cheek', emoji: '◀️', cx: 25, cy: 65, signals: ['dryness', 'sensitivity', 'redness'], modifiers: { dryness: 1.3, sensitivity: 1.2, redness: 1.15 } },
+  { id: 'right_cheek', label: 'Right Cheek', emoji: '▶️', cx: 75, cy: 65, signals: ['dryness', 'sensitivity', 'redness'], modifiers: { dryness: 1.3, sensitivity: 1.2, redness: 1.15 } },
+  { id: 'undereye', label: 'Under Eye', emoji: '👁️', cx: 50, cy: 61, signals: ['dryness', 'hydration', 'pigmentation'], modifiers: { dryness: 1.45, hydration: 1.4, pigmentation: 1.3 } },
+  { id: 'chin', label: 'Chin & Jaw', emoji: '⬇️', cx: 50, cy: 97, signals: ['acne', 'oiliness'], modifiers: { acne: 1.35, oiliness: 1.15 } },
+  { id: 'lips_perioral', label: 'Perioral Zone', emoji: '💋', cx: 50, cy: 83, signals: ['dryness', 'sensitivity'], modifiers: { dryness: 1.2, sensitivity: 1.1 } },
 ];
 
 export default function AdaptiveSkinMap() {
