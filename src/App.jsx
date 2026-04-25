@@ -16,6 +16,7 @@ import TravelSkincare from './pages/TravelSkincare';
 import HormoneTracker from './pages/HormoneTracker';
 import GlowChallenge from './pages/GlowChallenge';
 import SkinGoalChallenge from './pages/SkinGoalChallenge';
+import SkinAnalysisPage from './pages/SkinAnalysis';
 import FacialHeatmap from './pages/FacialHeatmap';
 import IngredientLibrary from './pages/IngredientLibrary';
 import Diet from './pages/Diet';
@@ -93,6 +94,7 @@ const AuthenticatedApp = () => {
       <Route path="/GlowDashboard" element={<LayoutWrapper currentPageName="GlowDashboard"><GlowDashboard /></LayoutWrapper>} />
       <Route path="/RoutineProgressDashboard" element={<LayoutWrapper currentPageName="RoutineProgressDashboard"><RoutineProgressDashboard /></LayoutWrapper>} />
       <Route path="/AdaptiveSkinMap" element={<LayoutWrapper currentPageName="AdaptiveSkinMap"><AdaptiveSkinMap /></LayoutWrapper>} />
+      <Route path="/SkinAnalysis" element={<LayoutWrapper currentPageName="SkinAnalysis"><SkinAnalysisPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
