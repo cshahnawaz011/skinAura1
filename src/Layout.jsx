@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, Trophy
+  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, Trophy, Map
 } from 'lucide-react';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import t from '@/components/i18n/translations';
@@ -21,6 +21,7 @@ const NAV_SECTIONS = [
       { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Analyze' },
       { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
       { key: 'progressDash', icon: TrendingUp, page: 'RoutineProgressDashboard', label: 'Progress Dashboard' },
+      { key: 'skinMap', icon: Map, page: 'AdaptiveSkinMap', label: 'Adaptive Skin Map' },
       { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
       { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
     ]

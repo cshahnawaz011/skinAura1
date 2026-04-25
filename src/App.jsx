@@ -21,6 +21,7 @@ import IngredientLibrary from './pages/IngredientLibrary';
 import Diet from './pages/Diet';
 import GlowDashboard from './pages/GlowDashboard';
 import RoutineProgressDashboard from './pages/RoutineProgressDashboard';
+import AdaptiveSkinMap from './pages/AdaptiveSkinMap';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
       <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />
       <Route path="/GlowDashboard" element={<LayoutWrapper currentPageName="GlowDashboard"><GlowDashboard /></LayoutWrapper>} />
       <Route path="/RoutineProgressDashboard" element={<LayoutWrapper currentPageName="RoutineProgressDashboard"><RoutineProgressDashboard /></LayoutWrapper>} />
+      <Route path="/AdaptiveSkinMap" element={<LayoutWrapper currentPageName="AdaptiveSkinMap"><AdaptiveSkinMap /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
