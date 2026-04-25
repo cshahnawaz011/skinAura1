@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, AlertTriangle, Zap, ChevronDown, ChevronUp, TrendingDown, CheckCircle } from 'lucide-react';
+import { Shield, AlertTriangle, Zap, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
 const RISK_CATEGORIES = [
   {
@@ -13,12 +13,15 @@ const RISK_CATEGORIES = [
     getAlerts: (a) => {
       const alerts = [];
       if ((a?.sensitivity || 0) >= 6) alerts.push({ text: 'High sensitivity — avoid retinol, AHA/BHA simultaneously', severity: 'high' });
-      if ((a?.dryness || 0) >= 6) alerts.push({ text: 'Barrier moisture loss — prioritize ceramide repair', severity: 'high' });
+      if ((a?.dryness || 0) >= 6) alerts.push({ text: 'Barrier moisture loss — ceramide repair is critical', severity: 'high' });
       if ((a?.redness || 0) >= 5) alerts.push({ text: 'Inflammatory signal — reduce active ingredients frequency', severity: 'medium' });
-      if (alerts.length === 0) alerts.push({ text: 'Barrier appears stable — maintain current routine', severity: 'low' });
+      if (alerts.length === 0) alerts.push({ text: 'Barrier appears stable', severity: 'low' });
       return alerts;
     },
-    actions: ['Apply ceramide moisturizer twice daily', 'Patch test new products', 'Avoid hot water cleansing', 'Use fragrance-free formulas only'],
+    facts: [
+      'The skin barrier (stratum corneum) is composed of lipids, ceramides and proteins — when disrupted, allergens and bacteria enter more easily.',
+      'A damaged barrier causes a vicious cycle: inflammation weakens it further, which triggers more sensitivity and dryness.',
+    ],
   },
   {
     id: 'breakout',
@@ -29,13 +32,16 @@ const RISK_CATEGORIES = [
     getScore: (a) => Math.max(a?.acne_level || 0, a?.oiliness || 0, a?.pores || 0),
     getAlerts: (a) => {
       const alerts = [];
-      if ((a?.acne_level || 0) >= 6) alerts.push({ text: 'Active breakout detected — begin BHA/BP treatment', severity: 'high' });
-      if ((a?.oiliness || 0) >= 7) alerts.push({ text: 'Excess sebum — high congestion and pore-clogging risk', severity: 'high' });
-      if ((a?.pores || 0) >= 6) alerts.push({ text: 'Enlarged pores visible — use pore-minimizing actives', severity: 'medium' });
-      if (alerts.length === 0) alerts.push({ text: 'Breakout risk is low — prevention routine is sufficient', severity: 'low' });
+      if ((a?.acne_level || 0) >= 6) alerts.push({ text: 'Active breakout detected — excess sebum and bacteria present', severity: 'high' });
+      if ((a?.oiliness || 0) >= 7) alerts.push({ text: 'Excess sebum production — high congestion and pore-clogging risk', severity: 'high' });
+      if ((a?.pores || 0) >= 6) alerts.push({ text: 'Enlarged pores visible — sebum and dead cells accumulating', severity: 'medium' });
+      if (alerts.length === 0) alerts.push({ text: 'Breakout risk is low', severity: 'low' });
       return alerts;
     },
-    actions: ['Use salicylic acid 2% toner', 'Change pillowcase every 2 days', 'Avoid heavy comedogenic products', 'Spot treat with BP 2.5%'],
+    facts: [
+      'Acne lesions begin forming 2–3 weeks before they are visible on the surface — by the time you see a pimple, it has been developing for weeks.',
+      'Propionibacterium acnes (P. acnes) bacteria thrive in oxygen-free clogged pores, producing fatty acids that trigger the inflammatory response.',
+    ],
   },
   {
     id: 'aging',
@@ -46,12 +52,15 @@ const RISK_CATEGORIES = [
     getScore: (a) => Math.max(a?.wrinkles || 0, a?.dryness || 0),
     getAlerts: (a) => {
       const alerts = [];
-      if ((a?.wrinkles || 0) >= 5) alerts.push({ text: 'Fine lines detected — start retinol protocol', severity: 'medium' });
-      if ((a?.dryness || 0) >= 6) alerts.push({ text: 'Dehydration accelerating aging — increase moisturization', severity: 'medium' });
-      if (alerts.length === 0) alerts.push({ text: 'Aging signals are minimal — preventive routine is optimal', severity: 'low' });
+      if ((a?.wrinkles || 0) >= 5) alerts.push({ text: 'Fine lines detected — collagen degradation is active', severity: 'medium' });
+      if ((a?.dryness || 0) >= 6) alerts.push({ text: 'Dehydration accelerating visible aging signs', severity: 'medium' });
+      if (alerts.length === 0) alerts.push({ text: 'Aging signals are minimal', severity: 'low' });
       return alerts;
     },
-    actions: ['Start retinol 0.025% nightly', 'Use Vitamin C serum AM', 'Daily SPF 50+ without fail', 'Add peptide serum to routine'],
+    facts: [
+      'Collagen production declines by approximately 1% per year after age 25, and UV radiation accelerates this degradation by up to 5× more.',
+      'Glycation — sugar molecules bonding to collagen fibers — is a major but overlooked cause of skin stiffness and wrinkle formation.',
+    ],
   },
   {
     id: 'pigmentation',
@@ -62,12 +71,15 @@ const RISK_CATEGORIES = [
     getScore: (a) => Math.max(a?.dark_spots || 0, a?.redness || 0),
     getAlerts: (a) => {
       const alerts = [];
-      if ((a?.dark_spots || 0) >= 5) alerts.push({ text: 'Post-inflammatory hyperpigmentation detected', severity: 'medium' });
-      if ((a?.redness || 0) >= 5) alerts.push({ text: 'Inflammation may leave dark marks — treat early', severity: 'medium' });
-      if (alerts.length === 0) alerts.push({ text: 'Pigmentation risk is controlled — maintain SPF use', severity: 'low' });
+      if ((a?.dark_spots || 0) >= 5) alerts.push({ text: 'Post-inflammatory hyperpigmentation pattern detected', severity: 'medium' });
+      if ((a?.redness || 0) >= 5) alerts.push({ text: 'Active inflammation increases melanin overproduction risk', severity: 'medium' });
+      if (alerts.length === 0) alerts.push({ text: 'Pigmentation risk is currently controlled', severity: 'low' });
       return alerts;
     },
-    actions: ['Apply SPF 50+ daily mandatory', 'Use Vitamin C + Alpha Arbutin serum', 'Avoid sun exposure 10am–2pm', 'Add niacinamide to even tone'],
+    facts: [
+      'Melanocytes produce melanin in response to UV and inflammation — even 10 minutes of unprotected sun exposure can undo weeks of treatment.',
+      'Post-inflammatory hyperpigmentation (PIH) is more persistent in deeper skin tones due to higher baseline melanin density in the epidermis.',
+    ],
   },
 ];
 
@@ -84,7 +96,7 @@ function severityStyles(severity) {
   return 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300';
 }
 
-export default function BarrierRiskPanel({ analysis, feedbackHistory, routine }) {
+export default function BarrierRiskPanel({ analysis, feedbackHistory }) {
   const [expanded, setExpanded] = useState('barrier');
 
   const recentDamageSignals = feedbackHistory.filter(f =>
@@ -151,31 +163,21 @@ export default function BarrierRiskPanel({ analysis, feedbackHistory, routine })
                         ))}
                       </div>
 
-                      {/* Suggested Actions */}
+                      {/* Science Facts */}
                       <div>
-                        <p className="text-[10px] font-black text-gray-500 uppercase tracking-wider mb-2">Suggested Actions</p>
-                        <div className="grid grid-cols-1 gap-1.5">
-                          {cat.actions.map((action, i) => (
-                            <div key={i} className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-                              <span className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white flex-shrink-0"
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-2">Skin Science</p>
+                        <div className="space-y-2">
+                          {cat.facts.map((fact, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white flex-shrink-0 mt-0.5"
                                 style={{ background: cat.color }}>
                                 {i + 1}
-                              </span>
-                              {action}
+                              </div>
+                              <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{fact}</p>
                             </div>
                           ))}
                         </div>
                       </div>
-
-                      {/* Routine connection */}
-                      {routine && (
-                        <div className="p-2.5 rounded-xl text-xs" style={{ background: `${cat.color}10` }}>
-                          <p className="font-bold mb-1" style={{ color: cat.color }}>🔗 Routine Connection</p>
-                          <p className="text-gray-600 dark:text-gray-400">
-                            Your {routine.routine_type || 'morning'} routine {score >= 6 ? 'needs adjustment to address this risk' : 'is aligned to manage this concern'}.
-                          </p>
-                        </div>
-                      )}
                     </div>
                   </motion.div>
                 )}
