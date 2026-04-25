@@ -6,10 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   Camera, Sparkles, TrendingUp, MessageCircle,
-  Palette, Sun, Users, Droplets, ArrowRight,
-  Zap, BookOpen, Star
+  Droplets, Zap, Star, Sun, Bell, Search,
+  ChevronRight, Heart, Shield, Leaf, Moon
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import WeatherAdvisor from '@/components/home/WeatherAdvisor';
 import ProactiveHealthInsights from '@/components/home/ProactiveHealthInsights';
 import CrossFeatureInsights from '@/components/home/CrossFeatureInsights';
@@ -17,34 +16,62 @@ import ProductRecommender from '@/components/home/ProductRecommender';
 import UserJourney from '@/components/home/UserJourney';
 import FeaturesIntroPopup from '@/components/home/FeaturesIntroPopup';
 import { AnimatePresence } from 'framer-motion';
-import { useTranslation } from '@/components/i18n/translations';
 
-const card = "rounded-2xl border p-5";
-const cardStyle = { background: 'rgba(255,250,246,0.85)', border: '1px solid #ede8e3' };
-const cardDark = { background: 'rgba(30,22,40,0.85)', border: '1px solid rgba(255,255,255,0.08)' };
-
+// ── Quick Action Feature Cards ──────────────────────────────────────────────
 const FEATURES = [
-  { icon: Camera, title: 'AI Skin Analysis', desc: 'Get detailed insights about your skin', page: 'SkinAnalysis', from: '#f8d7da', to: '#f3c6d8', iconColor: '#c0607a' },
-  { icon: Sparkles, title: 'Personalized Routine', desc: 'Morning & night skincare routines', page: 'SkinRoutine', from: '#fde8cc', to: '#f9d5a7', iconColor: '#c07030' },
-  { icon: TrendingUp, title: 'Track Progress', desc: 'See your skin transformation', page: 'Progress', from: '#ccf0e4', to: '#b5e8d5', iconColor: '#307a60' },
-  { icon: Droplets, title: 'Product Finder', desc: 'Find perfect products for you', page: 'Products', from: '#cce4f8', to: '#b5d5f0', iconColor: '#306090' },
-  { icon: MessageCircle, title: 'AI Skin Coach', desc: 'Ask anything about skincare', page: 'SkinChat', from: '#ddd5f5', to: '#ccc0ec', iconColor: '#6050a0' },
-  { icon: Palette, title: 'Virtual Makeup', desc: 'Try on makeup looks', page: 'MakeupTryOn', from: '#f5d5ee', to: '#ecc0e0', iconColor: '#905080' },
+  { icon: Camera,       title: 'Skin Analysis',   desc: 'AI-powered scan', page: 'SkinAnalysis',  gradient: 'from-rose-400 to-pink-500',    bg: 'from-rose-50 to-pink-50',    iconBg: 'from-rose-400 to-pink-500' },
+  { icon: Sparkles,     title: 'My Routine',      desc: 'Daily care plan',  page: 'SkinRoutine',   gradient: 'from-amber-400 to-orange-400', bg: 'from-amber-50 to-orange-50', iconBg: 'from-amber-400 to-orange-400' },
+  { icon: TrendingUp,   title: 'Progress',        desc: 'Track glow',       page: 'Progress',      gradient: 'from-emerald-400 to-teal-400', bg: 'from-emerald-50 to-teal-50', iconBg: 'from-emerald-400 to-teal-400' },
+  { icon: MessageCircle,title: 'AI Coach',        desc: 'Ask anything',     page: 'SkinChat',      gradient: 'from-violet-400 to-purple-500',bg: 'from-violet-50 to-purple-50',iconBg: 'from-violet-400 to-purple-500' },
+  { icon: Droplets,     title: 'Products',        desc: 'Find your match',  page: 'Products',      gradient: 'from-sky-400 to-blue-400',     bg: 'from-sky-50 to-blue-50',     iconBg: 'from-sky-400 to-blue-400' },
+  { icon: Heart,        title: 'Glow Goals',      desc: '21-day challenge', page: 'SkinGoalChallenge', gradient: 'from-pink-400 to-rose-400', bg: 'from-pink-50 to-rose-50',    iconBg: 'from-pink-400 to-rose-400' },
 ];
+
+// ── Wellness Pill ─────────────────────────────────────────────────────────
+function WellnessPill({ icon: Icon, label, value, color }) {
+  return (
+    <div className="pill-tag rounded-full flex items-center gap-1.5 px-3 py-1.5">
+      <Icon className={`w-3.5 h-3.5 ${color}`} />
+      <span className="text-xs font-semibold text-gray-600">{label}</span>
+      <span className={`text-xs font-bold ${color}`}>{value}</span>
+    </div>
+  );
+}
+
+// ── Score Ring ──────────────────────────────────────────────────────────────
+function ScoreRing({ score }) {
+  const r = 36, circ = 2 * Math.PI * r;
+  const pct = score / 100;
+  return (
+    <svg width="88" height="88" className="rotate-[-90deg]">
+      <circle cx="44" cy="44" r={r} fill="none" stroke="rgba(220,180,230,0.2)" strokeWidth="7" />
+      <circle cx="44" cy="44" r={r} fill="none"
+        stroke="url(#scoreGrad)" strokeWidth="7"
+        strokeLinecap="round"
+        strokeDasharray={circ}
+        strokeDashoffset={circ * (1 - pct)}
+        style={{ transition: 'stroke-dashoffset 1.2s ease' }}
+      />
+      <defs>
+        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#f472b6" />
+          <stop offset="100%" stopColor="#a78bfa" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 
 export default function Home() {
   const [user, setUser] = useState(null);
-  const [dark, setDark] = useState(localStorage.getItem('glowai-dark') === 'true');
   const [showIntro, setShowIntro] = useState(() => !localStorage.getItem('glowai-intro-seen'));
-  const { tr } = useTranslation();
+  const greeting = (() => {
+    const h = new Date().getHours();
+    return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  })();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
-    const obs = new MutationObserver(() => {
-      setDark(document.documentElement.classList.contains('dark'));
-    });
-    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => obs.disconnect();
   }, []);
 
   const { data: latestAnalysis, isLoading: analysisLoading } = useQuery({
@@ -78,251 +105,306 @@ export default function Home() {
     enabled: !!user?.email,
   });
 
-  const routineData = savedRoutine?.steps || null;
-  const todayDayIndex = (new Date().getDay() + 6) % 7; // Mon=0
-  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const todayName = DAY_NAMES[todayDayIndex];
-  const todayNightPlan = routineData?.night_week_plan?.find(d => d.day_label === todayName) || routineData?.night_week_plan?.[todayDayIndex] || null;
-
   const { data: allLogs = [] } = useQuery({
     queryKey: ['allLogs', user?.email],
     queryFn: () => base44.entities.DietLog.filter({ user_email: user.email }, '-log_date', 30),
     enabled: !!user?.email,
   });
 
-  const cs = dark ? cardDark : cardStyle;
-  const textMuted = dark ? '#a09090' : '#9a7e78';
-  const textBase = dark ? '#f0e8e0' : '#3d2a2a';
+  const routineData = savedRoutine?.steps || null;
+  const todayDayIndex = (new Date().getDay() + 6) % 7;
+  const DAY_NAMES = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+  const todayName = DAY_NAMES[todayDayIndex];
+  const todayNightPlan = routineData?.night_week_plan?.find(d => d.day_label === todayName) || routineData?.night_week_plan?.[todayDayIndex] || null;
 
-  const scoreColor = latestAnalysis?.overall_score >= 70 ? '#4a9070' : latestAnalysis?.overall_score >= 50 ? '#c07030' : '#c05060';
+  const score = latestAnalysis?.overall_score || 0;
+  const firstName = user?.full_name?.split(' ')[0] || 'there';
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="hero-bg min-h-screen pb-24">
       <AnimatePresence>
         {showIntro && <FeaturesIntroPopup onClose={() => { localStorage.setItem('glowai-intro-seen', '1'); setShowIntro(false); }} />}
       </AnimatePresence>
 
-      {/* HERO */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
-        className="text-center pt-4 pb-2">
-        <h1 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: textBase, letterSpacing: '-0.02em' }}>
-          GlowAI: <span style={{ color: '#c07080' }}>Your skin, elevated</span>
-        </h1>
-        <p className="text-sm" style={{ color: textMuted }}>Analyze, track and improve your skin with personalized AI</p>
-      </motion.div>
+      <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
 
-      {/* WEATHER ADVISOR */}
-      <WeatherAdvisor skinAnalysis={latestAnalysis} />
+        {/* ── TOP HEADER ─────────────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between pt-2">
+          <div>
+            <p className="text-xs font-semibold text-pink-400 tracking-wide uppercase">{greeting} ✨</p>
+            <h1 className="text-xl font-extrabold text-gray-800 leading-tight">
+              {user ? firstName : 'Welcome back'}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="w-9 h-9 rounded-2xl stat-card flex items-center justify-center">
+              <Search className="w-4 h-4 text-gray-400" />
+            </button>
+            <button className="w-9 h-9 rounded-2xl stat-card flex items-center justify-center relative">
+              <Bell className="w-4 h-4 text-gray-400" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-400 border border-white" />
+            </button>
+            <div className="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-sm text-white icon-bubble"
+              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+              {user?.full_name?.[0]?.toUpperCase() || '✦'}
+            </div>
+          </div>
+        </motion.div>
 
-      {/* 3-COL SUMMARY ROW */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* ── HERO SKIN SCORE CARD ────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
+          <div className="glossy-card p-5" style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,235,250,0.8) 50%, rgba(240,230,255,0.75) 100%)'
+          }}>
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <p className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Skin Health Score</p>
+                {analysisLoading ? (
+                  <div className="h-10 w-24 rounded-xl animate-pulse bg-pink-100" />
+                ) : latestAnalysis ? (
+                  <>
+                    <div className="flex items-end gap-1">
+                      <span className="text-5xl font-black text-gray-800">{score}</span>
+                      <span className="text-lg font-bold text-gray-400 mb-1">/100</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full text-white"
+                        style={{ background: score >= 70 ? 'linear-gradient(135deg,#34d399,#10b981)' : score >= 50 ? 'linear-gradient(135deg,#fbbf24,#f59e0b)' : 'linear-gradient(135deg,#f87171,#ef4444)' }}>
+                        {score >= 70 ? '✦ Great' : score >= 50 ? '↑ Improving' : '♡ Needs Care'}
+                      </span>
+                      <span className="text-xs text-gray-400 capitalize">{latestAnalysis.skin_type} skin</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-2xl font-black text-gray-400">--</p>
+                    <Link to={createPageUrl('SkinAnalysis')}>
+                      <span className="text-xs font-bold text-pink-500 mt-1 block">Analyze now →</span>
+                    </Link>
+                  </>
+                )}
 
-        {/* Glow Score */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className={card} style={cs}>
-          <p className="text-xs font-semibold mb-3 flex items-center gap-1.5" style={{ color: textMuted }}>
-            <Star className="w-3.5 h-3.5" style={{ color: '#c8a860' }} /> Your Skin Score
-          </p>
-          {analysisLoading ? (
-            <div className="h-16 rounded-xl animate-pulse" style={{ background: '#f0ebe6' }} />
-          ) : latestAnalysis ? (
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 text-2xl font-black"
-                style={{ background: 'linear-gradient(135deg,#f8d7da,#fde8cc)', color: scoreColor }}>
-                {latestAnalysis.overall_score}
+                {/* Wellness Pills */}
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  <WellnessPill icon={Droplets} label="Water" value={`${todayLog?.water_glasses || 0}/8`} color="text-sky-500" />
+                  <WellnessPill icon={Moon} label="Sleep" value={`${todayLog?.sleep_hours || '--'}h`} color="text-violet-500" />
+                  <WellnessPill icon={Zap} label="Energy" value={`${todayLog?.exercise_minutes || 0}m`} color="text-amber-500" />
+                </div>
               </div>
-              <div>
-                <p className="font-semibold text-sm" style={{ color: textBase }}>
-                  {latestAnalysis.overall_score >= 70 ? 'Looking great!' : latestAnalysis.overall_score >= 50 ? 'Improving' : 'Needs care'}
-                </p>
-                <p className="text-xs capitalize mt-0.5" style={{ color: textMuted }}>{latestAnalysis.skin_type} skin</p>
-                <Link to={createPageUrl('Progress')}>
-                  <span className="text-xs font-medium mt-1 block" style={{ color: '#c07080' }}>View Progress →</span>
+
+              {/* Score Ring */}
+              <div className="flex-shrink-0 relative">
+                <ScoreRing score={score} />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-pink-400" />
+                </div>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            {latestAnalysis && (
+              <div className="mt-4">
+                <div className="flex justify-between text-xs text-gray-400 mb-1.5">
+                  <span>Glow Progress</span>
+                  <span className="font-bold text-pink-400">{score}%</span>
+                </div>
+                <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(200,150,220,0.15)' }}>
+                  <motion.div
+                    className="h-full rounded-full progress-glow"
+                    style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${score}%` }}
+                    transition={{ duration: 1.2, ease: 'easeOut' }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ── QUICK STATS ROW ─────────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
+          className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Streak', value: '7 days', emoji: '🔥', color: 'text-orange-500' },
+            { label: 'Products', value: latestAnalysis ? '12+' : '--', emoji: '✦', color: 'text-pink-500' },
+            { label: 'Goals', value: '3 active', emoji: '🎯', color: 'text-violet-500' },
+          ].map((s, i) => (
+            <motion.div key={i} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.16 + i * 0.05 }}
+              className="stat-card p-3 text-center">
+              <p className="text-xl mb-0.5">{s.emoji}</p>
+              <p className={`text-sm font-black ${s.color}`}>{s.value}</p>
+              <p className="text-[10px] text-gray-400 font-medium mt-0.5">{s.label}</p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* ── WEATHER ADVISOR ─────────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}>
+          <WeatherAdvisor skinAnalysis={latestAnalysis} />
+        </motion.div>
+
+        {/* ── TODAY'S ROUTINE ─────────────────────────────────────────── */}
+        {routineData && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <div className="premium-card p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl icon-bubble flex items-center justify-center text-sm"
+                    style={{ background: 'linear-gradient(135deg,#fbbf24,#f97316)' }}>☀️</div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-800">Today's Routine</p>
+                    <p className="text-[10px] text-gray-400">{todayName}</p>
+                  </div>
+                </div>
+                <Link to="/SkinRoutine">
+                  <span className="text-xs font-bold text-pink-400 flex items-center gap-0.5">
+                    Full <ChevronRight className="w-3 h-3" />
+                  </span>
                 </Link>
               </div>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center py-2 gap-2">
-              <p className="text-sm" style={{ color: textMuted }}>No analysis yet</p>
-              <Link to={createPageUrl('SkinAnalysis')}>
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)' }}>
-                  <Camera className="w-3.5 h-3.5" /> Analyze Now
-                </button>
-              </Link>
-            </div>
-          )}
-        </motion.div>
 
-        {/* Today's Wellness */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className={card} style={cs}>
-          <p className="text-xs font-semibold mb-3 flex items-center gap-1.5" style={{ color: textMuted }}>
-            <Sun className="w-3.5 h-3.5" style={{ color: '#c8a060' }} /> Today's Wellness
-          </p>
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between text-sm">
-              <span style={{ color: textMuted }}>Water Intake</span>
-              <div className="flex items-center gap-1">
-                <div className="flex">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <span key={i} className="text-xs" style={{ opacity: i < (todayLog?.water_glasses || 0) ? 1 : 0.2 }}>💧</span>
-                  ))}
+              {/* Morning steps */}
+              {routineData.morning_routine?.length > 0 && (
+                <div className="mb-3">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-2">☀️ Morning</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {routineData.morning_routine.map((step, i) => (
+                      <span key={i} className="text-xs px-2.5 py-1 rounded-full font-semibold"
+                        style={{ background: 'linear-gradient(135deg,rgba(251,191,36,0.15),rgba(249,115,22,0.10))', color: '#b45309', border: '1px solid rgba(251,191,36,0.25)' }}>
+                        {i + 1}. {step.name}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-                <span className="text-xs font-medium" style={{ color: textBase }}>{todayLog?.water_glasses || 0}/8</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span style={{ color: textMuted }}>Sleep Hours</span>
-              <span className="font-medium text-xs" style={{ color: textBase }}>{todayLog?.sleep_hours || '--'} hrs</span>
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span style={{ color: textMuted }}>Exercise</span>
-              <span className="font-medium text-xs" style={{ color: textBase }}>{todayLog?.exercise_minutes || 0} min</span>
-            </div>
-          </div>
-          <Link to={createPageUrl('Lifestyle')} className="block mt-3">
-            <button className="w-full py-1.5 rounded-xl text-xs font-semibold border transition-all"
-              style={{ border: '1px solid #ede8e3', color: textMuted, background: 'transparent' }}>
-              Log Today's Activity
-            </button>
-          </Link>
-        </motion.div>
+              )}
 
-        {/* Quick Actions */}
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className={card} style={cs}>
-          <p className="text-xs font-semibold mb-3 flex items-center gap-1.5" style={{ color: textMuted }}>
-            <Zap className="w-3.5 h-3.5" style={{ color: '#a0a0c8' }} /> Quick Actions
-          </p>
-          <div className="space-y-2">
-            {[
-              { to: 'SkinAnalysis', icon: Camera, label: 'New Skin Analysis', color: '#c07080' },
-              { to: 'SkinRoutine', icon: Sparkles, label: 'View My Routine', color: '#c07030' },
-              { to: 'SkinChat', icon: MessageCircle, label: 'Ask AI Coach', color: '#6050a0' },
-            ].map(({ to, icon: Icon, label, color }) => (
-              <Link key={to} to={createPageUrl(to)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all group"
-                style={{ background: dark ? 'rgba(255,255,255,0.04)' : '#faf6f2', border: '1px solid transparent' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#ede8e3'}
-                onMouseLeave={e => e.currentTarget.style.borderColor = 'transparent'}>
-                <Icon className="w-4 h-4 flex-shrink-0" style={{ color }} />
-                <span className="text-sm" style={{ color: textBase }}>{label}</span>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-      </div>
+              {/* Night plan */}
+              {todayNightPlan && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-violet-500 mb-2">
+                    🌙 Tonight — {todayNightPlan.day_type === 'treatment' ? '💊 Treatment' : todayNightPlan.day_type === 'recovery' ? '🌿 Recovery' : '💧 Hydration'}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(todayNightPlan.steps || []).map((step, i) => (
+                      <span key={i} className="text-xs px-2.5 py-1 rounded-full font-semibold"
+                        style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.15),rgba(139,92,246,0.10))', color: '#6d28d9', border: '1px solid rgba(167,139,250,0.25)' }}>
+                        {i + 1}. {step.name}{step.active ? ' ✦' : ''}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-      {/* TODAY'S ROUTINE */}
-      {routineData && (
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
-          className={card} style={cs}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold flex items-center gap-1.5" style={{ color: textMuted }}>
-              <Sparkles className="w-3.5 h-3.5" style={{ color: '#c07030' }} /> Today's Routine — {todayName}
-            </p>
-            <Link to="/SkinRoutine">
-              <span className="text-xs font-medium" style={{ color: '#c07080' }}>Full Routine →</span>
-            </Link>
-          </div>
-
-          {/* Morning Steps */}
-          {routineData.morning_routine?.length > 0 && (
-            <div className="mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: '#c8a060' }}>☀️ Morning</p>
-              <div className="flex flex-wrap gap-1.5">
-                {routineData.morning_routine.map((step, i) => (
-                  <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium"
-                    style={{ background: dark ? 'rgba(255,200,100,0.12)' : '#fef3e2', color: dark ? '#f5d090' : '#8a5a20', border: '1px solid rgba(200,160,60,0.2)' }}>
-                    {i + 1}. {step.name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Tonight's Plan */}
-          {todayNightPlan && (
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wide mb-1.5" style={{ color: '#a080c8' }}>
-                🌙 Tonight — {todayNightPlan.day_type === 'treatment' ? '💊 Treatment' : todayNightPlan.day_type === 'recovery' ? '🌿 Recovery' : '💧 Hydration'}
-                {todayNightPlan.active_name && <span style={{ color: '#8060b0', marginLeft: 6 }}>· {todayNightPlan.active_name}</span>}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {(todayNightPlan.steps || []).map((step, i) => (
-                  <span key={i} className="text-xs px-2.5 py-1 rounded-full font-medium"
-                    style={{ background: dark ? 'rgba(160,120,220,0.12)' : '#f3eeff', color: dark ? '#c8a8f0' : '#5a3a90', border: '1px solid rgba(160,120,220,0.2)' }}>
-                    {i + 1}. {step.name}{step.active ? ' ✦' : ''}
-                  </span>
-                ))}
-              </div>
-              {todayNightPlan.frequency_note && (
-                <p className="text-[10px] mt-1.5" style={{ color: textMuted }}>📅 {todayNightPlan.frequency_note}</p>
+              {routineData.recovery_mode_active && (
+                <p className="text-xs px-3 py-2 rounded-xl mt-2 font-medium"
+                  style={{ background: 'rgba(254,226,226,0.6)', color: '#dc2626', border: '1px solid rgba(252,165,165,0.4)' }}>
+                  🚨 Recovery Mode — Gentle cleanse + moisturizer only.
+                </p>
               )}
             </div>
-          )}
+          </motion.div>
+        )}
 
-          {/* Recovery mode override */}
-          {routineData.recovery_mode_active && (
-            <p className="text-xs px-3 py-2 rounded-xl mt-2 font-medium"
-              style={{ background: dark ? 'rgba(220,60,60,0.12)' : '#fff0f0', color: '#c04040', border: '1px solid rgba(200,60,60,0.2)' }}>
-              🚨 Recovery Mode — No actives today. Gentle cleanse + moisturizer only.
-            </p>
-          )}
+        {/* ── FEATURE GRID ─────────────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-bold text-gray-700">Explore Features</p>
+            <span className="text-xs text-pink-400 font-semibold">All tools →</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {FEATURES.map((f, i) => {
+              const Icon = f.icon;
+              return (
+                <Link key={f.page} to={createPageUrl(f.page)}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 + i * 0.04 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="premium-card p-3.5 flex flex-col items-center text-center gap-2 cursor-pointer"
+                  >
+                    <div className={`w-11 h-11 rounded-2xl icon-bubble bg-gradient-to-br ${f.iconBg} flex items-center justify-center`}>
+                      <Icon className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-gray-700 leading-tight">{f.title}</p>
+                      <p className="text-[10px] text-gray-400 mt-0.5">{f.desc}</p>
+                    </div>
+                  </motion.div>
+                </Link>
+              );
+            })}
+          </div>
         </motion.div>
-      )}
 
-      {/* PROACTIVE INSIGHTS */}
-      <ProactiveHealthInsights skinAnalysis={latestAnalysis} dietLog={todayLog} />
+        {/* ── PROACTIVE INSIGHTS ───────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
+          <ProactiveHealthInsights skinAnalysis={latestAnalysis} dietLog={todayLog} />
+        </motion.div>
 
-      {/* SMART CONNECTIONS */}
-      <CrossFeatureInsights
-        skinAnalysis={latestAnalysis}
-        dietLog={todayLog}
-        routines={routines}
-        logs={allLogs}
-      />
+        {/* ── CROSS FEATURE INSIGHTS ──────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+          <CrossFeatureInsights
+            skinAnalysis={latestAnalysis}
+            dietLog={todayLog}
+            routines={routines}
+            logs={allLogs}
+          />
+        </motion.div>
 
-      {/* EXPLORE FEATURES */}
-      <div>
-        <p className="text-base font-bold mb-3 flex items-center gap-2" style={{ color: textBase }}>
-          <Zap className="w-4 h-4" style={{ color: '#c8a060' }} /> Explore Features
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {FEATURES.map((f, i) => {
-            const Icon = f.icon;
-            return (
-              <Link key={f.page} to={createPageUrl(f.page)}>
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  className="rounded-2xl p-4 cursor-pointer transition-all"
-                  style={{
-                    background: dark
-                      ? `linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02))`
-                      : `linear-gradient(135deg, ${f.from}, ${f.to})`,
-                    border: dark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(255,255,255,0.6)'
-                  }}>
-                  <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
-                    style={{ background: 'rgba(255,255,255,0.5)' }}>
-                    <Icon className="w-4.5 h-4.5" style={{ color: f.iconColor }} />
-                  </div>
-                  <p className="font-semibold text-sm mb-0.5" style={{ color: dark ? '#f0e8e0' : '#3d2a2a' }}>{f.title}</p>
-                  <p className="text-xs" style={{ color: dark ? '#a09090' : '#7a6060' }}>{f.desc}</p>
-                </motion.div>
-              </Link>
-            );
-          })}
-        </div>
+        {/* ── USER JOURNEY ─────────────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <UserJourney latestAnalysis={latestAnalysis} />
+        </motion.div>
+
+        {/* ── PRODUCT RECOMMENDER ─────────────────────────────────────── */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+          <ProductRecommender skinAnalysis={latestAnalysis} />
+        </motion.div>
+
+        {/* ── SIGN IN NUDGE ────────────────────────────────────────────── */}
+        {!user && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34 }}>
+            <div className="glossy-card p-6 text-center">
+              <div className="w-14 h-14 rounded-3xl mx-auto mb-3 flex items-center justify-center text-2xl icon-bubble"
+                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>✨</div>
+              <p className="font-bold text-gray-800 mb-1">Start your glow journey</p>
+              <p className="text-xs text-gray-400 mb-4">Get personalized AI skincare insights</p>
+              <button onClick={() => base44.auth.redirectToLogin()}
+                className="w-full py-3 rounded-2xl text-sm font-bold text-white icon-bubble"
+                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                Sign In Free ✦
+              </button>
+            </div>
+          </motion.div>
+        )}
+
       </div>
 
-      {/* USER JOURNEY */}
-      <UserJourney latestAnalysis={latestAnalysis} />
-
-      {/* PRODUCT RECOMMENDER */}
-      <ProductRecommender skinAnalysis={latestAnalysis} />
+      {/* ── BOTTOM NAV ───────────────────────────────────────────────────── */}
+      <div className="bottom-nav fixed bottom-0 left-0 right-0 z-50 px-6 py-3 safe-area-pb">
+        <div className="max-w-md mx-auto flex items-center justify-around">
+          {[
+            { icon: '🏠', label: 'Home',    page: '/',              active: true },
+            { icon: '📸', label: 'Analyze', page: '/SkinAnalysis',  active: false },
+            { icon: '✨', label: 'Routine',  page: '/SkinRoutine',   active: false },
+            { icon: '📈', label: 'Progress', page: '/Progress',      active: false },
+            { icon: '💬', label: 'Coach',    page: '/SkinChat',      active: false },
+          ].map((item) => (
+            <Link key={item.page} to={item.page} className="flex flex-col items-center gap-1 group">
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg transition-all ${
+                item.active
+                  ? 'icon-bubble scale-110 shadow-lg'
+                  : 'hover:bg-pink-50'
+              }`} style={item.active ? { background: 'linear-gradient(135deg,rgba(244,114,182,0.15),rgba(167,139,250,0.15))', border: '1px solid rgba(244,114,182,0.3)' } : {}}>
+                {item.icon}
+              </div>
+              <span className={`text-[9px] font-bold tracking-wide ${item.active ? 'text-pink-500' : 'text-gray-400'}`}>
+                {item.label}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

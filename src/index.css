@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap');
 
 @layer base {
   :root {
@@ -86,5 +87,116 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
+}
+
+/* ── PREMIUM GLASS CARD ── */
+.premium-card {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.9) inset,
+    0 -1px 0 rgba(200,160,200,0.08) inset,
+    0 8px 32px rgba(200,100,160,0.10),
+    0 2px 8px rgba(180,80,140,0.07),
+    4px 4px 16px rgba(200,140,220,0.08),
+    -2px -2px 8px rgba(255,255,255,0.8);
+  border-radius: 24px;
+  transition: box-shadow 0.3s ease, transform 0.25s ease;
+}
+.premium-card:hover {
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.95) inset,
+    0 12px 48px rgba(200,100,160,0.16),
+    0 4px 16px rgba(180,80,140,0.10),
+    6px 6px 24px rgba(200,140,220,0.12),
+    -3px -3px 12px rgba(255,255,255,0.9);
+  transform: translateY(-2px);
+}
+
+/* ── GLOSSY GRADIENT CARD ── */
+.glossy-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,240,250,0.75) 50%, rgba(245,235,255,0.70) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.95);
+  border-top: 1.5px solid rgba(255,255,255,1);
+  border-left: 1.5px solid rgba(255,255,255,0.95);
+  box-shadow:
+    0 3px 0 rgba(255,255,255,1) inset,
+    0 20px 60px rgba(200,100,180,0.12),
+    0 4px 16px rgba(180,80,160,0.08),
+    0 1px 0 rgba(255,255,255,0.6);
+  border-radius: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.glossy-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0) 100%);
+  border-radius: 24px 24px 0 0;
+  pointer-events: none;
+}
+
+/* ── STAT MINI CARD ── */
+.stat-card {
+  background: linear-gradient(145deg, rgba(255,255,255,0.9), rgba(255,245,255,0.8));
+  border: 1px solid rgba(255,255,255,0.95);
+  border-top: 1.5px solid white;
+  box-shadow:
+    0 2px 0 white inset,
+    0 6px 24px rgba(200,120,200,0.10),
+    2px 2px 8px rgba(200,140,220,0.08),
+    -1px -1px 4px rgba(255,255,255,0.9);
+  border-radius: 20px;
+}
+
+/* ── ICON BUBBLE ── */
+.icon-bubble {
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.6) inset,
+    0 4px 16px rgba(200,100,180,0.20),
+    0 1px 4px rgba(0,0,0,0.08);
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(32px) saturate(2);
+  -webkit-backdrop-filter: blur(32px) saturate(2);
+  border-top: 1px solid rgba(255,255,255,0.9);
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,0.95),
+    0 -8px 32px rgba(200,100,180,0.10),
+    0 -2px 8px rgba(180,80,160,0.06);
+}
+
+/* ── PROGRESS BAR GLOW ── */
+.progress-glow {
+  box-shadow: 0 0 10px rgba(230,100,170,0.5), 0 2px 8px rgba(200,80,160,0.3);
+}
+
+/* ── PILL TAG ── */
+.pill-tag {
+  background: linear-gradient(135deg, rgba(255,220,240,0.8), rgba(240,210,255,0.8));
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 2px 8px rgba(200,100,200,0.12), 0 1px 0 rgba(255,255,255,0.8) inset;
+  backdrop-filter: blur(8px);
+}
+
+/* ── HERO GRADIENT BG ── */
+.hero-bg {
+  background: linear-gradient(160deg,
+    #fff5fb 0%,
+    #fdf0ff 20%,
+    #f5f0ff 45%,
+    #fff4f0 70%,
+    #fff8fc 100%
+  );
 }
