@@ -78,6 +78,16 @@ const TABS = [
   { key: 'dermatology', label: 'Clinic Derm',  emoji: '🩺' },
 ];
 
+const ROUTINE_MESSAGES = [
+  "🌿 Your skin has been heard. Now let your routine do the talking — cleanse gently, hydrate deeply, and protect always.",
+  "✨ Every great complexion is built one routine at a time. Follow your personalized steps today and let your skin heal.",
+  "💧 Consistency is the most powerful ingredient. Stick to your morning & night routine — your future skin will thank you.",
+  "🌸 Your analysis is complete. Now is the perfect time to apply your serum, lock in moisture, and never skip SPF.",
+  "🧴 Science has spoken. Now let your skin breathe — follow your routine, sleep well, and drink your water.",
+];
+
+const COOLDOWN_SECONDS = 10;
+
 export default function SkinAnalysis() {
   const [user, setUser] = useState(null);
   const [photos, setPhotos] = useState({ front: null, left: null, right: null });
@@ -88,9 +98,23 @@ export default function SkinAnalysis() {
   const [dermAnalyzing, setDermAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
+  const [cooldownLeft, setCooldownLeft] = useState(0);
+  const [routineMsg] = useState(() => ROUTINE_MESSAGES[Math.floor(Math.random() * ROUTINE_MESSAGES.length)]);
   const queryClient = useQueryClient();
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldownLeft <= 0) return;
+    const timer = setInterval(() => {
+      setCooldownLeft(prev => {
+        if (prev <= 1) { clearInterval(timer); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldownLeft]);
 
   const { data: pastAnalyses = [] } = useQuery({
     queryKey: ['skinAnalyses', user?.email],
@@ -202,6 +226,9 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
     });
     setDermResult(dermRes);
     setDermAnalyzing(false);
+
+    // Start cooldown
+    setCooldownLeft(COOLDOWN_SECONDS);
   };
 
   const reset = () => {
@@ -256,6 +283,71 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
         )}
       </AnimatePresence>
 
+      {/* ── COOLDOWN BANNER ── */}
+      <AnimatePresence>
+        {cooldownLeft > 0 && !result && (
+          <motion.div
+            initial={{ opacity: 0, y: -16, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -12, scale: 0.96 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 260 }}
+            className="rounded-3xl overflow-hidden"
+            style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.12),rgba(167,139,250,0.14))', border: '1.5px solid rgba(244,114,182,0.3)', backdropFilter: 'blur(20px)' }}
+          >
+            {/* Shimmer top bar */}
+            <div className="h-1 w-full" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#f472b6)', backgroundSize: '200% 100%', animation: 'shimmer-card 2s linear infinite' }} />
+
+            <div className="p-5 flex flex-col items-center text-center gap-4">
+              {/* Countdown ring */}
+              <div className="relative w-20 h-20 flex-shrink-0">
+                <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 80 80">
+                  <circle cx="40" cy="40" r="34" fill="none" stroke="rgba(244,114,182,0.12)" strokeWidth="6" />
+                  <motion.circle
+                    cx="40" cy="40" r="34"
+                    fill="none"
+                    stroke="url(#coolGrad)"
+                    strokeWidth="6"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 34}`}
+                    strokeDashoffset={`${2 * Math.PI * 34 * (1 - cooldownLeft / COOLDOWN_SECONDS)}`}
+                    style={{ transition: 'stroke-dashoffset 1s linear' }}
+                  />
+                  <defs>
+                    <linearGradient id="coolGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#f472b6" />
+                      <stop offset="100%" stopColor="#a78bfa" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-black" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{cooldownLeft}</span>
+                  <span className="text-[9px] text-gray-400 font-semibold">sec</span>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="space-y-2 max-w-sm">
+                <p className="font-black text-base" style={{ background: 'linear-gradient(135deg,#be185d,#7c3aed)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                  Analysis Complete ✨
+                </p>
+                <p className="text-sm text-gray-600 leading-relaxed font-medium">{routineMsg}</p>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.07)' }}>
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa)' }}
+                  animate={{ width: `${((COOLDOWN_SECONDS - cooldownLeft) / COOLDOWN_SECONDS) * 100}%` }}
+                  transition={{ duration: 1, ease: 'linear' }}
+                />
+              </div>
+              <p className="text-[11px] text-gray-400">Next scan unlocks in <span className="font-black text-pink-500">{cooldownLeft}s</span></p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* CAPTURE phase */}
       {!result && (
         <div className="rounded-3xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(244,114,182,0.2)', backdropFilter: 'blur(20px)' }}>
@@ -279,10 +371,12 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
             ))}
           </div>
 
-          <Button onClick={runAnalysis} disabled={analyzing || !allReady}
-            className="w-full py-5 text-base font-black" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          <Button onClick={runAnalysis} disabled={analyzing || !allReady || cooldownLeft > 0}
+            className="w-full py-5 text-base font-black" style={{ background: cooldownLeft > 0 ? 'rgba(0,0,0,0.1)' : 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             {analyzing ? (
               <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Analyzing…</>
+            ) : cooldownLeft > 0 ? (
+              <>⏳ Available in {cooldownLeft}s</>
             ) : !allReady ? (
               <><Camera className="w-5 h-5 mr-2" />Add {3 - Object.values(photos).filter(Boolean).length} more photo(s)</>
             ) : (
