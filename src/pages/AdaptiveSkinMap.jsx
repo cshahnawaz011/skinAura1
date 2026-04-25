@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
   Layers, Map, Activity, AlertTriangle, TrendingUp,
-  ChevronDown, ChevronUp, Zap, Shield, Droplets, Eye,
-  BarChart2, RefreshCw, Info, Star, ArrowRight, Camera
+  ChevronDown, ChevronUp, Shield, Droplets, Eye,
+  BarChart2, RefreshCw, Info, ArrowRight, Camera
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -249,14 +249,22 @@ function SignalsDashboard({ analysis }) {
   const [expandedSignal, setExpandedSignal] = useState(null);
 
   const ALL_SIGNALS = [
-    { key: 'oiliness', label: 'Oiliness', emoji: '💦', color: '#facc15', darkColor: '#b45309', desc: 'Sebum overproduction signal', action: 'Use niacinamide + BHA cleanser', ingredient: 'Niacinamide 10%' },
-    { key: 'dryness', label: 'Dryness', emoji: '🏜️', color: '#fb923c', darkColor: '#c2410c', desc: 'Moisture deficit signal', action: 'Layer humectants + occlusive at night', ingredient: 'Hyaluronic Acid + Ceramides' },
-    { key: 'acne_level', label: 'Acne & Breakouts', emoji: '🔴', color: '#f43f5e', darkColor: '#be123c', desc: 'Active breakout + congestion signal', action: 'Spot-treat with benzoyl peroxide 2.5%', ingredient: 'Salicylic Acid + Benzoyl Peroxide' },
-    { key: 'sensitivity', label: 'Sensitivity', emoji: '⚡', color: '#e879f9', darkColor: '#a21caf', desc: 'Barrier reactivity signal', action: 'Pause actives, use ceramide barrier repair', ingredient: 'Centella Asiatica + Ceramides' },
-    { key: 'dark_spots', label: 'Pigmentation', emoji: '🎯', color: '#f97316', darkColor: '#c2410c', desc: 'Hyperpigmentation + tone unevenness', action: 'Daily SPF50+ + Vitamin C serum AM', ingredient: 'Vitamin C 15% + Alpha Arbutin' },
-    { key: 'pores', label: 'Texture & Pores', emoji: '🔍', color: '#38bdf8', darkColor: '#0369a1', desc: 'Surface texture irregularity signal', action: 'Exfoliate 2x/week with AHA', ingredient: 'Glycolic Acid 7% + Retinol' },
-    { key: 'redness', label: 'Redness', emoji: '🌡️', color: '#ef4444', darkColor: '#b91c1c', desc: 'Inflammation & vascular signal', action: 'Use green tea + azelaic acid to calm', ingredient: 'Azelaic Acid + Green Tea Extract' },
-    { key: 'wrinkles', label: 'Fine Lines', emoji: '⏳', color: '#a78bfa', darkColor: '#6d28d9', desc: 'Aging & elasticity signal', action: 'Start retinol 0.025% + peptide serum', ingredient: 'Retinol 0.1% + Peptides' },
+    { key: 'oiliness', label: 'Oiliness', emoji: '💦', color: '#facc15', desc: 'Sebum overproduction signal',
+      facts: ['Sebaceous glands are controlled by androgens — hormonal imbalances are the #1 root cause of oiliness.', 'Over-cleansing strips the skin of oil, triggering a rebound effect that makes oiliness worse.'] },
+    { key: 'dryness', label: 'Dryness', emoji: '🏜️', color: '#fb923c', desc: 'Moisture deficit signal',
+      facts: ['Skin dryness is often caused by a damaged lipid barrier, not lack of water intake alone.', 'Cold weather and hot showers are among the top environmental triggers for transepidermal water loss.'] },
+    { key: 'acne_level', label: 'Acne & Breakouts', emoji: '🔴', color: '#f43f5e', desc: 'Active breakout + congestion signal',
+      facts: ['Acne begins 2–3 weeks before it becomes visible — treating existing breakouts requires patience and prevention.', 'High-glycemic foods spike insulin, increasing sebum production and inflammation that triggers acne.'] },
+    { key: 'sensitivity', label: 'Sensitivity', emoji: '⚡', color: '#e879f9', desc: 'Barrier reactivity signal',
+      facts: ['Skin sensitivity is usually a sign of a compromised stratum corneum, the outermost protective skin layer.', 'Over-exfoliation is the leading cause of acquired skin sensitivity in adults with previously normal skin.'] },
+    { key: 'dark_spots', label: 'Pigmentation', emoji: '🎯', color: '#f97316', desc: 'Hyperpigmentation + tone unevenness',
+      facts: ['Melanin overproduction triggered by UV exposure or post-inflammatory response is the primary root cause.', 'Unprotected sun exposure for just 10 minutes can undo weeks of pigmentation treatment progress.'] },
+    { key: 'pores', label: 'Texture & Pores', emoji: '🔍', color: '#38bdf8', desc: 'Surface texture irregularity signal',
+      facts: ['Pore size is largely genetic — they cannot shrink permanently, but can appear smaller when kept clean.', 'Excess sebum and dead skin cell buildup are the primary reasons pores appear enlarged and rough.'] },
+    { key: 'redness', label: 'Redness', emoji: '🌡️', color: '#ef4444', desc: 'Inflammation & vascular signal',
+      facts: ['Facial redness is often rooted in vascular dilation triggered by heat, spicy foods, alcohol, or rosacea.', 'Chronic redness can indicate an impaired skin barrier allowing irritants to penetrate and inflame deeper layers.'] },
+    { key: 'wrinkles', label: 'Fine Lines', emoji: '⏳', color: '#a78bfa', desc: 'Aging & elasticity signal',
+      facts: ['Collagen production drops by ~1% per year after age 25, with UV exposure accelerating this loss significantly.', 'Repetitive facial movements (squinting, smiling) physically crease collagen fibers, forming expression lines over time.'] },
   ];
 
   const getSeverity = (v) => {
@@ -310,20 +318,6 @@ function SignalsDashboard({ analysis }) {
                 {isOpen && (
                   <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                     <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-800 pt-3">
-                      <div className="flex items-start gap-2">
-                        <Zap className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-xs font-bold text-amber-600">Suggested Action</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">{sig.action}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Star className="w-4 h-4 text-pink-500 flex-shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-xs font-bold text-pink-600">Key Ingredient</p>
-                          <p className="text-xs text-gray-600 dark:text-gray-300">{sig.ingredient}</p>
-                        </div>
-                      </div>
                       {analysis?.concern_insights?.[sig.key]?.cause && (
                         <div className="flex items-start gap-2">
                           <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
@@ -333,6 +327,14 @@ function SignalsDashboard({ analysis }) {
                           </div>
                         </div>
                       )}
+                      {sig.facts?.map((fact, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black text-white flex-shrink-0 mt-0.5" style={{ background: sig.color }}>
+                            {i + 1}
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">{fact}</p>
+                        </div>
+                      ))}
                     </div>
                   </motion.div>
                 )}
