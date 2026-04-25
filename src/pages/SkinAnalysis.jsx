@@ -195,6 +195,8 @@ export default function SkinAnalysis() {
 
     // Combined 3-photo analysis
     const result = await base44.integrations.Core.InvokeLLM({
+      model: 'gemini_3_flash',
+      add_context_from_internet: true,
       prompt: `You are an expert dermatologist AI. You have been given THREE photos of the same person's face:
 1. FRONT FACE (straight on view)
 2. LEFT PROFILE (side view, left side of face)  
@@ -248,6 +250,8 @@ Be honest, clinical, and deeply personalized using all 3 views.`,
     setDermAnalyzing(true);
     setAnalysisStep(6);
     const dermRes = await base44.integrations.Core.InvokeLLM({
+      model: 'gemini_3_flash',
+      add_context_from_internet: true,
       prompt: `You are a board-certified clinical dermatologist. You have THREE photos of the same person: front face, left profile, right profile. Perform a comprehensive clinic-grade dermatological assessment using all 3 views.
 
 Provide:
