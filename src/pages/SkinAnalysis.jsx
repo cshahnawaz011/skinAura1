@@ -15,9 +15,7 @@ import SkinScoreHero from '@/components/analysis/SkinScoreHero';
 import SkinParameterGrid from '@/components/analysis/SkinParameterGrid';
 import ZoneHeatmapPanel from '@/components/analysis/ZoneHeatmapPanel';
 import ConfidenceRiskPanel from '@/components/analysis/ConfidenceRiskPanel';
-import DermatologyReport from '@/components/analysis/DermatologyReport';
 import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis';
-import { Stethoscope } from 'lucide-react';
 
 const ANALYSIS_STEPS = [
   'Uploading 3 face photos…',
@@ -26,7 +24,6 @@ const ANALYSIS_STEPS = [
   'Analyzing right profile — symmetry & pigmentation…',
   'Combining 360° data into unified report…',
   'Deriving signal parameters & risk scores…',
-  'Running clinic-grade dermatology scan…',
 ];
 
 const FULL_SCHEMA = {
@@ -75,7 +72,6 @@ const TABS = [
   { key: 'parameters',  label: 'Parameters',   emoji: '🧬' },
   { key: 'heatmap',     label: 'Zone Map',     emoji: '🗺️' },
   { key: 'risk',        label: 'Risk & AI',    emoji: '🛡️' },
-  { key: 'dermatology', label: 'Clinic Derm',  emoji: '🩺' },
 ];
 
 const ROUTINE_MESSAGES = [
@@ -94,8 +90,6 @@ export default function SkinAnalysis() {
   const [analyzing, setAnalyzing] = useState(false);
   const [step, setStep] = useState(0);
   const [result, setResult] = useState(null);
-  const [dermResult, setDermResult] = useState(null);
-  const [dermAnalyzing, setDermAnalyzing] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
   const [cooldownLeft, setCooldownLeft] = useState(0);
@@ -190,49 +184,12 @@ Be clinically precise, honest, and detailed using all 3 views.`,
       });
     }
 
-    // Dermatology scan
-    setDermAnalyzing(true);
-    setStep(6);
-    const dermRes = await base44.integrations.Core.InvokeLLM({
-      model: 'gemini_3_flash',
-      add_context_from_internet: true,
-      prompt: `You are a board-certified clinical dermatologist. THREE face photos provided: front, left profile, right profile. Perform a clinic-grade dermatological assessment using all 3 angles.
-Identify all detectable skin conditions (even mild), rate severity, provide triggers, treatment notes and whether a dermatologist visit is recommended.`,
-      file_urls: [f.file_url, l.file_url, r.file_url],
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          skin_health_grade: { type: 'string' },
-          summary: { type: 'string' },
-          overall_assessment: { type: 'string' },
-          routine_changes_required: { type: 'string' },
-          conditions: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' }, emoji: { type: 'string' }, severity: { type: 'string' },
-                description: { type: 'string' }, triggers: { type: 'array', items: { type: 'string' } },
-                skincare_dos: { type: 'array', items: { type: 'string' } },
-                skincare_donts: { type: 'array', items: { type: 'string' } },
-                key_ingredients: { type: 'array', items: { type: 'string' } },
-                rx_options: { type: 'string' }, routine_modification: { type: 'string' },
-                expected_improvement: { type: 'string' }, requires_dermatologist: { type: 'boolean' },
-              }
-            }
-          }
-        }
-      }
-    });
-    setDermResult(dermRes);
-    setDermAnalyzing(false);
-
     // Start cooldown
     setCooldownLeft(COOLDOWN_SECONDS);
   };
 
   const reset = () => {
-    setResult(null); setDermResult(null);
+    setResult(null);
     setPhotos({ front: null, left: null, right: null });
     setStep(0); setActiveTab('overview');
   };
@@ -430,7 +387,6 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
                     boxShadow: activeTab === tab.key ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                   }}>
                   <span>{tab.emoji}</span> {tab.label}
-                  {tab.key === 'dermatology' && dermAnalyzing && <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse ml-1" />}
                 </button>
               ))}
             </div>
@@ -481,23 +437,7 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
                 </motion.div>
               )}
 
-              {activeTab === 'dermatology' && (
-                <motion.div key="derm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                  <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
-                    {dermAnalyzing ? (
-                      <div className="text-center py-10 space-y-3">
-                        <div className="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg,rgba(139,92,246,0.15),rgba(167,139,250,0.2))' }}>
-                          <Stethoscope className="w-7 h-7 text-violet-500 animate-pulse" />
-                        </div>
-                        <p className="font-black text-violet-700">Running Clinic-Grade Derm Analysis…</p>
-                        <p className="text-xs text-gray-400">Identifying conditions from all 3 angles</p>
-                      </div>
-                    ) : (
-                      <DermatologyReport dermData={dermResult} />
-                    )}
-                  </div>
-                </motion.div>
-              )}
+
             </AnimatePresence>
 
             {/* Action bar */}
