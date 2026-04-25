@@ -8,7 +8,7 @@ const NEXT_STEPS = [
   {
     icon: Zap,
     title: 'AI Insights',
-    desc: 'इस analysis के आधार पर celebrity match, acne risk और beauty DNA देखें',
+    desc: 'View your celebrity match, acne risk, and beauty DNA based on this analysis',
     page: 'AiInsights',
     color: 'from-violet-400 to-purple-500',
     bg: 'bg-violet-50 dark:bg-violet-900/20',
@@ -16,23 +16,23 @@ const NEXT_STEPS = [
   {
     icon: Clock,
     title: 'Skin Age Prediction',
-    desc: 'जानें आपकी skin की biological age क्या है',
+    desc: 'Find out the biological age of your skin',
     page: 'SkinAgePrediction',
     color: 'from-indigo-400 to-blue-500',
     bg: 'bg-indigo-50 dark:bg-indigo-900/20',
   },
   {
     icon: Sparkles,
-    title: 'AI Routine बनाएं',
-    desc: 'आपकी skin type के लिए customized morning & night routine',
+    title: 'Build AI Routine',
+    desc: 'Get a customized morning & night routine for your skin type',
     page: 'SkinRoutine',
     color: 'from-amber-400 to-orange-400',
     bg: 'bg-amber-50 dark:bg-amber-900/20',
   },
   {
     icon: MessageCircle,
-    title: 'AI Coach से पूछें',
-    desc: 'आपके results के बारे में directly AI coach से बात करें',
+    title: 'Ask AI Coach',
+    desc: 'Chat directly with your AI coach about your skin results',
     page: 'SkinChat',
     color: 'from-emerald-400 to-teal-400',
     bg: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -40,7 +40,7 @@ const NEXT_STEPS = [
   {
     icon: FileText,
     title: 'Full Report',
-    desc: 'PDF report generate करें और 90-day action plan पाएं',
+    desc: 'Generate a PDF report and get your 90-day action plan',
     page: 'SkinReport',
     color: 'from-pink-400 to-rose-400',
     bg: 'bg-pink-50 dark:bg-pink-900/20',
@@ -55,10 +55,10 @@ export default function NextStepsAfterAnalysis() {
       className="glass rounded-2xl p-5 shadow-lg"
     >
       <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
-        🚀 अब क्या करें?
+        🚀 What's Next?
       </h3>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        आपकी skin analysis save हो गई — इन features में इसका उपयोग करें
+        Your skin analysis has been saved — explore these features using your results
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {NEXT_STEPS.map((s, i) => {
@@ -77,7 +77,7 @@ export default function NextStepsAfterAnalysis() {
                 <p className="font-semibold text-xs mb-1">{s.title}</p>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">{s.desc}</p>
                 <div className="mt-2 flex items-center gap-1 text-[11px] font-medium text-gray-400">
-                  खोलें <ArrowRight className="w-3 h-3" />
+                  Open <ArrowRight className="w-3 h-3" />
                 </div>
               </motion.div>
             </Link>

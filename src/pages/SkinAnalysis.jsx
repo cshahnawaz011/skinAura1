@@ -459,22 +459,6 @@ Identify all detectable skin conditions (even mild), rate severity, provide trig
                     </div>
                   )}
 
-                  {/* Recommendations */}
-                  {result.recommendations?.length > 0 && (
-                    <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
-                      <p className="font-black text-sm mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 text-amber-500" /> Clinical Recommendations</p>
-                      <div className="space-y-2">
-                        {result.recommendations.map((rec, i) => (
-                          <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.06),rgba(167,139,250,0.06))' }}>
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
-                              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>{i + 1}</div>
-                            <p className="text-xs text-gray-700 leading-relaxed">{rec}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   <NextStepsAfterAnalysis />
                 </motion.div>
               )}
