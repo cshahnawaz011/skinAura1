@@ -14,6 +14,7 @@ import DailyFeedbackPanel from '@/components/routine/DailyFeedbackPanel';
 import WeekPlanGrid from '@/components/routine/WeekPlanGrid';
 import UserLevelTracker from '@/components/routine/UserLevelTracker';
 import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
+import StepProductPicker from '@/components/routine/StepProductPicker';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
 import BarrierRiskEngine from '@/components/routine/BarrierRiskEngine';
@@ -194,27 +195,47 @@ function SkinSummaryCard({ summary }) {
 }
 
 function MorningRoutineCard({ steps }) {
+  const [selectedProducts, setSelectedProducts] = useState({});
+  const [country, setCountry] = useState('IN');
   if (!steps?.length) return null;
   return (
     <div className="space-y-3">
       {steps.map((step, i) => (
         <motion.div key={i} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.07 }}
-          className="flex gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
-            {step.step || i + 1}
+          className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/30">
+          <div className="flex gap-3">
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-orange-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
+              {step.step || i + 1}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">{step.name}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{step.product_type}</p>
+              {step.key_ingredients?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {step.key_ingredients.slice(0, 3).map((ing, j) => (
+                    <Badge key={j} variant="secondary" className="text-[10px] px-1.5 py-0">{ing}</Badge>
+                  ))}
+                </div>
+              )}
+              {step.tip && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">💡 {step.tip}</p>}
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">{step.name}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{step.product_type}</p>
-            {step.key_ingredients?.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-1">
-                {step.key_ingredients.slice(0, 3).map((ing, j) => (
-                  <Badge key={j} variant="secondary" className="text-[10px] px-1.5 py-0">{ing}</Badge>
-                ))}
-              </div>
-            )}
-            {step.tip && <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">💡 {step.tip}</p>}
-          </div>
+          <StepProductPicker
+            stepName={step.name}
+            stepType={step.product_type}
+            country={country}
+            onCountryChange={setCountry}
+            selectedProduct={selectedProducts[i] || null}
+            onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
+          />
+          {selectedProducts[i] && (
+            <div className="mt-2 p-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] flex flex-wrap gap-3">
+              {selectedProducts[i].apply_time && <span>⏱ Apply: <strong>{selectedProducts[i].apply_time}</strong></span>}
+              {selectedProducts[i].wait_time && <span>⏳ Wait: <strong>{selectedProducts[i].wait_time}</strong></span>}
+              {selectedProducts[i].price_local && <span>💰 <strong>{selectedProducts[i].price_local}</strong></span>}
+              {selectedProducts[i].availability && <span>📍 {selectedProducts[i].availability}</span>}
+            </div>
+          )}
         </motion.div>
       ))}
     </div>
@@ -280,17 +301,36 @@ function AdaptiveGuidanceCard({ guidance }) {
 }
 
 function WeeklyAddonsCard({ addons }) {
+  const [selectedProducts, setSelectedProducts] = useState({});
+  const [country, setCountry] = useState('IN');
   if (!addons?.length) return null;
   return (
     <div className="space-y-2">
       {addons.map((addon, i) => (
-        <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900/30">
-          <span className="text-lg">🧪</span>
-          <div>
-            <p className="font-semibold text-sm">{addon.name}</p>
-            <p className="text-xs text-teal-600 dark:text-teal-400">{addon.frequency}</p>
-            {addon.tip && <p className="text-xs text-gray-500 mt-0.5">{addon.tip}</p>}
+        <div key={i} className="p-3 rounded-xl bg-teal-50 dark:bg-teal-900/10 border border-teal-100 dark:border-teal-900/30">
+          <div className="flex items-start gap-3">
+            <span className="text-lg">🧪</span>
+            <div>
+              <p className="font-semibold text-sm">{addon.name}</p>
+              <p className="text-xs text-teal-600 dark:text-teal-400">{addon.frequency}</p>
+              {addon.tip && <p className="text-xs text-gray-500 mt-0.5">{addon.tip}</p>}
+            </div>
           </div>
+          <StepProductPicker
+            stepName={addon.name}
+            stepType="weekly addon"
+            country={country}
+            onCountryChange={setCountry}
+            selectedProduct={selectedProducts[i] || null}
+            onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
+          />
+          {selectedProducts[i] && (
+            <div className="mt-2 p-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] flex flex-wrap gap-3">
+              {selectedProducts[i].apply_time && <span>⏱ Apply: <strong>{selectedProducts[i].apply_time}</strong></span>}
+              {selectedProducts[i].price_local && <span>💰 <strong>{selectedProducts[i].price_local}</strong></span>}
+              {selectedProducts[i].availability && <span>📍 {selectedProducts[i].availability}</span>}
+            </div>
+          )}
         </div>
       ))}
     </div>
