@@ -283,8 +283,8 @@ Return a JSON object with EXACTLY these fields:
 Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     });
 
-    const res = geminiRes.data?.result;
-    if (!res) throw new Error('Analysis failed — no result from Gemini');
+    const res = geminiRes.data?.result || geminiRes.data;
+    if (!res || !res.overall_score) throw new Error('Analysis failed — no result from Gemini');
 
     updateAnalysisState({ step: 5 });
     backgroundOps.updateProgress('skinAnalysis', 90);
