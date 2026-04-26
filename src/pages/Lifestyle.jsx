@@ -3,24 +3,44 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Droplets, Moon, Zap, Activity, Brain, Wind, Heart, Pill, Save, Calendar } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MetricCard from '@/components/lifestyle/MetricCard';
+import FoodSearchCard from '@/components/lifestyle/FoodSearchCard';
+
+const SKIN_METRICS = [
+  { key: 'acne_level', label: 'Acne Level', emoji: '🔴', color: '#ef4444', values: [0,1,2,3,4,5] },
+  { key: 'hydration', label: 'Skin Hydration', emoji: '💧', color: '#0ea5e9', values: ['Low', 'Medium', 'High'] },
+  { key: 'oiliness', label: 'Oiliness', emoji: '🛢️', color: '#f59e0b', values: [1,2,3,4,5] },
+  { key: 'redness', label: 'Redness/Sensitivity', emoji: '🔥', color: '#f97316', values: [0,1,2,3,4,5] },
+  { key: 'texture', label: 'Skin Texture', emoji: '✨', color: '#ec4899', values: ['Smooth', 'Rough', 'Bumpy'] },
+  { key: 'dark_circles', label: 'Dark Circles', emoji: '👁️', color: '#8b5cf6', values: [0,1,2,3,4,5] },
+  { key: 'puffiness', label: 'Puffiness', emoji: '🫧', color: '#06b6d4', values: [0,1,2,3,4,5] },
+  { key: 'radiance', label: 'Glow/Radiance', emoji: '⭐', color: '#fbbf24', values: [1,2,3,4,5] },
+  { key: 'breakouts', label: 'New Breakouts', emoji: '⚠️', color: '#e11d48', values: ['None', '1-2', '3+'] },
+  { key: 'itching', label: 'Itching/Irritation', emoji: '🤔', color: '#a855f7', values: ['None', 'Mild', 'Severe'] },
+];
 
 const DEFAULT_LOG = {
   water_glasses: 0,
   sleep_hours: 0,
   exercise_minutes: 0,
-  exercise_type: '',
   stress_level: 3,
-  mood: '',
-  daily_steps: 0,
+  morning_foods: [],
+  breakfast_foods: [],
+  pm_foods: [],
+  acne_level: 0,
+  hydration: 'Medium',
+  oiliness: 3,
+  redness: 0,
+  texture: 'Smooth',
+  dark_circles: 0,
+  puffiness: 0,
+  radiance: 3,
+  breakouts: 'None',
+  itching: 'None',
   skincare_done_morning: false,
   skincare_done_night: false,
-  screen_time_minutes: 0,
-  caffeine_cups: 0,
-  alcohol_drinks: 0,
-  outdoor_time_minutes: 0,
 };
 
 export default function Lifestyle() {
@@ -81,10 +101,10 @@ export default function Lifestyle() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto pt-20 text-center px-4">
-        <h2 className="text-2xl font-black mb-2">Lifestyle Tracker</h2>
-        <p className="text-gray-500 mb-6">Sign in to track your daily wellness</p>
+        <h2 className="text-3xl font-black mb-2">Lifestyle Tracker</h2>
+        <p className="text-gray-500 mb-6">Sign in to track your wellness & skin</p>
         <Button onClick={() => base44.auth.redirectToLogin()}
-          className="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8">
+          className="bg-black text-white px-8 hover:bg-gray-800">
           Sign In
         </Button>
       </div>
@@ -92,194 +112,138 @@ export default function Lifestyle() {
   }
 
   return (
-    <div className="max-w-lg mx-auto pb-12 space-y-3 px-2">
+    <div className="max-w-md mx-auto pb-12 space-y-3 px-3">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 sticky top-20 z-10 pt-3 pb-2"
-        style={{ background: 'rgba(255,252,249,0.95)', backdropFilter: 'blur(12px)' }}>
+      <div className="flex items-center justify-between gap-3 sticky top-20 z-10 pt-3 pb-2 px-2"
+        style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)' }}>
         <div>
-          <h1 className="text-2xl font-black">Lifestyle Tracker</h1>
-          <p className="text-xs text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMM d, yyyy')}</p>
+          <h1 className="text-xl font-black text-gray-900">Lifestyle</h1>
+          <p className="text-xs text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMM d')}</p>
         </div>
         <Button onClick={handleSave} disabled={saving} size="sm"
-          className="bg-pink-500 hover:bg-pink-600 text-white gap-1.5">
+          className="bg-black text-white hover:bg-gray-800 gap-1.5">
           <Save className="w-3.5 h-3.5" /> {saving ? 'Saving' : 'Save'}
         </Button>
       </div>
 
       {/* Date Picker */}
-      <div className="p-3 rounded-2xl bg-white border border-pink-100">
+      <div className="px-2">
         <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-semibold focus:outline-none focus:border-pink-400" />
+          className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black" />
       </div>
 
-      {/* Water Intake */}
-      <MetricCard icon="💧" title="Water Intake" subtitle="glasses per day" color="#0ea5e9">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-black text-sky-500">{log.water_glasses || 0}</span>
-            <span className="text-xs text-gray-400">glasses</span>
+      {/* Wellness Metrics */}
+      <div className="space-y-2 px-2">
+        <p className="text-xs font-semibold text-gray-500 px-2">WELLNESS</p>
+        <MetricCard icon="💧" title="Water" color="#0ea5e9">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl font-black text-blue-500">{log.water_glasses || 0}</span>
+            <span className="text-xs text-gray-500">glasses</span>
           </div>
-          <div className="flex gap-1.5">
+          <div className="flex gap-1 mt-2">
             {[0, 4, 8, 12].map(v => (
               <button key={v} onClick={() => updateField('water_glasses', v)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  log.water_glasses === v ? 'bg-sky-500 text-white' : 'bg-sky-100 text-sky-600 hover:bg-sky-200'
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  log.water_glasses === v ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
                 }`}>
                 {v}
               </button>
             ))}
           </div>
-          <div className="flex gap-1">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} onClick={() => updateField('water_glasses', i + 1)}
-                className={`flex-1 h-1 rounded-full cursor-pointer transition-colors ${
-                  i < (log.water_glasses || 0) ? 'bg-sky-400' : 'bg-gray-200'
-                }`} />
-            ))}
-          </div>
-        </div>
-      </MetricCard>
+        </MetricCard>
 
-      {/* Sleep Hours */}
-      <MetricCard icon="🌙" title="Sleep Hours" subtitle="hours per night" color="#a855f7">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-black text-violet-500">{log.sleep_hours || 0}</span>
-            <span className="text-xs text-gray-400">hrs</span>
+        <MetricCard icon="🌙" title="Sleep" color="#a855f7">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl font-black text-violet-500">{log.sleep_hours || 0}</span>
+            <span className="text-xs text-gray-500">hrs</span>
           </div>
-          <input type="range" min="0" max="12" value={log.sleep_hours || 0}
+          <input type="range" min="0" max="12" step="0.5" value={log.sleep_hours || 0}
             onChange={e => updateField('sleep_hours', parseFloat(e.target.value))}
-            className="w-full accent-violet-500" />
-          <div className="flex justify-between text-[10px] text-gray-400">
-            <span>0</span> <span>6</span> <span>12</span>
-          </div>
-        </div>
-      </MetricCard>
+            className="w-full mt-2 accent-violet-500" />
+        </MetricCard>
 
-      {/* Exercise */}
-      <MetricCard icon="🏃" title="Exercise" subtitle="minutes today" color="#10b981">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl font-black text-emerald-500">{log.exercise_minutes || 0}</span>
-            <span className="text-xs text-gray-400">min</span>
+        <MetricCard icon="🏃" title="Exercise" color="#10b981">
+          <div className="flex items-center gap-2">
+            <span className="text-3xl font-black text-emerald-500">{log.exercise_minutes || 0}</span>
+            <span className="text-xs text-gray-500">min</span>
           </div>
-          <div className="flex gap-1.5 mb-2">
+          <div className="flex gap-1 mt-2">
             {[0, 15, 30, 60].map(m => (
               <button key={m} onClick={() => updateField('exercise_minutes', m)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  log.exercise_minutes === m ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600'
+                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  log.exercise_minutes === m ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'
                 }`}>
-                {m === 0 ? 'None' : `${m}m`}
+                {m === 0 ? '0' : `${m}m`}
               </button>
             ))}
           </div>
-          <select value={log.exercise_type || ''} onChange={e => updateField('exercise_type', e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs font-semibold focus:outline-none focus:border-emerald-400">
-            <option value="">Type of exercise</option>
-            <option value="Walking">Walking</option>
-            <option value="Running">Running</option>
-            <option value="Yoga">Yoga</option>
-            <option value="Gym">Gym</option>
-            <option value="Swimming">Swimming</option>
-          </select>
-        </div>
-      </MetricCard>
+        </MetricCard>
 
-      {/* Daily Steps */}
-      <MetricCard icon="👟" title="Daily Steps" subtitle="goal: 8,000 steps" color="#f59e0b">
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl font-black text-amber-500">{log.daily_steps || 0}</span>
-            <span className="text-xs text-gray-400">steps</span>
-          </div>
-          <input type="range" min="0" max="20000" step="500" value={log.daily_steps || 0}
-            onChange={e => updateField('daily_steps', parseInt(e.target.value))}
-            className="w-full accent-amber-500" />
-          <div className="flex justify-between text-[10px] text-gray-400">
-            <span>0</span> <span>10k</span> <span>20k</span>
-          </div>
-        </div>
-      </MetricCard>
-
-      {/* Stress Level */}
-      <MetricCard icon="🧠" title="Stress Level" subtitle="1 = calm, 5 = stressed" color="#ef4444">
-        <div className="space-y-2">
+        <MetricCard icon="🧠" title="Stress" color="#ef4444">
           <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map(s => (
               <button key={s} onClick={() => updateField('stress_level', s)}
-                className={`flex-1 py-2 rounded-lg font-bold transition-all ${
-                  log.stress_level === s ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600'
+                className={`flex-1 py-2 rounded-lg font-semibold transition-all text-xs ${
+                  log.stress_level === s ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600'
                 }`}>
                 {s}
               </button>
             ))}
           </div>
-        </div>
-      </MetricCard>
+        </MetricCard>
+      </div>
 
-      {/* Mood */}
-      <MetricCard icon="😊" title="Mood" subtitle="how are you feeling?" color="#ec4899">
-        <div className="flex gap-2 flex-wrap">
-          {['😄 Great', '🙂 Good', '😐 Okay', '😔 Bad'].map(m => {
-            const emoji = m.split(' ')[0];
-            const text = m.split(' ')[1];
-            return (
-              <button key={m} onClick={() => updateField('mood', text)}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                  log.mood === text ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-600'
-                }`}>
-                {emoji}
-              </button>
-            );
-          })}
-        </div>
-      </MetricCard>
+      {/* Food Tracking */}
+      <div className="space-y-2 px-2">
+        <p className="text-xs font-semibold text-gray-500 px-2">FOOD & NUTRITION</p>
+        <FoodSearchCard title="Morning Foods" emoji="🌅" value={log.morning_foods} 
+          onChange={v => updateField('morning_foods', v)} color="#f59e0b" />
+        <FoodSearchCard title="Breakfast" emoji="🥐" value={log.breakfast_foods} 
+          onChange={v => updateField('breakfast_foods', v)} color="#ec4899" />
+        <FoodSearchCard title="Lunch & Dinner" emoji="🍽️" value={log.pm_foods} 
+          onChange={v => updateField('pm_foods', v)} color="#10b981" />
+      </div>
 
-      {/* Caffeine */}
-      <MetricCard icon="☕" title="Caffeine" subtitle="cups per day" color="#92400e">
-        <div className="flex gap-1.5">
-          {[0, 1, 2, 3, 4].map(c => (
-            <button key={c} onClick={() => updateField('caffeine_cups', c)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                log.caffeine_cups === c ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-700'
-              }`}>
-              {c}
-            </button>
-          ))}
-        </div>
-      </MetricCard>
+      {/* Skin Metrics */}
+      <div className="space-y-2 px-2">
+        <p className="text-xs font-semibold text-gray-500 px-2">SKIN HEALTH</p>
+        {SKIN_METRICS.map(metric => (
+          <MetricCard key={metric.key} icon={metric.emoji} title={metric.label} color={metric.color}>
+            <div className="flex gap-1 flex-wrap">
+              {metric.values.map(val => (
+                <button key={val} onClick={() => updateField(metric.key, val)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    log[metric.key] === val 
+                      ? `bg-black text-white` 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}>
+                  {val}
+                </button>
+              ))}
+            </div>
+          </MetricCard>
+        ))}
+      </div>
 
       {/* Skincare Checklist */}
-      <MetricCard icon="✨" title="Skincare Checklist" subtitle="did you do it?" color="#db2777">
+      <div className="px-2">
+        <p className="text-xs font-semibold text-gray-500 px-2 mb-2">SKINCARE</p>
         <div className="space-y-2">
-          <label className="flex items-center gap-2 p-2 rounded-lg bg-white/60 cursor-pointer hover:bg-white">
-            <input type="checkbox" checked={log.skincare_done_morning || false}
-              onChange={e => updateField('skincare_done_morning', e.target.checked)}
-              className="accent-pink-500 w-4 h-4 rounded" />
-            <span className="text-sm font-semibold text-gray-700">Morning Routine</span>
-          </label>
-          <label className="flex items-center gap-2 p-2 rounded-lg bg-white/60 cursor-pointer hover:bg-white">
-            <input type="checkbox" checked={log.skincare_done_night || false}
-              onChange={e => updateField('skincare_done_night', e.target.checked)}
-              className="accent-pink-500 w-4 h-4 rounded" />
-            <span className="text-sm font-semibold text-gray-700">Night Routine</span>
-          </label>
-        </div>
-      </MetricCard>
-
-      {/* Screen Time */}
-      <MetricCard icon="📱" title="Screen Time" subtitle="minutes per day" color="#06b6d4">
-        <div className="flex gap-1.5">
-          {[0, 120, 180, 240, 300].map(m => (
-            <button key={m} onClick={() => updateField('screen_time_minutes', m)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                log.screen_time_minutes === m ? 'bg-cyan-500 text-white' : 'bg-cyan-100 text-cyan-600'
+          {[
+            { key: 'skincare_done_morning', label: 'Morning Routine', emoji: '🌅' },
+            { key: 'skincare_done_night', label: 'Night Routine', emoji: '🌙' },
+          ].map(item => (
+            <button key={item.key} onClick={() => updateField(item.key, !log[item.key])}
+              className={`w-full p-4 rounded-2xl font-semibold transition-all text-sm flex items-center gap-3 ${
+                log[item.key] ? 'bg-black text-white' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
               }`}>
-              {m === 0 ? '0' : `${m}m`}
+              <span className="text-lg">{item.emoji}</span>
+              <span>{item.label}</span>
+              <span className="ml-auto">{log[item.key] ? '✓' : '○'}</span>
             </button>
           ))}
         </div>
-      </MetricCard>
+      </div>
     </div>
   );
 }
