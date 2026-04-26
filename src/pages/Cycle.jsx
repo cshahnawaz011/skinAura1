@@ -332,7 +332,6 @@ export default function Cycle() {
     { key: 'signals', label: 'Hormonal Signals', icon: Brain },
     { key: 'correlations', label: 'Skin Correlations', icon: Activity },
     { key: 'risks', label: 'Risk Zones', icon: AlertTriangle },
-    { key: 'routine', label: 'Adaptive Routine', icon: TrendingUp },
   ];
 
   return (
@@ -401,13 +400,28 @@ export default function Cycle() {
           </motion.div>
         )}
 
-        {activeTab === 'routine' && (
-          <motion.div key="routine" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-4">
-            <h2 className="font-black text-lg flex items-center gap-2"><TrendingUp className="w-5 h-5 text-purple-500" />Adaptive Routine</h2>
-            <AdaptiveRoutineCard phase={currentPhase} />
-          </motion.div>
-        )}
+
       </AnimatePresence>
+
+      {/* Real-Time Routine Adjustments */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="sticky bottom-0 rounded-t-3xl border-t border-gray-200"
+        style={{
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0.98), rgba(255,255,255,0.95))',
+          backdropFilter: 'blur(20px)',
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.08)',
+        }}
+      >
+        <div className="p-6">
+          <h3 className="font-black text-lg mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" style={{ color: phaseConfig.color }} />
+            Real-Time Routine Adjustments
+          </h3>
+          <AdaptiveRoutineCard phase={currentPhase} />
+        </div>
+      </motion.div>
     </div>
   );
 }
