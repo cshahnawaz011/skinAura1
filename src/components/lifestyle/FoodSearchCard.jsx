@@ -11,27 +11,13 @@ export default function FoodSearchCard({ title, emoji, value = [], onChange, col
     if (!search.trim()) return;
     setLoading(true);
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Suggest 5 healthy foods or meals for: "${search}". For skin health, prioritize foods rich in antioxidants, omega-3s, and vitamins. Return as JSON array with {name: string, benefit: string}`,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            foods: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  name: { type: 'string' },
-                  benefit: { type: 'string' },
-                },
-              },
-            },
-          },
-        },
+      const res = await base44.functions.invoke('searchFoodSuggestions', {
+        query: search,
       });
       setResults(res.data?.foods || []);
     } catch (e) {
       console.error(e);
+      setResults([]);
     }
     setLoading(false);
   };
