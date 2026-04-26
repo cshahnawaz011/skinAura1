@@ -1,221 +1,360 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { motion } from 'framer-motion';
-import {
-  Activity, Calendar, Sparkles, AlertCircle, TrendingUp,
-  Check, ChevronRight, Moon, Sun, Zap, Heart, Droplets
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import GlassCard from '@/components/ui/GlassCard';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { motion, AnimatePresence } from 'framer-motion';
 import { format, addDays, differenceInDays } from 'date-fns';
+import { Heart, Droplets, Zap, Brain, Pill, Activity, TrendingUp, Calendar, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const CYCLE_PHASES = [
-  {
-    phase: 'Menstrual', days: '1-5', icon: '🔴', color: 'from-red-400 to-rose-400',
-    skin_changes: ['Increased sensitivity & redness', 'Lower estrogen = less collagen', 'Oiliness may decrease'],
-    skincare: ['Skip actives (retinol, AHA, BHA)', 'Use calming, anti-inflammatory products', 'Gentle cleanser only', 'Extra moisture barrier support'],
-    foods: ['Iron-rich foods', 'Anti-inflammatory omega-3', 'Dark chocolate (magnesium)', 'Chamomile tea']
-  },
-  {
-    phase: 'Follicular', days: '6-13', icon: '🌱', color: 'from-emerald-400 to-teal-400',
-    skin_changes: ['Rising estrogen = more collagen', 'Skin is at its BEST here', 'Natural glow peaks', 'Pores appear smaller'],
-    skincare: ['Best time for active treatments', 'Introduce/increase retinol', 'Vitamin C for glow boost', 'Exfoliation is safe & effective'],
-    foods: ['Fermented foods for gut health', 'Leafy greens', 'Seeds (flaxseed for estrogen)', 'Berries & antioxidants']
-  },
-  {
-    phase: 'Ovulation', days: '14-16', icon: '✨', color: 'from-amber-400 to-yellow-400',
-    skin_changes: ['Peak estrogen = maximum glow', 'Skin looks most radiant', 'May get slight oiliness increase', 'Natural lip plumpness increase'],
-    skincare: ['Maintain active routine', 'Light oil-control if needed', 'This is your best selfie window!', 'Perfect time for professional treatments'],
-    foods: ['Zinc-rich foods (pumpkin seeds)', 'Vitamin C foods', 'Anti-inflammatory turmeric', 'Collagen-boosting bone broth']
-  },
-  {
-    phase: 'Luteal', days: '17-28', icon: '🌙', color: 'from-violet-400 to-purple-400',
-    skin_changes: ['Progesterone rises = more oil production', 'Pre-menstrual breakouts likely', 'Pores look larger', 'Skin may feel congested'],
-    skincare: ['Introduce BHA (salicylic acid) for congestion', 'Clay masks 2x/week', 'Lighter moisturizer', 'Spot treatments ready'],
-    foods: ['Reduce dairy (acne trigger)', 'Reduce sugar', 'B6 for hormone balance', 'Magnesium-rich foods']
-  }
+  { key: 'menstrual', label: 'Menstrual', emoji: '🔴', days: '1-5', color: '#ef4444', bg: 'rgba(239,68,68,0.1)', desc: 'Shedding phase — low energy' },
+  { key: 'follicular', label: 'Follicular', emoji: '🌱', days: '6-12', color: '#10b981', bg: 'rgba(16,185,129,0.1)', desc: 'Rising energy — best for new tasks' },
+  { key: 'ovulation', label: 'Ovulation', emoji: '⚡', days: '13-15', color: '#f59e0b', bg: 'rgba(245,158,11,0.1)', desc: 'Peak energy & confidence' },
+  { key: 'luteal', label: 'Luteal', emoji: '🌙', days: '16-28', color: '#8b5cf6', bg: 'rgba(139,92,246,0.1)', desc: 'Wind-down phase — self-care' },
 ];
 
-export default function HormoneTracker() {
-  const [lastPeriod, setLastPeriod] = useState('');
-  const [cycleLength, setCycleLength] = useState(28);
-  const [currentPhase, setCurrentPhase] = useState(null);
-  const [dayOfCycle, setDayOfCycle] = useState(null);
-  const [symptoms, setSymptoms] = useState([]);
-  const [generating, setGenerating] = useState(false);
-  const [aiInsight, setAiInsight] = useState(null);
+const PHASE_SYMPTOMS = {
+  menstrual: ['Cramps', 'Fatigue', 'Bloating', 'Heavy flow', 'Mood swings', 'Back pain'],
+  follicular: ['Energy boost', 'Clear skin', 'Positive mood', 'Appetite increase', 'Better sleep'],
+  ovulation: ['Peak energy', 'Increased libido', 'Clear skin', 'Social confidence', 'Appetite changes'],
+  luteal: ['Energy drop', 'Cravings', 'Mood sensitivity', 'Bloating', 'Sleep changes', 'Skin issues'],
+};
 
-  const SYMPTOMS = ['Breakout', 'Oily skin', 'Dry skin', 'Sensitive', 'Dull skin', 'Puffiness', 'Dark circles', 'Redness', 'Tight pores'];
+const SKINCARE_BY_PHASE = {
+  menstrual: {
+    emoji: '🛡️',
+    rec: 'Focus on barrier repair. Use gentle cleansers, rich moisturizers, and avoid active treatments.',
+    products: ['Hydrating moisturizer', 'Gentle cleanser', 'Hydrating mask'],
+  },
+  follicular: {
+    emoji: '✨',
+    rec: 'Great time for actives! Introduce Vitamin C, light exfoliants, and treatment serums.',
+    products: ['Vitamin C serum', 'Gentle BHA', 'Treatment serum'],
+  },
+  ovulation: {
+    emoji: '💫',
+    rec: 'Peak skin clarity. Can handle stronger actives. Maintain hydration and SPF.',
+    products: ['Retinol (if tolerated)', 'Light serum', 'SPF 50+'],
+  },
+  luteal: {
+    emoji: '🌙',
+    rec: 'Skin more sensitive. Use calming ingredients, rich moisturizers, avoid strong actives.',
+    products: ['Calming serum', 'Hydrating cream', 'Soothing mask'],
+  },
+};
 
-  useEffect(() => {
-    const saved = localStorage.getItem('hormone-tracker');
-    if (saved) {
-      const data = JSON.parse(saved);
-      setLastPeriod(data.lastPeriod || '');
-      setCycleLength(data.cycleLength || 28);
-    }
-  }, []);
+function CycleCalendarView({ cycleData, onSelectDay }) {
+  const [viewDate, setViewDate] = useState(new Date());
+  const monthDays = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
+  const startDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
+  const days = Array.from({ length: monthDays }, (_, i) => i + 1);
+  const paddedDays = Array.from({ length: startDay }, () => null).concat(days);
 
-  useEffect(() => {
-    if (!lastPeriod) return;
-    const today = new Date();
-    const periodDate = new Date(lastPeriod + 'T00:00:00');
-    const day = differenceInDays(today, periodDate) + 1;
-    setDayOfCycle(day);
+  const getPhaseForDay = (day) => {
+    if (!cycleData?.start_date) return null;
+    const dayDate = new Date(viewDate.getFullYear(), viewDate.getMonth(), day);
+    const daysIntoPhase = differenceInDays(dayDate, new Date(cycleData.start_date));
+    const cycleDay = (daysIntoPhase % 28) + 1;
 
-    if (day <= 5) setCurrentPhase(CYCLE_PHASES[0]);
-    else if (day <= 13) setCurrentPhase(CYCLE_PHASES[1]);
-    else if (day <= 16) setCurrentPhase(CYCLE_PHASES[2]);
-    else setCurrentPhase(CYCLE_PHASES[3]);
-
-    localStorage.setItem('hormone-tracker', JSON.stringify({ lastPeriod, cycleLength }));
-  }, [lastPeriod, cycleLength]);
-
-  const toggleSymptom = (s) => setSymptoms(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-
-  const getAIAdvice = async () => {
-    setGenerating(true);
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `I'm on day ${dayOfCycle} of my cycle (${currentPhase?.phase} phase). I'm experiencing: ${symptoms.join(', ')}. Give me specific, science-backed skincare advice for today and the next 7 days, considering my hormonal cycle.`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          today_priority: { type: 'string' },
-          specific_advice: { type: 'array', items: { type: 'string' } },
-          next_7_days_preview: { type: 'string' },
-          ingredient_focus: { type: 'array', items: { type: 'string' } },
-          avoid_now: { type: 'array', items: { type: 'string' } }
-        }
-      }
-    });
-    setAiInsight(result);
-    setGenerating(false);
+    if (cycleDay <= 5) return 'menstrual';
+    if (cycleDay <= 12) return 'follicular';
+    if (cycleDay <= 15) return 'ovulation';
+    return 'luteal';
   };
 
-  const nextPeriod = lastPeriod ? format(addDays(new Date(lastPeriod + 'T00:00:00'), cycleLength), 'MMM d, yyyy') : null;
-
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Activity className="w-7 h-7 text-rose-500" />Hormone Skin Tracker</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Sync your skincare routine with your hormonal cycle</p>
+    <div className="rounded-2xl p-4 bg-white/90" style={{ border: '1px solid rgba(0,0,0,0.07)' }}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold">{format(viewDate, 'MMMM yyyy')}</h3>
+        <div className="flex gap-2">
+          <button onClick={() => setViewDate(addDays(viewDate, -32))} className="p-1 rounded-lg hover:bg-gray-100">
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button onClick={() => setViewDate(addDays(viewDate, 32))} className="p-1 rounded-lg hover:bg-gray-100">
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Setup */}
-      <GlassCard>
-        <h3 className="font-bold mb-4">Cycle Setup</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium mb-1">Last Period Start Date</p>
-            <Input type="date" value={lastPeriod} onChange={e => setLastPeriod(e.target.value)} />
-          </div>
-          <div>
-            <p className="text-sm font-medium mb-1">Cycle Length: <span className="text-pink-500 font-bold">{cycleLength} days</span></p>
-            <input type="range" min={21} max={35} value={cycleLength} onChange={e => setCycleLength(parseInt(e.target.value))}
-              className="w-full accent-pink-500" />
+      <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-gray-400 mb-2">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <div key={d}>{d}</div>)}
+      </div>
+
+      <div className="grid grid-cols-7 gap-1">
+        {paddedDays.map((day, i) => {
+          if (!day) return <div key={`empty-${i}`} />;
+          const phase = getPhaseForDay(day);
+          const phaseConfig = CYCLE_PHASES.find(p => p.key === phase);
+          const isToday = day === new Date().getDate() && viewDate.getMonth() === new Date().getMonth();
+
+          return (
+            <button
+              key={day}
+              onClick={() => onSelectDay(day)}
+              className="aspect-square rounded-lg text-xs font-bold transition-all hover:scale-105"
+              style={{
+                background: phaseConfig?.bg,
+                border: isToday ? `2px solid ${phaseConfig?.color}` : `1px solid ${phaseConfig?.color}40`,
+              }}
+            >
+              <span style={{ color: phaseConfig?.color }}>{phaseConfig?.emoji}</span>
+              <p className="text-[10px] mt-0.5">{day}</p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function PhaseCard({ phase }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl p-4 overflow-hidden"
+      style={{ background: phase.bg, border: `2px solid ${phase.color}40` }}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-2xl">{phase.emoji}</span>
+            <div>
+              <p className="font-black text-sm" style={{ color: phase.color }}>{phase.label}</p>
+              <p className="text-xs text-gray-400">{phase.days}</p>
+            </div>
           </div>
         </div>
-        {nextPeriod && <p className="text-sm text-gray-500 mt-3">Next period estimated: <span className="font-medium text-rose-500">{nextPeriod}</span></p>}
-      </GlassCard>
+      </div>
+      <p className="text-xs text-gray-700 leading-relaxed">{phase.desc}</p>
+    </motion.div>
+  );
+}
 
-      {/* Current Phase */}
-      {currentPhase && dayOfCycle && (
-        <GlassCard className={`bg-gradient-to-r ${currentPhase.color} bg-opacity-10`}>
-          <div className="flex items-center gap-4 mb-4">
-            <span className="text-5xl">{currentPhase.icon}</span>
-            <div>
-              <p className="text-sm text-gray-500">Day {dayOfCycle} of cycle</p>
-              <h2 className="text-2xl font-bold">{currentPhase.phase} Phase</h2>
-              <p className="text-sm text-gray-500">Days {currentPhase.days}</p>
-            </div>
-          </div>
+function SkinCareInsightCard({ phase }) {
+  const insight = SKINCARE_BY_PHASE[phase];
+  return (
+    <div className="rounded-2xl p-4 bg-gradient-to-br from-pink-50 to-violet-50 border border-pink-100">
+      <div className="flex items-start gap-3 mb-3">
+        <span className="text-2xl">{insight.emoji}</span>
+        <div className="flex-1">
+          <p className="font-bold text-sm mb-1">Skincare for {CYCLE_PHASES.find(p => p.key === phase)?.label}</p>
+          <p className="text-xs text-gray-700 leading-relaxed">{insight.rec}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {insight.products.map((prod, i) => (
+          <Badge key={i} className="text-[10px] bg-white/80 text-gray-700">{prod}</Badge>
+        ))}
+      </div>
+    </div>
+  );
+}
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-3 bg-white/50 dark:bg-white/10 rounded-xl">
-              <p className="text-xs font-bold text-rose-500 mb-2">🔬 Skin Changes</p>
-              {currentPhase.skin_changes.map((c, i) => <p key={i} className="text-xs text-gray-600 dark:text-gray-300 mb-1">• {c}</p>)}
-            </div>
-            <div className="p-3 bg-white/50 dark:bg-white/10 rounded-xl">
-              <p className="text-xs font-bold text-blue-500 mb-2">🧴 Skincare Focus</p>
-              {currentPhase.skincare.map((c, i) => <p key={i} className="text-xs text-gray-600 dark:text-gray-300 mb-1">• {c}</p>)}
-            </div>
-            <div className="p-3 bg-white/50 dark:bg-white/10 rounded-xl">
-              <p className="text-xs font-bold text-emerald-500 mb-2">🥗 Foods for This Phase</p>
-              {currentPhase.foods.map((c, i) => <p key={i} className="text-xs text-gray-600 dark:text-gray-300 mb-1">• {c}</p>)}
-            </div>
+function SymptomLogger({ cycleData, userEmail, onSave }) {
+  const [symptoms, setSymptoms] = useState(cycleData?.current_symptoms || []);
+  const availableSymptoms = PHASE_SYMPTOMS[cycleData?.current_phase] || [];
+
+  const toggleSymptom = (sym) => {
+    setSymptoms(prev => prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]);
+  };
+
+  return (
+    <div className="rounded-2xl p-4 bg-white/90 space-y-3">
+      <p className="font-bold text-sm">Today's Symptoms</p>
+      <div className="flex flex-wrap gap-2">
+        {availableSymptoms.map(sym => (
+          <button
+            key={sym}
+            onClick={() => toggleSymptom(sym)}
+            className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+            style={{
+              background: symptoms.includes(sym) ? '#f472b6' : '#f0f0f0',
+              color: symptoms.includes(sym) ? '#fff' : '#9ca3af',
+            }}
+          >
+            {sym}
+          </button>
+        ))}
+      </div>
+      <Button onClick={() => onSave({ ...cycleData, current_symptoms: symptoms })} size="sm" className="w-full bg-pink-500">
+        Save Symptoms
+      </Button>
+    </div>
+  );
+}
+
+export default function HormoneTracker() {
+  const [user, setUser] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  const { data: cycleData } = useQuery({
+    queryKey: ['cycleData', user?.email],
+    queryFn: async () => {
+      const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: format(new Date(), 'yyyy-MM-dd') }, '-created_date', 1);
+      return logs[0] || {
+        cycle_phase: 'follicular',
+        cycle_notes: '',
+        start_date: format(addDays(new Date(), -10), 'yyyy-MM-dd'),
+        current_symptoms: [],
+      };
+    },
+    enabled: !!user?.email,
+  });
+
+  const getCurrentPhase = () => {
+    if (!cycleData?.start_date) return 'follicular';
+    const daysInCycle = differenceInDays(new Date(), new Date(cycleData.start_date));
+    const cycleDay = (daysInCycle % 28) + 1;
+
+    if (cycleDay <= 5) return 'menstrual';
+    if (cycleDay <= 12) return 'follicular';
+    if (cycleDay <= 15) return 'ovulation';
+    return 'luteal';
+  };
+
+  const currentPhase = cycleData ? getCurrentPhase() : 'follicular';
+  const phaseConfig = CYCLE_PHASES.find(p => p.key === currentPhase);
+
+  const saveCycleMutation = useMutation({
+    mutationFn: (data) => {
+      if (cycleData?.id) return base44.entities.DietLog.update(cycleData.id, data);
+      return base44.entities.DietLog.create({ ...data, user_email: user.email, log_date: format(new Date(), 'yyyy-MM-dd') });
+    },
+    onSuccess: () => queryClient.invalidateQueries(['cycleData']),
+  });
+
+  if (!user) {
+    return (
+      <div className="max-w-2xl mx-auto pt-20 text-center px-4">
+        <Heart className="w-16 h-16 mx-auto mb-4 text-pink-500" />
+        <h2 className="text-2xl font-black mb-2">Cycle Tracker</h2>
+        <p className="text-gray-500 mb-6">Sign in to track your hormonal cycle and get phase-based skincare recommendations</p>
+        <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8">
+          Sign In
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto pb-12 space-y-5">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl" style={{ background: phaseConfig?.bg }}>
+          {phaseConfig?.emoji}
+        </div>
+        <div>
+          <h1 className="text-2xl font-black">Hormonal Cycle Tracker</h1>
+          <p className="text-sm text-gray-500">Sync skincare & wellness with your cycle</p>
+        </div>
+      </div>
+
+      {/* Current Phase Hero */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-6 overflow-hidden"
+        style={{
+          background: `linear-gradient(135deg,${phaseConfig?.bg},rgba(255,255,255,0.5))`,
+          border: `2px solid ${phaseConfig?.color}40`,
+        }}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-1">Current Phase</p>
+            <p className="text-4xl font-black" style={{ color: phaseConfig?.color }}>{phaseConfig?.label}</p>
           </div>
-        </GlassCard>
+          <Badge style={{ background: phaseConfig?.color, color: '#fff' }} className="text-sm border-0">
+            Cycle Day {cycleData ? differenceInDays(new Date(), new Date(cycleData.start_date)) % 28 + 1 : '—'}
+          </Badge>
+        </div>
+        <p className="text-gray-700 font-medium mb-4">{phaseConfig?.desc}</p>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="p-2 rounded-lg bg-white/60">
+            <p className="text-gray-400">Duration</p>
+            <p className="font-bold">{phaseConfig?.days}</p>
+          </div>
+          <div className="p-2 rounded-lg bg-white/60">
+            <p className="text-gray-400">Energy Level</p>
+            <p className="font-bold">
+              {currentPhase === 'menstrual' && '⬇️ Low'}
+              {currentPhase === 'follicular' && '⬆️ Rising'}
+              {currentPhase === 'ovulation' && '⚡ Peak'}
+              {currentPhase === 'luteal' && '↘️ Declining'}
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Cycle Calendar */}
+      <CycleCalendarView cycleData={cycleData} onSelectDay={setSelectedDate} />
+
+      {/* Phase Grid */}
+      <div>
+        <p className="font-bold text-sm mb-3">Your Cycle Phases</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {CYCLE_PHASES.map(phase => (
+            <PhaseCard key={phase.key} phase={phase} />
+          ))}
+        </div>
+      </div>
+
+      {/* Skincare by Phase */}
+      <div>
+        <p className="font-bold text-sm mb-3">💅 Phase-Based Skincare</p>
+        <SkinCareInsightCard phase={currentPhase} />
+      </div>
+
+      {/* Symptom Logger */}
+      {cycleData && (
+        <SymptomLogger
+          cycleData={cycleData}
+          userEmail={user?.email}
+          onSave={(data) => saveCycleMutation.mutate(data)}
+        />
       )}
 
-      {/* Cycle Timeline */}
-      {lastPeriod && (
-        <GlassCard>
-          <h3 className="font-bold mb-4">Cycle Timeline</h3>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {CYCLE_PHASES.map((phase, i) => {
-              const isCurrent = currentPhase?.phase === phase.phase;
-              return (
-                <div key={phase.phase} className={`flex-shrink-0 flex flex-col items-center p-3 rounded-xl min-w-[100px] ${isCurrent ? `bg-gradient-to-br ${phase.color} text-white` : 'bg-white/40 dark:bg-white/5'}`}>
-                  <span className="text-2xl mb-1">{phase.icon}</span>
-                  <p className="text-xs font-bold text-center">{phase.phase}</p>
-                  <p className="text-xs opacity-70">Days {phase.days}</p>
-                  {isCurrent && <Badge className="mt-1 bg-white/30 text-white text-xs">NOW</Badge>}
-                </div>
-              );
-            })}
-          </div>
-        </GlassCard>
-      )}
-
-      {/* Symptoms Log */}
-      {lastPeriod && (
-        <GlassCard>
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold">Today's Skin Symptoms</h3>
-            <Button size="sm" onClick={getAIAdvice} disabled={generating || symptoms.length === 0} className="bg-gradient-to-r from-rose-500 to-pink-500">
-              {generating ? <Sparkles className="w-3 h-3 animate-spin mr-1" /> : <Sparkles className="w-3 h-3 mr-1" />}
-              Get AI Advice
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SYMPTOMS.map(s => (
-              <button key={s} onClick={() => toggleSymptom(s)}
-                className={`px-3 py-1.5 rounded-full text-sm border-2 transition-all ${symptoms.includes(s) ? 'bg-rose-500 text-white border-rose-500' : 'border-gray-200 dark:border-gray-700 hover:border-rose-300'}`}>
-                {s}
-              </button>
-            ))}
-          </div>
-        </GlassCard>
-      )}
-
-      {/* AI Insight */}
-      {aiInsight && (
-        <GlassCard className="border-rose-200 dark:border-rose-800">
-          <h3 className="font-bold mb-3 flex items-center gap-2"><Sparkles className="w-5 h-5 text-rose-400" />Personalized Advice for Today</h3>
-          <div className="p-3 bg-rose-50 dark:bg-rose-900/20 rounded-xl mb-3">
-            <p className="text-xs font-bold text-rose-600 mb-1">🎯 Today's Priority</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300">{aiInsight.today_priority}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs font-bold text-blue-600 mb-1">✅ Do This Now</p>
-              {aiInsight.specific_advice?.map((a, i) => <p key={i} className="text-xs text-gray-600 dark:text-gray-300 mb-1">• {a}</p>)}
-            </div>
-            <div>
-              <p className="text-xs font-bold text-red-600 mb-1">🚫 Avoid Right Now</p>
-              {aiInsight.avoid_now?.map((a, i) => <p key={i} className="text-xs text-gray-600 dark:text-gray-300 mb-1">• {a}</p>)}
-            </div>
-          </div>
-          {aiInsight.next_7_days_preview && (
-            <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-              <p className="text-xs font-bold text-amber-600 mb-1">🔮 Next 7 Days</p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">{aiInsight.next_7_days_preview}</p>
-            </div>
+      {/* Wellness Tips */}
+      <div className="rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-pink-50 border border-violet-100">
+        <p className="font-bold text-sm mb-3">💡 Wellness Tips for {phaseConfig?.label}</p>
+        <div className="space-y-2 text-xs text-gray-700">
+          {currentPhase === 'menstrual' && (
+            <>
+              <p>✓ Prioritize rest and recovery — lower intensity workouts work best</p>
+              <p>✓ Increase iron intake with leafy greens, red meat, legumes</p>
+              <p>✓ Stay hydrated — more water loss during this phase</p>
+            </>
           )}
-        </GlassCard>
-      )}
+          {currentPhase === 'follicular' && (
+            <>
+              <p>✓ Great time for challenging workouts and new projects</p>
+              <p>✓ Introduce active skincare ingredients</p>
+              <p>✓ Leverage the energy boost for important decisions</p>
+            </>
+          )}
+          {currentPhase === 'ovulation' && (
+            <>
+              <p>✓ Peak confidence and social energy — schedule important meetings</p>
+              <p>✓ Workouts feel easiest — push harder if desired</p>
+              <p>✓ Skin usually clearest — excellent time for professional photos</p>
+            </>
+          )}
+          {currentPhase === 'luteal' && (
+            <>
+              <p>✓ Self-care becomes more important — honor your needs</p>
+              <p>✓ Food cravings are real — plan nourishing meals</p>
+              <p>✓ Reduce intense workouts; gentle yoga or walks are ideal</p>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, Trophy, Map
+  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, Trophy, Map, Heart
 } from 'lucide-react';
 import LanguageSelector from '@/components/i18n/LanguageSelector';
 import t from '@/components/i18n/translations';
@@ -40,6 +40,7 @@ const NAV_SECTIONS = [
     color: 'from-amber-400 to-orange-500',
     items: [
       { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
+      { key: 'hormoneTracker', icon: Heart, page: 'HormoneTracker', label: 'Cycle Tracker' },
       { key: 'glowDashboard', icon: Star, page: 'GlowDashboard', label: 'Glow Dashboard' },
       { key: 'glowChallenge', icon: Sparkles, page: 'GlowChallenge', label: 'Challenges' },
       { key: 'skinGoalChallenge', icon: Trophy, page: 'SkinGoalChallenge', label: '21-Day Challenge' },
