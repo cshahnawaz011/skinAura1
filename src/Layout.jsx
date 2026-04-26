@@ -42,7 +42,7 @@ const NAV_SECTIONS = [
     items: [
       { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
       { key: 'lifestyleInsights', icon: TrendingUp, page: 'LifestyleInsights', label: 'Health Insights' },
-      { key: 'cycle', icon: Heart, page: 'Cycle', label: 'Cycle Tracker' },
+
       { key: 'glowDashboard', icon: Star, page: 'GlowDashboard', label: 'Glow Dashboard' },
       { key: 'glowChallenge', icon: Sparkles, page: 'GlowChallenge', label: 'Challenges' },
       { key: 'skinGoalChallenge', icon: Trophy, page: 'SkinGoalChallenge', label: '21-Day Challenge' },

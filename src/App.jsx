@@ -13,7 +13,7 @@ import FaceYoga from './pages/FaceYoga';
 import SkinDetox from './pages/SkinDetox';
 import BeautyCalendar from './pages/BeautyCalendar';
 import TravelSkincare from './pages/TravelSkincare';
-import Cycle from './pages/Cycle';
+
 import GlowChallenge from './pages/GlowChallenge';
 import SkinGoalChallenge from './pages/SkinGoalChallenge';
 import SkinAnalysisPage from './pages/SkinAnalysis';
@@ -86,7 +86,7 @@ const AuthenticatedApp = () => {
       <Route path="/SkinDetox" element={<LayoutWrapper currentPageName="SkinDetox"><SkinDetox /></LayoutWrapper>} />
       <Route path="/BeautyCalendar" element={<LayoutWrapper currentPageName="BeautyCalendar"><BeautyCalendar /></LayoutWrapper>} />
       <Route path="/TravelSkincare" element={<LayoutWrapper currentPageName="TravelSkincare"><TravelSkincare /></LayoutWrapper>} />
-      <Route path="/Cycle" element={<LayoutWrapper currentPageName="Cycle"><Cycle /></LayoutWrapper>} />
+
       <Route path="/GlowChallenge" element={<LayoutWrapper currentPageName="GlowChallenge"><GlowChallenge /></LayoutWrapper>} />
       <Route path="/SkinGoalChallenge" element={<LayoutWrapper currentPageName="SkinGoalChallenge"><SkinGoalChallenge /></LayoutWrapper>} />
       <Route path="/FacialHeatmap" element={<LayoutWrapper currentPageName="FacialHeatmap"><FacialHeatmap /></LayoutWrapper>} />
