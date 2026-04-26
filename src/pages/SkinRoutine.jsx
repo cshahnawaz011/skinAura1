@@ -29,10 +29,20 @@ import OutcomeFeaturesCard from '@/components/routine/OutcomeFeaturesCard';
 import RoutineMotivationalQuote from '@/components/routine/RoutineMotivationalQuote';
 import RoutineTracker from '@/components/routine/RoutineTracker';
 
-let sharedRoutineState = {
-  generating: false,
-  routineData: null,
+// Initialize from localStorage
+const initializeRoutineState = () => {
+  const cached = localStorage.getItem('skinRoutineCache');
+  if (cached) {
+    try {
+      return { generating: false, routineData: JSON.parse(cached) };
+    } catch (e) {
+      localStorage.removeItem('skinRoutineCache');
+    }
+  }
+  return { generating: false, routineData: null };
 };
+
+let sharedRoutineState = initializeRoutineState();
 const routineListeners = new Set();
 const updateRoutineState = (updates) => {
   sharedRoutineState = { ...sharedRoutineState, ...updates };
@@ -449,25 +459,13 @@ export default function SkinRoutine() {
   // Auto-compute user's concentration level from feedback history
   const userLevel = computeUserLevel(feedbackHistory);
 
-  // Load saved routine into state whenever savedRoutine changes or on mount
+  // Sync DB routine to cache
   useEffect(() => {
-    if (isCleared.current) return; // user explicitly cleared — don't reload
-    if (savedRoutine?.steps && !routineData) {
-      updateRoutineState({ routineData: savedRoutine.steps });
+    if (isCleared.current) return;
+    if (savedRoutine?.steps) {
       localStorage.setItem('skinRoutineCache', JSON.stringify(savedRoutine.steps));
-    } else if (!routineData && !savedRoutine) {
-      // Try to load from localStorage on mount
-      const cached = localStorage.getItem('skinRoutineCache');
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          updateRoutineState({ routineData: parsed });
-        } catch (e) {
-          localStorage.removeItem('skinRoutineCache');
-        }
-      }
     }
-  }, [savedRoutine]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [savedRoutine]);
 
   // Save to localStorage whenever routineData updates
   useEffect(() => {
