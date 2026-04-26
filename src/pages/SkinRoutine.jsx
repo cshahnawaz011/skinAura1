@@ -337,6 +337,7 @@ export default function SkinRoutine() {
   const [user, setUser] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [routineData, setRoutineData] = useState(null);
+  const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -374,11 +375,12 @@ export default function SkinRoutine() {
   // Auto-compute user's concentration level from feedback history
   const userLevel = computeUserLevel(feedbackHistory);
 
-  // Load saved routine into state on mount
+  // Load saved routine into state whenever savedRoutine changes
   useEffect(() => {
-    if (savedRoutine?.steps && !routineData) {
+    if (savedRoutine?.steps && !isCleared.current) {
       setRoutineData(savedRoutine.steps);
     }
+    isCleared.current = false;
   }, [savedRoutine]);
 
   const saveMutation = useMutation({
@@ -499,12 +501,12 @@ export default function SkinRoutine() {
     generateRoutine();
   };
 
-  const clearRoutine = () => {
+  const clearRoutine = async () => {
+    isCleared.current = true;
     setRoutineData(null);
     if (savedRoutine?.id) {
-      base44.entities.SkinRoutine.delete(savedRoutine.id).then(() =>
-        queryClient.invalidateQueries(['skinRoutine'])
-      );
+      await base44.entities.SkinRoutine.delete(savedRoutine.id);
+      queryClient.invalidateQueries(['skinRoutine']);
     }
   };
 
