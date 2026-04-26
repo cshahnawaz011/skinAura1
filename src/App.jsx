@@ -21,6 +21,7 @@ import FacialHeatmap from './pages/FacialHeatmap';
 import IngredientLibrary from './pages/IngredientLibrary';
 import Diet from './pages/Diet';
 import GlowDashboard from './pages/GlowDashboard';
+import LifestyleInsights from './pages/LifestyleInsights';
 
 import AdaptiveSkinMap from './pages/AdaptiveSkinMap';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -92,6 +93,7 @@ const AuthenticatedApp = () => {
       <Route path="/IngredientLibrary" element={<LayoutWrapper currentPageName="IngredientLibrary"><IngredientLibrary /></LayoutWrapper>} />
       <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />
       <Route path="/GlowDashboard" element={<LayoutWrapper currentPageName="GlowDashboard"><GlowDashboard /></LayoutWrapper>} />
+      <Route path="/LifestyleInsights" element={<LayoutWrapper currentPageName="LifestyleInsights"><LifestyleInsights /></LayoutWrapper>} />
 
       <Route path="/AdaptiveSkinMap" element={<LayoutWrapper currentPageName="AdaptiveSkinMap"><AdaptiveSkinMap /></LayoutWrapper>} />
       <Route path="/SkinAnalysis" element={<LayoutWrapper currentPageName="SkinAnalysis"><SkinAnalysisPage /></LayoutWrapper>} />
