@@ -103,7 +103,7 @@ export default function AdaptiveSkinMap() {
           <div className="w-20 h-20 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🗺️</div>
           <h2 className="text-2xl font-black mb-2">Adaptive Skin Map</h2>
           <p className="text-gray-500 mb-6">Sign in to view your personalized interactive skin diagnostic map</p>
-          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8">Sign In to View Map</Button>
+          <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white px-8" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In to View Map</Button>
         </div>
       </div>
     );
@@ -117,7 +117,7 @@ export default function AdaptiveSkinMap() {
           <h2 className="text-2xl font-black mb-2">No Skin Analysis Yet</h2>
           <p className="text-gray-500 mb-6">Run a skin analysis first to unlock your Adaptive Skin Map</p>
           <Link to="/SkinAnalysis">
-            <Button className="bg-gradient-to-r from-pink-500 to-amber-500 text-white gap-2">
+            <Button className="ios-button-3d text-white gap-2" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
               <Camera className="w-4 h-4" /> Run Skin Analysis
             </Button>
           </Link>
@@ -132,8 +132,8 @@ export default function AdaptiveSkinMap() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-lg" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🗺️</div>
+          <div className="flex items-center gap-3 mb-1">
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="Map" />
             <div>
               <h1 className="text-2xl font-black">Skin Map</h1>
               <p className="text-xs text-gray-500">Interactive diagnostic intelligence</p>

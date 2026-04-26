@@ -143,9 +143,12 @@ export default function FaceYoga() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">🧘 Face Yoga</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Natural face lifting & anti-aging exercises</p>
+      <div className="flex items-center gap-3">
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Face Yoga</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">Natural face lifting & anti-aging exercises</p>
+        </div>
       </div>
 
       {/* Active Timer */}
@@ -233,7 +236,7 @@ export default function FaceYoga() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" onClick={(e) => { e.stopPropagation(); startExercise(ex); }}
-                    className="bg-gradient-to-r from-pink-500 to-amber-500 h-8 px-3">
+                    className="ios-button-3d text-white h-8 px-3" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                     <Play className="w-3 h-3 mr-1" /> Start
                   </Button>
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}

@@ -79,18 +79,21 @@ Include breakfast, lunch, dinner, and a snack. Focus on foods that directly impr
   if (!user) return (
     <div className="max-w-2xl mx-auto">
       <GlassCard className="text-center py-12">
-        <Apple className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Skin Diet Planner</h2>
-        <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-emerald-500 to-teal-500">Sign In</Button>
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-16 h-16 rounded-2xl object-cover shadow-sm mx-auto mb-4" alt="SkinAura" />
+        <h2 className="text-2xl font-bold mb-2 text-gray-900">Skin Diet Planner</h2>
+        <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In</Button>
       </GlassCard>
     </div>
   );
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Apple className="w-7 h-7 text-emerald-500" /> Skin Diet Planner</h1>
-        <p className="text-gray-500 mt-1">AI-personalized meal plans for your skin goals</p>
+      <div className="flex items-center gap-3">
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Skin Diet Planner</h1>
+          <p className="text-gray-500 mt-1">AI-personalized meal plans for your skin goals</p>
+        </div>
       </div>
 
       <GlassCard>
@@ -104,7 +107,7 @@ Include breakfast, lunch, dinner, and a snack. Focus on foods that directly impr
             </button>
           ))}
         </div>
-        <Button onClick={generatePlan} disabled={loading || cooldown > 0} className="w-full bg-gradient-to-r from-emerald-500 to-teal-500">
+        <Button onClick={generatePlan} disabled={loading || cooldown > 0} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
           {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Creating Plan...</>
             : cooldown > 0 ? `⏳ ${Math.floor(cooldown/60)}:${String(cooldown%60).padStart(2,'0')}`
             : <><Sparkles className="w-4 h-4 mr-2" /> Generate Meal Plan</>}

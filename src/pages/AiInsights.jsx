@@ -191,9 +191,12 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="relative">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-black gold-shimmer">✨ AI Skin Insights</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Advanced AI-powered skin intelligence tools</p>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
+          <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+          <div>
+            <h1 className="text-3xl font-black text-gray-900">AI Skin Insights</h1>
+            <p className="text-gray-500 dark:text-gray-400 mt-1">Advanced AI-powered skin intelligence tools</p>
+          </div>
         </motion.div>
         {/* Floating sparkles */}
         <span className="absolute top-0 right-0 text-2xl animate-bounce">🌟</span>
@@ -259,7 +262,8 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
               cooldownKey={`ai_insights_${activeTab}`}
               onClick={() => run(activeTab)}
               loading={loading === activeTab}
-              className={`bg-gradient-to-r ${currentTab.color} text-white shadow-lg shadow-pink-400/30 font-bold`}
+              className="ios-button-3d text-white font-bold"
+              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}
             >
               <Sparkles className="w-4 h-4 mr-2 animate-spin" style={{ animationDuration: '3s' }} /> Run Analysis
             </CooldownButton>
@@ -271,7 +275,7 @@ Create a detailed Beauty DNA profile that describes their unique skin characteri
               <p className="text-gray-600 dark:text-gray-300 font-medium">पहले Skin Analysis करें</p>
               <p className="text-gray-500 text-sm">AI Insights आपकी skin analysis data का उपयोग करता है — बेहतर results के लिए पहले analysis करें।</p>
               <a href="/SkinAnalysis">
-                <button className="mt-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-amber-500 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition">
+                <button className="mt-2 px-4 py-2 ios-button-3d text-white rounded-xl text-sm font-semibold hover:opacity-90 transition" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   📸 Skin Analysis करें →
                 </button>
               </a>

@@ -47,7 +47,7 @@ function createPageUrl(page) {
 
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
-  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const { tr, lang } = useTranslation();
   const isFetching = useIsFetching();
@@ -76,7 +76,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
-      style={{ background: darkMode ? '#0a0814' : '#f8f4f0' }}>
+      style={{ background: darkMode ? '#0a0814' : '#fafafa' }}>
 
       {/* GLOBAL LOADING INDICATOR */}
       {isFetching > 0 && (
@@ -99,7 +99,7 @@ export default function Layout({ children, currentPageName }) {
         }}>
         <div className="max-w-7xl mx-auto px-4 flex items-center h-14 gap-4">
           {/* Hamburger Menu */}
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <button className="p-2 -ml-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-white/10">
                 <Menu className="w-5 h-5" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }} />
@@ -120,6 +120,7 @@ export default function Layout({ children, currentPageName }) {
                     <Link
                       key={feature.key}
                       to={createPageUrl(feature.page)}
+                      onClick={() => setMenuOpen(false)}
                       className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
                         isActive
                           ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300'

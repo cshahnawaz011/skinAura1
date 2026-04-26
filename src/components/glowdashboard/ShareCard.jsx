@@ -27,7 +27,7 @@ export default function ShareCard({ score, streak, badge, userName, onClose }) {
         logging: false,
       });
       const link = document.createElement('a');
-      link.download = 'GlowAI-Score.png';
+      link.download = 'SkinAura-Score.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (e) {}
@@ -35,7 +35,7 @@ export default function ShareCard({ score, streak, badge, userName, onClose }) {
   };
 
   const handleCopy = () => {
-    const text = `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #GlowAI #SkincareRoutine\n${window.location.origin}`;
+    const text = `🌟 My Glow Score today is ${score}/100! Streak: ${streak} days 🔥 #SkinAura #SkincareRoutine\n${window.location.origin}`;
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -72,8 +72,8 @@ export default function ShareCard({ score, streak, badge, userName, onClose }) {
           }}>
             {/* Logo */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 6 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>✨</div>
-              <span style={{ fontWeight: 900, fontSize: 20, background: 'linear-gradient(90deg,#d4a853,#f5e3a0,#d4a853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>GlowAI</span>
+              <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" style={{ width: 32, height: 32, borderRadius: 10, objectFit: 'cover' }} alt="SkinAura" />
+              <span style={{ fontWeight: 900, fontSize: 20, color: '#1f2937' }}>SkinAura</span>
             </div>
             <p style={{ fontSize: 11, color: '#9ca3af', marginBottom: 20 }}>{format(new Date(), 'EEEE, MMM d yyyy')}</p>
 
@@ -101,7 +101,7 @@ export default function ShareCard({ score, streak, badge, userName, onClose }) {
             <p style={{ fontSize: 12, color: '#9ca3af', fontStyle: 'italic', marginBottom: 8 }}>
               "{userName ? `@${userName.split(' ')[0]}` : 'Glowing'}'s Daily Report"
             </p>
-            <div style={{ fontSize: 11, color: '#d1d5db' }}>#GlowAI #SkincareRoutine #GlowUp</div>
+            <div style={{ fontSize: 11, color: '#d1d5db' }}>#SkinAura #SkincareRoutine #GlowUp</div>
           </div>
         </div>
 

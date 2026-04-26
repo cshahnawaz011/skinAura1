@@ -90,9 +90,12 @@ export default function NutritionScanner() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Apple className="w-7 h-7 text-emerald-500" /> Nutrition Scanner</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">AI-powered food analysis for your skin</p>
+      <div className="flex items-center gap-3">
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Nutrition Scanner</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">AI-powered food analysis for your skin</p>
+        </div>
       </div>
 
       {/* Search */}
@@ -108,7 +111,7 @@ export default function NutritionScanner() {
               className="pl-9"
             />
           </div>
-          <Button onClick={() => scanFood()} disabled={loading} className="bg-gradient-to-r from-emerald-500 to-teal-500">
+          <Button onClick={() => scanFood()} disabled={loading} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             {loading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           </Button>
           <label className="cursor-pointer">

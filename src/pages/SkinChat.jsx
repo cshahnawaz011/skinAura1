@@ -136,7 +136,7 @@ User's skin profile:
     setIsTyping(true);
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are GlowAI, a friendly and knowledgeable skincare AI assistant. 
+      prompt: `You are SkinAura, a friendly and knowledgeable skincare AI assistant. 
 You provide personalized skincare advice based on the user's skin profile.
 Be helpful, encouraging, and provide specific actionable advice.
 Keep responses concise but informative (2-3 paragraphs max).
@@ -207,9 +207,7 @@ Provide a helpful, personalized response:`,
         <ScrollArea className="flex-1 p-4">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center mb-4">
-                <Sparkles className="w-8 h-8 text-white" />
-              </div>
+              <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-16 h-16 rounded-2xl object-cover shadow-sm mb-4" alt="SkinAura" />
               <h3 className="text-xl font-semibold mb-2">Hi! I'm your AI Skin Coach</h3>
               {latestAnalysis ? (
                 <div className="mb-4 px-4 py-2 bg-pink-50 dark:bg-pink-900/20 rounded-xl border border-pink-200 dark:border-pink-800 text-sm text-pink-700 dark:text-pink-300">
@@ -258,10 +256,8 @@ Provide a helpful, personalized response:`,
                     >
                       {msg.role === 'assistant' && (
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-pink-400 to-amber-400 flex items-center justify-center">
-                            <Sparkles className="w-3 h-3 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-gray-500">GlowAI</span>
+                          <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-6 h-6 rounded-full object-cover shadow-sm" alt="SkinAura" />
+                          <span className="text-sm font-medium text-gray-500">SkinAura</span>
                         </div>
                       )}
                       <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -322,7 +318,8 @@ Provide a helpful, personalized response:`,
             <Button
               type="submit"
               disabled={!input.trim() || isTyping || cooldownLeft > 0}
-              className="bg-gradient-to-r from-pink-500 to-amber-500"
+              className="ios-button-3d text-white"
+              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}
               title={cooldownLeft > 0 ? `Available in ${cooldownLeft}s` : ''}
             >
               {isTyping ? (

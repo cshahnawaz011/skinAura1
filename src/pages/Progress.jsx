@@ -776,7 +776,7 @@ export default function Progress() {
         <h2 className="text-2xl font-black mb-2">Your Skin Progress</h2>
         <p className="text-gray-500 mb-6">Sign in to view your personalized skin transformation dashboard</p>
         <Button onClick={() => base44.auth.redirectToLogin()}
-          className="bg-gradient-to-r from-pink-500 to-violet-500 text-white px-8">
+          className="ios-button-3d text-white px-8" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
           <Sparkles className="w-4 h-4 mr-2" />Sign In
         </Button>
       </div>
@@ -793,8 +793,7 @@ export default function Progress() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow"
-            style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>📊</div>
+          <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="Progress" />
           <div>
             <h1 className="text-2xl sm:text-3xl font-black">Skin Progress</h1>
             <p className="text-sm text-gray-500">Score · Photos · Timeline · Impact</p>
@@ -802,7 +801,7 @@ export default function Progress() {
         </div>
         <button
           onClick={() => setShowUpload(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-black text-white shadow-lg"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-black text-white shadow-lg ios-button-3d"
           style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
           <Plus className="w-4 h-4" /> Add Photo
         </button>
@@ -816,7 +815,7 @@ export default function Progress() {
           <p className="font-black text-lg mb-1">No skin analysis yet</p>
           <p className="text-sm text-gray-500 mb-4">Complete a skin analysis — photos auto-sync here</p>
           <Button onClick={() => window.location.href = '/SkinAnalysis'}
-            className="bg-gradient-to-r from-pink-500 to-violet-500 text-white">
+            className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             Start Skin Analysis
           </Button>
         </div>

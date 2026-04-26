@@ -213,12 +213,9 @@ export default function Diet() {
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-          style={{ background: 'linear-gradient(135deg, #84cc16, #22c55e)' }}>
-          🥗
-        </div>
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
         <div>
-          <h1 className="text-3xl font-bold">Diet & Glow Hub</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Diet & Glow Hub</h1>
           <p className="text-gray-500 dark:text-gray-400">Smart nutrition powered by your skin data</p>
         </div>
       </div>
@@ -320,7 +317,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Create a personalized 1-day skin diet plan using this user's data:\n${buildContext()}\nInclude breakfast, lunch, dinner, snack. Make it science-backed and skin-focused. Tailor every meal to their specific skin issues and lifestyle patterns.`,
                   { type: 'object', properties: { goal_summary: { type: 'string' }, meals: { type: 'array', items: { type: 'object', properties: { meal_type: { type: 'string' }, name: { type: 'string' }, foods: { type: 'array', items: { type: 'string' } }, skin_benefits: { type: 'string' }, calories_approx: { type: 'number' } } } }, daily_tip: { type: 'string' }, foods_to_avoid: { type: 'array', items: { type: 'string' } } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-emerald-500 to-teal-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Generating...</> : <><Sparkles className="w-4 h-4 mr-2" />Generate My Smart Plan</>}
                 </Button>
               </GlassCard>
@@ -395,7 +392,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Analyze this user's skin-food connection using their real data:\n${buildContext()}\nGive me a comprehensive personalized list of foods that help THIS user's specific skin concerns and foods that are likely triggering their issues. Mention specific issues (acne, dryness, oiliness etc.) from their profile. Be specific and science-backed.`,
                   { type: 'object', properties: { glow_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, benefit: { type: 'string' }, how_to_eat: { type: 'string' } } } }, trigger_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, why: { type: 'string' } } } }, summary: { type: 'string' } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-rose-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Analyzing...</> : <><Heart className="w-4 h-4 mr-2" />Analyze Skin-Food Link</>}
                 </Button>
               </GlassCard>
@@ -435,7 +432,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Create a personalized nutrition goal plan based on this user's real data:\n${buildContext()}\nGive me 5 specific nutrition goals with daily targets, what foods to eat, and how each goal directly improves their specific skin concerns. Prioritize goals based on what the data shows they need most.`,
                   { type: 'object', properties: { goals: { type: 'array', items: { type: 'object', properties: { goal: { type: 'string' }, daily_target: { type: 'string' }, foods: { type: 'array', items: { type: 'string' } }, skin_benefit: { type: 'string' }, difficulty: { type: 'string' } } } }, overall_strategy: { type: 'string' } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-violet-500 to-purple-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Building Goals...</> : <><Target className="w-4 h-4 mr-2" />Generate Nutrition Goals</>}
                 </Button>
               </GlassCard>
@@ -527,7 +524,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Give personalized travel diet advice for skin health using this data:\n${buildContext()}\n${travelData ? `Travel context: ${JSON.stringify(travelData)}.` : ''} Consider how their specific skin type and current lifestyle patterns should adapt when traveling. Climate changes, time zones, and local cuisine options.`,
                   { type: 'object', properties: { travel_tips: { type: 'array', items: { type: 'string' } }, local_foods_to_try: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, skin_benefit: { type: 'string' } } } }, foods_to_avoid_when_traveling: { type: 'array', items: { type: 'string' } }, hydration_tips: { type: 'array', items: { type: 'string' } } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-blue-500 to-cyan-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Planning...</> : <><Map className="w-4 h-4 mr-2" />Get Travel Diet Plan</>}
                 </Button>
               </GlassCard>
@@ -564,7 +561,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `User profile:\n${buildContext()}\nBased on their specific skin concerns, prioritize the most relevant skincare ingredients (like Vitamin C, Retinol/Vitamin A, Hyaluronic Acid, Niacinamide, Collagen, Zinc, Vitamin E, Omega-3) that can also be consumed as food. Show food sources for each and explain why THEIR skin specifically benefits.`,
                   { type: 'object', properties: { ingredient_foods: { type: 'array', items: { type: 'object', properties: { ingredient: { type: 'string' }, food_sources: { type: 'array', items: { type: 'string' } }, skin_benefit: { type: 'string' }, daily_tip: { type: 'string' } } } } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-teal-500 to-emerald-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Mapping...</> : <><BookOpen className="w-4 h-4 mr-2" />Map Ingredients to Foods</>}
                 </Button>
               </GlassCard>
@@ -595,7 +592,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Create a personalized 7-day beauty meal calendar using this user's data:\n${buildContext()}\nFor each day, suggest a theme meal plan tailored to their skin type and current concerns (e.g., if acne is high, include more anti-acne days). Sync eating windows with their skincare routine if available.`,
                   { type: 'object', properties: { week_plan: { type: 'array', items: { type: 'object', properties: { day: { type: 'string' }, theme: { type: 'string' }, emoji: { type: 'string' }, morning: { type: 'string' }, afternoon: { type: 'string' }, evening: { type: 'string' }, skincare_sync: { type: 'string' } } } } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-pink-500 to-rose-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Planning week...</> : <><Calendar className="w-4 h-4 mr-2" />Generate 7-Day Beauty Calendar</>}
                 </Button>
               </GlassCard>
@@ -637,7 +634,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Create a personalized ${detoxDay || 3}-day skin detox diet plan using this user's data:\n${buildContext()}\nFocus on eliminating the specific bad foods this user has been eating and replace with anti-inflammatory, gut-healing alternatives. Address their specific skin concerns (acne, dullness, oiliness etc.) in each day's plan.`,
                   { type: 'object', properties: { detox_rules: { type: 'array', items: { type: 'string' } }, daily_plans: { type: 'array', items: { type: 'object', properties: { day: { type: 'number' }, focus: { type: 'string' }, meals: { type: 'array', items: { type: 'string' } }, detox_drink: { type: 'string' }, avoid: { type: 'string' } } } }, expected_results: { type: 'string' } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-teal-500 to-cyan-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating plan...</> : <><Zap className="w-4 h-4 mr-2" />Start {detoxDay || 3}-Day Detox Plan</>}
                 </Button>
               </GlassCard>
@@ -692,7 +689,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Create a personalized face yoga + nutrition plan using this user's data:\n${buildContext()}\nSuggest pre and post face yoga foods that specifically support their skin type and concerns. Include anti-inflammatory foods, collagen boosters, and recovery nutrients tailored to their profile.`,
                   { type: 'object', properties: { pre_yoga_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, timing: { type: 'string' }, reason: { type: 'string' } } } }, post_yoga_foods: { type: 'array', items: { type: 'object', properties: { food: { type: 'string' }, timing: { type: 'string' }, reason: { type: 'string' } } } }, weekly_routine: { type: 'string' } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-orange-400 to-amber-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Creating plan...</> : <><Sun className="w-4 h-4 mr-2" />Get Yoga + Diet Plan</>}
                 </Button>
               </GlassCard>
@@ -752,7 +749,7 @@ export default function Diet() {
                 <Button onClick={() => invokeAI(
                   `Generate a comprehensive weekly AI diet insights report using ALL this user's real data:\n${buildContext()}\n${glowTasksDone.length > 0 ? `Completed glow tasks today: ${glowTasksDone.join(', ')}.` : ''}\nProvide specific weekly nutrition recommendations based on what the data actually shows. Identify patterns, what they're doing well, what needs improvement, and a 3-step action plan. Be concrete and data-driven.`,
                   { type: 'object', properties: { weekly_summary: { type: 'string' }, key_insights: { type: 'array', items: { type: 'string' } }, nutrient_focus: { type: 'array', items: { type: 'object', properties: { nutrient: { type: 'string' }, why: { type: 'string' }, sources: { type: 'array', items: { type: 'string' } } } } }, action_plan: { type: 'array', items: { type: 'string' } }, skin_diet_score: { type: 'number' } } }
-                )} disabled={loading} className="w-full bg-gradient-to-r from-indigo-500 to-violet-500">
+                )} disabled={loading} className="w-full ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                   {loading ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Analyzing all data...</> : <><TrendingUp className="w-4 h-4 mr-2" />Generate AI Weekly Insights</>}
                 </Button>
               </GlassCard>

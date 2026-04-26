@@ -415,7 +415,7 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
       {!result && (
         <div className="rounded-3xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(244,114,182,0.2)', backdropFilter: 'blur(20px)' }}>
           <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>📸</div>
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="Camera" />
             <div>
               <h3 className="font-black">Capture 3 Face Angles</h3>
               <p className="text-[11px] text-gray-500">Front · Left · Right — for full 360° diagnostics</p>
@@ -435,7 +435,7 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
           </div>
 
           <Button onClick={runAnalysis} disabled={analyzing || !allReady || cooldownLeft > 0}
-            className="w-full py-5 text-base font-black" style={{ background: cooldownLeft > 0 ? 'rgba(0,0,0,0.1)' : 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+            className={`w-full py-5 text-base font-black text-white ${cooldownLeft > 0 ? '' : 'ios-button-3d'}`} style={{ background: cooldownLeft > 0 ? 'rgba(0,0,0,0.1)' : 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             {analyzing ? (
               <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Analyzing…</>
             ) : cooldownLeft > 0 ? (
@@ -549,7 +549,7 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
         <div className="rounded-2xl p-6 text-center" style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.07)' }}>
           <AlertCircle className="w-7 h-7 text-amber-500 mx-auto mb-2" />
           <p className="text-sm text-gray-600 mb-3">Sign in to save analyses and track your skin progress</p>
-          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-violet-500 text-white">Sign In</Button>
+          <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In</Button>
         </div>
       )}
     </div>

@@ -174,7 +174,7 @@ export default function GlowDashboard() {
         <Sparkles className="w-12 h-12 text-rose-400 mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-2">Glow Dashboard</h2>
         <p className="text-gray-500 mb-6">Sign in to track your daily glow habits</p>
-        <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-rose-500 to-pink-500">Sign In</Button>
+        <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In</Button>
       </GlassCard>
     </div>
   );
@@ -184,8 +184,9 @@ export default function GlowDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-black flex items-center gap-2">
-            <span>✨</span> Glow Dashboard
+          <h1 className="text-2xl font-black flex items-center gap-3">
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
+            Glow Dashboard
           </h1>
           <p className="text-sm text-gray-400">{format(new Date(), 'EEEE, MMM d')}</p>
         </div>

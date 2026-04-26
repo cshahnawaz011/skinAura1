@@ -104,7 +104,7 @@ export default function Lifestyle() {
         <h2 className="text-3xl font-black mb-2">Lifestyle Tracker</h2>
         <p className="text-gray-500 mb-6">Sign in to track your wellness & skin</p>
         <Button onClick={() => base44.auth.redirectToLogin()}
-          className="bg-black text-white px-8 hover:bg-gray-800">
+          className="ios-button-3d text-white px-8" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
           Sign In
         </Button>
       </div>
@@ -117,11 +117,14 @@ export default function Lifestyle() {
       <div className="flex items-center justify-between gap-3 sticky top-20 z-10 pt-3 pb-2 px-2"
         style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)' }}>
         <div>
-          <h1 className="text-xl font-black text-gray-900">Lifestyle</h1>
+          <div className="flex items-center gap-2 mb-1">
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
+            <h1 className="text-xl font-black text-gray-900">Lifestyle</h1>
+          </div>
           <p className="text-xs text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMM d')}</p>
         </div>
         <Button onClick={handleSave} disabled={saving} size="sm"
-          className="bg-black text-white hover:bg-gray-800 gap-1.5">
+          className="ios-button-3d text-white gap-1.5" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
           <Save className="w-3.5 h-3.5" /> {saving ? 'Saving' : 'Save'}
         </Button>
       </div>

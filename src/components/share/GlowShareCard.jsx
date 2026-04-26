@@ -36,14 +36,9 @@ export function ShareCardCanvas({ analysis, userName, forwardRef }) {
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, position: 'relative' }}>
-        <div style={{
-          width: 36, height: 36, borderRadius: 10,
-          background: 'linear-gradient(135deg, #f472b6, #fbbf24)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 18
-        }}>✨</div>
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover' }} alt="SkinAura" />
         <div>
-          <div style={{ fontSize: 18, fontWeight: 800, background: 'linear-gradient(90deg, #d4a853, #f5e3a0, #d4a853)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>GlowAI</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#1f2937' }}>SkinAura</div>
           <div style={{ fontSize: 11, color: '#9ca3af' }}>My Skin Report</div>
         </div>
       </div>
@@ -90,17 +85,17 @@ export function ShareCardCanvas({ analysis, userName, forwardRef }) {
 
       {/* User & CTA */}
       <div style={{
-        background: 'linear-gradient(135deg, #f472b6, #fbbf24)',
+        background: 'linear-gradient(135deg, #f472b6, #a78bfa)',
         borderRadius: 14, padding: '12px 16px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between'
       }}>
         <div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)' }}>Analyzed by</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{userName || 'GlowAI User'}</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{userName || 'SkinAura User'}</div>
         </div>
         <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.9)', textAlign: 'right' }}>
-          <div style={{ fontWeight: 700 }}>GlowAI.app</div>
-          <div>#GlowAI #SkinScore</div>
+          <div style={{ fontWeight: 700 }}>SkinAura App</div>
+          <div>#SkinAura #SkinScore</div>
         </div>
       </div>
     </div>
@@ -122,7 +117,7 @@ export default function GlowShareCard({ analysis, userName }) {
       logging: false,
     });
     const link = document.createElement('a');
-    link.download = 'GlowAI-MySkinScore.png';
+    link.download = 'SkinAura-MySkinScore.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
     setDownloading(false);
@@ -175,7 +170,7 @@ export default function GlowShareCard({ analysis, userName }) {
 
               {/* Social hints */}
               <div className="flex gap-2 mb-4 flex-wrap justify-center">
-                {['#GlowAI', '#SkinScore', '#SkincareRoutine', '#GlowUp'].map(tag => (
+                {['#SkinAura', '#SkinScore', '#SkincareRoutine', '#GlowUp'].map(tag => (
                   <span key={tag} className="text-xs bg-pink-50 dark:bg-pink-900/20 text-pink-600 px-2 py-1 rounded-full font-medium">{tag}</span>
                 ))}
               </div>
@@ -192,7 +187,7 @@ export default function GlowShareCard({ analysis, userName }) {
                 )}
               </Button>
               <p className="text-center text-xs text-gray-400 mt-3">
-                📲 Post on TikTok, Instagram, or Facebook with #GlowAI
+                📲 Post on TikTok, Instagram, or Facebook with #SkinAura
               </p>
             </motion.div>
           </motion.div>

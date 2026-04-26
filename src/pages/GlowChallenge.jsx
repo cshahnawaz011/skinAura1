@@ -149,7 +149,10 @@ export default function GlowChallenge() {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2"><Trophy className="w-7 h-7 text-amber-500" />21-Day Glow Challenge</h1>
+        <h1 className="text-3xl font-bold flex items-center gap-3">
+          <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+          21-Day Glow Challenge
+        </h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Transform your skin in 21 days — and compete with the community</p>
       </div>
 
@@ -199,7 +202,7 @@ export default function GlowChallenge() {
           <Trophy className="w-16 h-16 text-amber-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Ready to Transform Your Skin?</h2>
           <p className="text-gray-500 mb-6 max-w-sm mx-auto">21 days of science-backed daily tasks to achieve your best skin ever</p>
-          <Button onClick={startChallenge} className="bg-gradient-to-r from-amber-400 to-pink-500 px-8 py-6 text-lg">
+          <Button onClick={startChallenge} className="ios-button-3d text-white px-8 py-6 text-lg" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             <Flame className="w-5 h-5 mr-2" /> Start Challenge
           </Button>
         </GlassCard>

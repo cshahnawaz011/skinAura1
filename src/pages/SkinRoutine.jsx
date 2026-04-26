@@ -587,10 +587,7 @@ export default function SkinRoutine() {
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow"
-          style={{ background: 'linear-gradient(135deg,#f472b6,#fbbf24)' }}>
-          ✨
-        </div>
+        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="Routine" />
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Skin Routine</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -669,7 +666,7 @@ export default function SkinRoutine() {
             <Button
               onClick={generateRoutine}
               disabled={generating}
-              className="bg-gradient-to-r from-pink-500 to-amber-500 text-white"
+              className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}
             >
               {generating
                 ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing...</>
@@ -890,7 +887,7 @@ export default function SkinRoutine() {
       {!user && (
         <GlassCard className="text-center py-8">
           <p className="text-gray-500 mb-4">Sign in to generate and save your personalized routine</p>
-          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-amber-500">
+          <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             Sign In
           </Button>
         </GlassCard>
