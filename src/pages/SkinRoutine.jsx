@@ -755,7 +755,7 @@ export default function SkinRoutine() {
           <CollapsibleSection
             title="Skin Summary"
             icon={<Info className="w-4 h-4 text-pink-500" />}
-            defaultOpen={false}
+            defaultOpen={true}
           >
             <SkinSummaryCard summary={routineData.skin_summary} />
           </CollapsibleSection>
@@ -764,7 +764,7 @@ export default function SkinRoutine() {
           <CollapsibleSection
             title="Morning Routine"
             icon={<Sun className="w-4 h-4 text-amber-500" />}
-            defaultOpen={false}
+            defaultOpen={true}
             badge={<span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{routineData.morning_routine?.length || 0} steps</span>}
           >
             <MorningRoutineCard 
@@ -789,7 +789,7 @@ export default function SkinRoutine() {
             <CollapsibleSection
               title="Night Routine — 7-Day Rotation"
               icon={<Moon className="w-4 h-4 text-indigo-500" />}
-              defaultOpen={false}
+              defaultOpen={true}
               badge={<span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">7 days</span>}
             >
               <WeekPlanGrid weekPlan={routineData.night_week_plan} userEmail={user?.email} />
