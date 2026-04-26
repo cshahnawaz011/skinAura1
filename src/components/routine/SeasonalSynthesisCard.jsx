@@ -125,7 +125,7 @@ export default function SeasonalSynthesisCard() {
       // IP also failed
     }
 
-    setError('Location detect nahi hua. Browser mein location allow karein.');
+    setError('Location detection failed. Please allow location access in your browser.');
     setLoading(false);
   };
 
@@ -181,7 +181,7 @@ export default function SeasonalSynthesisCard() {
               {loading && (
                 <div className="flex flex-col items-center justify-center py-8 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
-                  <p className="text-sm text-gray-500">Location aur weather detect ho raha hai…</p>
+                  <p className="text-sm text-gray-500">Detecting location and weather...</p>
                 </div>
               )}
 
@@ -254,7 +254,7 @@ export default function SeasonalSynthesisCard() {
                     style={{ background: `${mode.color}0e`, border: `1px solid ${mode.color}30` }}>
                     <Cloud className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: mode.color }} />
                     <div>
-                      <p className="text-[10px] font-black mb-0.5" style={{ color: mode.color }}>Aaj ki Skin Recommendation</p>
+                      <p className="text-[10px] font-black mb-0.5" style={{ color: mode.color }}>Today's Skin Recommendation</p>
                       <p className="text-xs text-gray-700 leading-relaxed">{mode.rec}</p>
                     </div>
                   </div>

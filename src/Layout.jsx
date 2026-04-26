@@ -113,26 +113,74 @@ export default function Layout({ children, currentPageName }) {
                   <span className="font-black text-xl" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
                 </SheetTitle>
               </SheetHeader>
-              <div className="p-4 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-100px)]">
-                {ALL_FEATURES.map((feature) => {
-                  const FeatureIcon = feature.icon;
-                  const isActive = currentPageName === feature.page;
-                  return (
-                    <Link
-                      key={feature.key}
-                      to={createPageUrl(feature.page)}
-                      onClick={() => setMenuOpen(false)}
-                      className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
-                        isActive
-                          ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300'
-                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                      }`}
-                    >
-                      <FeatureIcon className="w-5 h-5" />
-                      <span>{feature.label}</span>
-                    </Link>
-                  );
-                })}
+              <div className="p-4 flex flex-col gap-4 overflow-y-auto h-[calc(100vh-100px)]">
+                {/* Skin Care Category */}
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Skin Care</p>
+                  {ALL_FEATURES.filter(f => ['home', 'analyze', 'routine', 'skinMap', 'progress'].includes(f.key)).map((feature) => {
+                    const FeatureIcon = feature.icon;
+                    const isActive = currentPageName === feature.page;
+                    return (
+                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                        }`}>
+                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Lifestyle & Wellness Category */}
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Wellness</p>
+                  {ALL_FEATURES.filter(f => ['health', 'lifestyle', 'yoga', 'diet', 'scanner'].includes(f.key)).map((feature) => {
+                    const FeatureIcon = feature.icon;
+                    const isActive = currentPageName === feature.page;
+                    return (
+                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                        }`}>
+                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Growth Category */}
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Growth</p>
+                  {ALL_FEATURES.filter(f => ['challenges', 'dashboard', 'insights', 'chat'].includes(f.key)).map((feature) => {
+                    const FeatureIcon = feature.icon;
+                    const isActive = currentPageName === feature.page;
+                    return (
+                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                        }`}>
+                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+
+                {/* Resources Category */}
+                <div>
+                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Resources</p>
+                  {ALL_FEATURES.filter(f => ['ingredients', 'products', 'makeup', 'learn', 'community'].includes(f.key)).map((feature) => {
+                    const FeatureIcon = feature.icon;
+                    const isActive = currentPageName === feature.page;
+                    return (
+                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
+                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                        }`}>
+                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </SheetContent>
           </Sheet>

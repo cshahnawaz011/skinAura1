@@ -19,6 +19,7 @@ import StepProductPicker from '@/components/routine/StepProductPicker';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
 import { backgroundOps } from '@/lib/BackgroundOperations';
+import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib/routineSessionCache';
 
 import RoutineTracker from '@/components/routine/RoutineTracker';
 
@@ -407,6 +408,7 @@ function CollapsibleSection({ title, icon, defaultOpen = true, children, badge }
 export default function SkinRoutine() {
   const [user, setUser] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
+  const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
   const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
 
@@ -418,7 +420,15 @@ export default function SkinRoutine() {
   const { generating, routineData } = localState;
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then((u) => {
+      setUser(u);
+      setShowFeedbackPrompt(true);
+      // Load cached routine for this user if available
+      const cached = getCachedRoutineData(u.email);
+      if (cached && !sharedRoutineState.routineData) {
+        updateRoutineState({ routineData: cached });
+      }
+    }).catch(() => setShowFeedbackPrompt(false));
   }, []);
 
   // Latest skin analysis
@@ -460,12 +470,15 @@ export default function SkinRoutine() {
     }
   }, [savedRoutine]);
 
-  // Save to localStorage whenever routineData updates
+  // Save to both localStorage and sessionStorage whenever routineData updates
   useEffect(() => {
     if (routineData) {
       localStorage.setItem('skinRoutineCache', JSON.stringify(routineData));
+      if (user) {
+        cacheRoutineData(user.email, routineData);
+      }
     }
-  }, [routineData]);
+  }, [routineData, user]);
 
   const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
   const [selectedWeeklyProducts, setSelectedWeeklyProducts] = useState({});
@@ -604,6 +617,7 @@ export default function SkinRoutine() {
     isCleared.current = true;
     updateRoutineState({ routineData: null });
     localStorage.removeItem('skinRoutineCache');
+    clearRoutineCache();
     if (savedRoutine?.id) {
       await base44.entities.SkinRoutine.delete(savedRoutine.id);
       queryClient.invalidateQueries(['skinRoutine']);
@@ -611,6 +625,55 @@ export default function SkinRoutine() {
   };
 
   return (
+    <>
+      {/* Feedback Prompt Modal */}
+      <AnimatePresence>
+        {showFeedbackPrompt && user && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(15,10,30,0.72)', backdropFilter: 'blur(12px)' }}
+            onClick={() => setShowFeedbackPrompt(false)}
+          >
+            <motion.div
+              initial={{ y: 60, scale: 0.96 }}
+              animate={{ y: 0, scale: 1 }}
+              exit={{ y: 60, scale: 0.96 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              className="w-full max-w-md rounded-3xl overflow-hidden shadow-2xl bg-white"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }} />
+              <div className="p-6 text-center">
+                <div className="text-4xl mb-4">📋</div>
+                <h2 className="text-2xl font-bold mb-2">How's Your Skin Today?</h2>
+                <p className="text-gray-600 mb-6">Your daily feedback helps us adapt your routine perfectly for your skin's needs.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowFeedbackPrompt(false)}
+                    className="flex-1 py-3 rounded-xl bg-gray-100 text-gray-700 font-bold hover:bg-gray-200 transition"
+                  >
+                    Skip
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowFeedbackPrompt(false);
+                      document.querySelector('[class*="DailyFeedbackPanel"]')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="flex-1 py-3 rounded-xl text-white font-bold transition"
+                    style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}
+                  >
+                    Share Feedback
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     <div className="max-w-3xl mx-auto space-y-5 pb-8">
 
       {/* Header */}
@@ -904,5 +967,6 @@ export default function SkinRoutine() {
         </GlassCard>
       )}
     </div>
+    </>
   );
 }
