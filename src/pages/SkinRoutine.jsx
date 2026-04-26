@@ -195,9 +195,16 @@ function SkinSummaryCard({ summary }) {
   );
 }
 
-function MorningRoutineCard({ steps, userEmail }) {
+function MorningRoutineCard({ steps, userEmail, onProductsSelected }) {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [country, setCountry] = useState('IN');
+  
+  const handleProductSelect = (idx, product) => {
+    const updated = { ...selectedProducts, [idx]: product };
+    setSelectedProducts(updated);
+    if (onProductsSelected) onProductsSelected(updated);
+  };
+
   if (!steps?.length) return null;
   return (
     <div className="space-y-3">
@@ -228,7 +235,7 @@ function MorningRoutineCard({ steps, userEmail }) {
             onCountryChange={setCountry}
             selectedProduct={selectedProducts[i] || null}
             userEmail={userEmail}
-            onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
+            onProductSelect={(p) => handleProductSelect(i, p)}
           />
           {selectedProducts[i] && (
             <div className="mt-2 p-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] flex flex-wrap gap-3">
@@ -302,9 +309,16 @@ function AdaptiveGuidanceCard({ guidance }) {
   );
 }
 
-function WeeklyAddonsCard({ addons, userEmail }) {
+function WeeklyAddonsCard({ addons, userEmail, onProductsSelected }) {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [country, setCountry] = useState('IN');
+  
+  const handleProductSelect = (idx, product) => {
+    const updated = { ...selectedProducts, [idx]: product };
+    setSelectedProducts(updated);
+    if (onProductsSelected) onProductsSelected(updated);
+  };
+
   if (!addons?.length) return null;
   return (
     <div className="space-y-2">
@@ -325,7 +339,7 @@ function WeeklyAddonsCard({ addons, userEmail }) {
             onCountryChange={setCountry}
             selectedProduct={selectedProducts[i] || null}
             userEmail={userEmail}
-            onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
+            onProductSelect={(p) => handleProductSelect(i, p)}
           />
           {selectedProducts[i] && (
             <div className="mt-2 p-2 rounded-xl bg-pink-50 dark:bg-pink-900/20 border border-pink-200 dark:border-pink-800 text-[10px] flex flex-wrap gap-3">
@@ -427,14 +441,26 @@ export default function SkinRoutine() {
     }
   }, [savedRoutine]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
+  const [selectedWeeklyProducts, setSelectedWeeklyProducts] = useState({});
+
   const saveMutation = useMutation({
     mutationFn: (data) => {
+      const enrichedData = {
+        ...data,
+        selected_products: {
+          morning: selectedMorningProducts,
+          weekly: selectedWeeklyProducts,
+        },
+      };
       if (savedRoutine?.id) {
-        return base44.entities.SkinRoutine.update(savedRoutine.id, data);
+        return base44.entities.SkinRoutine.update(savedRoutine.id, enrichedData);
       }
-      return base44.entities.SkinRoutine.create(data);
+      return base44.entities.SkinRoutine.create(enrichedData);
     },
-    onSuccess: () => queryClient.invalidateQueries(['skinRoutine']),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['skinRoutine']);
+    },
   });
 
   const generateRoutine = async () => {
@@ -727,7 +753,21 @@ export default function SkinRoutine() {
             defaultOpen={false}
             badge={<span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{routineData.morning_routine?.length || 0} steps</span>}
           >
-            <MorningRoutineCard steps={routineData.morning_routine} userEmail={user?.email} />
+            <MorningRoutineCard 
+              steps={routineData.morning_routine} 
+              userEmail={user?.email}
+              onProductsSelected={(products) => {
+                setSelectedMorningProducts(products);
+                saveMutation.mutate({
+                  user_email: user.email,
+                  routine_type: 'morning',
+                  skin_type: routineData.skin_summary?.skin_type || '',
+                  steps: routineData,
+                  routine_summary: routineData.skin_summary?.current_barrier_status || '',
+                  skin_concerns: routineData.skin_summary?.concerns || [],
+                });
+              }}
+            />
           </CollapsibleSection>
 
           {/* Night 7-Day Plan */}
@@ -749,7 +789,21 @@ export default function SkinRoutine() {
               icon={<Calendar className="w-4 h-4 text-teal-500" />}
               defaultOpen={false}
             >
-              <WeeklyAddonsCard addons={routineData.weekly_addons} userEmail={user?.email} />
+              <WeeklyAddonsCard 
+                addons={routineData.weekly_addons} 
+                userEmail={user?.email}
+                onProductsSelected={(products) => {
+                  setSelectedWeeklyProducts(products);
+                  saveMutation.mutate({
+                    user_email: user.email,
+                    routine_type: 'morning',
+                    skin_type: routineData.skin_summary?.skin_type || '',
+                    steps: routineData,
+                    routine_summary: routineData.skin_summary?.current_barrier_status || '',
+                    skin_concerns: routineData.skin_summary?.concerns || [],
+                  });
+                }}
+              />
             </CollapsibleSection>
           )}
 
