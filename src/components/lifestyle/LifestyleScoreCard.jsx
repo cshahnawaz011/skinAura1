@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, TrendingDown, Minus, Heart, Droplets, Brain, Apple, Zap } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
@@ -22,7 +22,7 @@ function ChartTooltip({ active, payload }) {
 
 export default function LifestyleScoreCard({ dietLogs }) {
   // Calculate glow score
-  const glowScore = React.useMemo(() => {
+  const glowScore = useMemo(() => {
     if (!dietLogs.length) return 50;
     const latest = dietLogs[dietLogs.length - 1];
     return Math.round(

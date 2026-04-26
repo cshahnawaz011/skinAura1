@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertCircle, TrendingUp, Zap } from 'lucide-react';
 
 export function WellnessCorrelationCard({ dietLogs, cyclePhase }) {
-  const correlations = React.useMemo(() => {
+  const correlations = useMemo(() => {
     if (!dietLogs.length) return [];
 
     const impacts = [];
@@ -213,7 +213,7 @@ export function CyclePhaseInsightCard({ cyclePhase, dietLogs }) {
 }
 
 export function HabitStreakCard({ dietLogs }) {
-  const streaks = React.useMemo(() => {
+  const streaks = useMemo(() => {
     const today = new Date();
     let skincareMorningStreak = 0;
     let skincareNightStreak = 0;
