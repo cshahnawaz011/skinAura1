@@ -17,7 +17,12 @@ export default function LifestyleImpactPanel({ dietLog }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }}>
-      <div className="ios-card p-6" style={{ background: 'linear-gradient(135deg, rgba(240, 253, 250, 0.5) 0%, rgba(224, 242, 254, 0.5) 100%)' }}>
+      <div className="p-6 rounded-3xl backdrop-blur-md"
+        style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,246,0.9) 100%)',
+          border: '1px solid rgba(244,114,182,0.15)',
+          boxShadow: '0 8px 32px rgba(244,114,182,0.06)'
+        }}>
         <p className="text-sm font-bold text-gray-900 mb-4">Lifestyle Insights</p>
         
         <div className="space-y-4">
@@ -31,7 +36,7 @@ export default function LifestyleImpactPanel({ dietLog }) {
                   <p className="text-xs text-gray-500 ml-auto">{Math.round(impact.value)}%</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(100, 100, 100, 0.1)' }}>
+                  <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: 'rgba(244, 114, 182, 0.1)' }}>
                     <motion.div className="h-full rounded-full"
                       style={{ background: impact.color }}
                       initial={{ width: 0 }}

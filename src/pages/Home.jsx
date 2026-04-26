@@ -63,97 +63,88 @@ export default function Home() {
   const todayName = DAY_NAMES[todayDayIndex];
 
   return (
-    <div className="hero-bg pb-28 min-h-screen">
+    <div className="min-h-screen pb-28" style={{ background: 'linear-gradient(180deg, #faf8f6 0%, #fef5f2 50%, #faf8f6 100%)' }}>
       {!user && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="ios-card p-12 text-center max-w-sm mx-4">
-            <div className="w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center text-5xl"
-              style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 flex items-center justify-center z-50" style={{ background: 'rgba(255,255,255,0.9)' }}>
+          <div className="p-12 text-center max-w-sm mx-4" style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(250,248,246,0.9) 100%)',
+            border: '1px solid rgba(255,200,220,0.3)',
+            borderRadius: '28px',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 12px 40px rgba(200,100,150,0.08)'
+          }}>
+            <div className="w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center text-5xl"
+              style={{ background: 'linear-gradient(135deg, rgba(244,114,182,0.15), rgba(196,181,253,0.15))', border: '1px solid rgba(244,114,182,0.2)' }}>
               ✨
             </div>
-            <h2 className="text-2xl font-black text-gray-900 mb-2">Welcome to SkinAura</h2>
-            <p className="text-gray-600 mb-8">Your AI-powered skin control tower. Scan, analyze, and transform.</p>
+            <h2 className="text-3xl font-black text-gray-900 mb-2">SkinAura</h2>
+            <p className="text-gray-600 mb-8 text-sm leading-relaxed">Your personal AI skin companion. Analyze, track, and glow.</p>
             <button onClick={() => base44.auth.redirectToLogin()}
-              className="w-full py-3 rounded-lg font-bold text-white transition-all hover:shadow-lg active:scale-95"
+              className="w-full py-3 rounded-2xl font-bold text-white transition-all hover:shadow-lg active:scale-95"
               style={{
-                background: 'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)',
-                boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)'
+                background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)',
+                boxShadow: '0 8px 24px rgba(244,114,182,0.3)'
               }}>
-              Sign In to Begin
+              Begin Your Journey
             </button>
           </div>
         </motion.div>
       )}
 
       {user && (
-        <div className="max-w-lg mx-auto px-4 pt-6 space-y-5">
+        <div className="max-w-lg mx-auto px-4 pt-8 space-y-6">
           {/* Header */}
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-4">
             <div>
-              <p className="text-xs font-semibold text-teal-600 uppercase tracking-wider">Skin Control Tower</p>
-              <h1 className="text-2xl font-black text-gray-900">Good to see you</h1>
+              <p className="text-xs font-semibold text-pink-500 uppercase tracking-widest mb-1">Dashboard</p>
+              <h1 className="text-3xl font-black text-gray-900">Welcome back</h1>
             </div>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white"
-              style={{ background: 'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)' }}>
+            <motion.div className="w-14 h-14 rounded-2xl flex items-center justify-center font-bold text-white text-lg"
+              style={{
+                background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)',
+                boxShadow: '0 8px 20px rgba(244,114,182,0.25)'
+              }}>
               {user.full_name?.[0]?.toUpperCase() || '✦'}
-            </div>
+            </motion.div>
           </motion.div>
 
-          {/* 1. SKIN IDENTITY SNAPSHOT */}
+          {/* Core Sections */}
           <SkinIdentitySnapshot skinAnalysis={latestAnalysis} loading={analysisLoading} />
-
-          {/* 2. AI INSIGHT STRIP */}
           <AIInsightStrip skinAnalysis={latestAnalysis} dietLog={todayLog} />
-
-          {/* 3. FACE HEATMAP PREVIEW */}
           <FaceHeatmapPreview skinAnalysis={latestAnalysis} />
-
-          {/* 4. TODAY'S ROUTINE CARD */}
           <TodayRoutineCard routineData={routineData} todayName={todayName} />
-
-          {/* 5. PRODUCT & INGREDIENT ALERTS */}
           <ProductAlerts skinAnalysis={latestAnalysis} />
-
-          {/* 6. PROGRESS TRACKING CARD */}
           <ProgressTrackingCard skinAnalysis={latestAnalysis} />
-
-          {/* 7. AI SKIN COACH ACCESS */}
           <AICoachEntry />
-
-          {/* 8. LIFESTYLE IMPACT MINI PANEL */}
           <LifestyleImpactPanel dietLog={todayLog} />
-
-          {/* 9. GAMIFICATION STRIP */}
           <GamificationStrip />
         </div>
       )}
 
-      {/* 10. BOTTOM NAVIGATION BAR */}
+      {/* BOTTOM NAVIGATION */}
       <div className="fixed bottom-0 left-0 right-0 z-50 px-4 py-3 safe-area-pb"
         style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 20%, rgba(255,255,255,0.98) 100%)',
-          backdropFilter: 'blur(20px)',
-          borderTop: '1px solid rgba(16, 185, 129, 0.1)'
+          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(250,248,246,0.95) 15%, rgba(250,248,246,0.98) 100%)',
+          backdropFilter: 'blur(24px)',
+          borderTop: '1px solid rgba(244, 114, 182, 0.08)'
         }}>
         <div className="max-w-lg mx-auto flex items-center justify-around">
           {BOTTOM_NAV.map((item) => {
             const Icon = item.icon;
             const isActive = currentPath === item.page;
             return (
-              <Link key={item.key} to={item.page} className="flex flex-col items-center gap-1.5 group">
+              <Link key={item.key} to={item.page} className="flex flex-col items-center gap-1.5">
                 <motion.div
-                  whileTap={{ scale: 0.9 }}
-                  className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
-                    isActive ? 'scale-110' : 'hover:scale-105'
-                  }`}
+                  whileTap={{ scale: 0.88 }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
                   style={{
-                    background: isActive ? 'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)' : 'rgba(100, 200, 200, 0.1)',
-                    boxShadow: isActive ? '0 4px 12px rgba(16, 185, 129, 0.3)' : 'none'
+                    background: isActive ? 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)' : 'transparent',
+                    boxShadow: isActive ? '0 6px 16px rgba(244,114,182,0.25)' : 'none'
                   }}>
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-600'}`} />
+                  <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-gray-600'}`} />
                 </motion.div>
-                <span className={`text-[10px] font-bold tracking-wide transition-colors ${
-                  isActive ? 'text-teal-600' : 'text-gray-500'
+                <span className={`text-[10px] font-bold transition-colors ${
+                  isActive ? 'text-pink-600' : 'text-gray-400'
                 }`}>
                   {item.label}
                 </span>

@@ -30,34 +30,41 @@ export default function ProductAlerts({ skinAnalysis }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.17 }}>
       <div className="space-y-3">
-        {/* Warnings */}
         {alerts.map((alert, i) => {
           const Icon = alert.icon;
           return (
-            <div key={`alert-${i}`} className="ios-card p-4 flex items-center gap-3"
-              style={{ background: 'rgba(220, 38, 38, 0.05)', border: '1px solid rgba(220, 38, 38, 0.2)' }}>
+            <div key={`alert-${i}`} className="p-4 rounded-2xl flex items-center gap-3 backdrop-blur-sm"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(244,114,182,0.05))',
+                border: '1px solid rgba(220,38,38,0.15)'
+              }}>
               <Icon className={`w-5 h-5 flex-shrink-0 ${alert.color}`} />
               <p className="text-sm text-gray-800 font-medium">{alert.text}</p>
             </div>
           );
         })}
 
-        {/* Recommendations */}
         {recommendations.map((rec, i) => {
           const Icon = rec.icon;
           return (
-            <div key={`rec-${i}`} className="ios-card p-4 flex items-center gap-3"
-              style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+            <div key={`rec-${i}`} className="p-4 rounded-2xl flex items-center gap-3 backdrop-blur-sm"
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.05))',
+                border: '1px solid rgba(16,185,129,0.15)'
+              }}>
               <Icon className={`w-5 h-5 flex-shrink-0 ${rec.color}`} />
               <p className="text-sm text-gray-800 font-medium flex-1">{rec.text}</p>
             </div>
           );
         })}
 
-        {/* Quick action */}
         <Link to="/Products">
-          <div className="ios-card p-4 text-center cursor-pointer hover:shadow-md transition-all bg-gradient-to-r from-blue-50 to-teal-50">
-            <p className="text-sm font-semibold text-blue-700">📸 Scan Product Label</p>
+          <div className="p-4 rounded-2xl text-center cursor-pointer hover:shadow-md transition-all backdrop-blur-sm"
+            style={{
+              background: 'linear-gradient(135deg, rgba(244,114,182,0.08), rgba(196,181,253,0.08))',
+              border: '1px solid rgba(244,114,182,0.15)'
+            }}>
+            <p className="text-sm font-semibold text-pink-600">📸 Scan Ingredients</p>
           </div>
         </Link>
       </div>

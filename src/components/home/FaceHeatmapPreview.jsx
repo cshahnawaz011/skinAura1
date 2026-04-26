@@ -21,7 +21,12 @@ export default function FaceHeatmapPreview({ skinAnalysis }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.11 }}>
       <Link to="/AdaptiveSkinMap">
-        <div className="ios-card p-6 cursor-pointer hover:shadow-lg transition-all group">
+        <div className="p-6 rounded-3xl cursor-pointer backdrop-blur-md transition-all group hover:shadow-xl"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,246,0.9) 100%)',
+            border: '1px solid rgba(244,114,182,0.15)',
+            boxShadow: '0 8px 32px rgba(244,114,182,0.06)'
+          }}>
           <div className="flex items-center justify-between mb-4">
             <p className="text-sm font-bold text-gray-900">Skin Zone Map</p>
             <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition" />
@@ -46,23 +51,18 @@ export default function FaceHeatmapPreview({ skinAnalysis }) {
           </svg>
 
           {/* Legend */}
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ background: '#10b981' }}></div>
-              <span className="text-gray-600">Healthy</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ background: '#fbbf24' }}></div>
-              <span className="text-gray-600">Mild</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ background: '#f97316' }}></div>
-              <span className="text-gray-600">Moderate</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ background: '#ef4444' }}></div>
-              <span className="text-gray-600">Severe</span>
-            </div>
+          <div className="grid grid-cols-2 gap-3 text-xs pt-2">
+            {[
+              { color: '#10b981', label: 'Healthy' },
+              { color: '#fbbf24', label: 'Mild' },
+              { color: '#f97316', label: 'Moderate' },
+              { color: '#ef4444', label: 'Severe' }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ background: item.color }}></div>
+                <span className="text-gray-600 font-medium">{item.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </Link>

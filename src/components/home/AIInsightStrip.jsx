@@ -38,17 +38,18 @@ export default function AIInsightStrip({ skinAnalysis, dietLog }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-      <div className="space-y-2">
+      <div className="space-y-3">
         {insights.map((insight, i) => (
           <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
-            className="ios-card p-4 flex items-center gap-3"
+            className="p-4 rounded-2xl flex items-center gap-3 backdrop-blur-sm"
             style={{
-              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.03) 0%, rgba(15, 23, 42, 0.05) 100%)',
-              border: '1px solid rgba(59, 130, 246, 0.1)'
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,248,246,0.85) 100%)',
+              border: '1px solid rgba(244,114,182,0.12)',
+              boxShadow: '0 4px 16px rgba(244,114,182,0.06)'
             }}>
             <span className="text-xl flex-shrink-0">{insight.icon}</span>
-            <p className="text-sm text-gray-700 font-medium leading-tight">{insight.text}</p>
-            <Sparkles className="w-3.5 h-3.5 text-blue-400 ml-auto flex-shrink-0 animate-pulse" />
+            <p className="text-sm text-gray-700 font-medium leading-snug flex-1">{insight.text}</p>
+            <Sparkles className="w-3.5 h-3.5 text-pink-300 ml-auto flex-shrink-0 animate-pulse" />
           </motion.div>
         ))}
       </div>

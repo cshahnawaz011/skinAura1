@@ -47,9 +47,10 @@ export default function SkinIdentitySnapshot({ skinAnalysis, loading }) {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-      <div className="ios-card p-8" style={{
-        background: 'linear-gradient(135deg, rgba(240,253,250,0.8) 0%, rgba(224,242,254,0.8) 100%)',
-        border: '1px solid rgba(16, 185, 129, 0.2)'
+      <div className="p-8 rounded-3xl backdrop-blur-md" style={{
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,246,0.9) 100%)',
+        border: '1px solid rgba(244,114,182,0.15)',
+        boxShadow: '0 8px 32px rgba(244,114,182,0.08), inset 0 1px 2px rgba(255,255,255,0.8)'
       }}>
         <div className="flex items-start justify-between mb-6">
           <div>
@@ -69,8 +70,8 @@ export default function SkinIdentitySnapshot({ skinAnalysis, loading }) {
         </div>
 
         {/* Skin Mood */}
-        <div className="mb-6 p-3 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.05)' }}>
-          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Skin Mood</p>
+        <div className="mb-6 p-4 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(244,114,182,0.08), rgba(196,181,253,0.08))', border: '1px solid rgba(244,114,182,0.1)' }}>
+          <p className="text-xs text-gray-500 font-semibold uppercase tracking-wide mb-2">Current Mood</p>
           <p className={`text-lg font-bold ${moodData.color}`}>{moodData.label}</p>
         </div>
 
@@ -82,13 +83,13 @@ export default function SkinIdentitySnapshot({ skinAnalysis, loading }) {
 
         {/* Primary CTA */}
         <Link to="/SkinAnalysis">
-          <button className="w-full py-3 rounded-lg font-semibold text-white transition-all hover:shadow-lg active:scale-95"
+          <button className="w-full py-3 rounded-2xl font-bold text-white transition-all hover:shadow-lg active:scale-95"
             style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #0ea5e9 100%)',
-              boxShadow: '0 8px 20px rgba(16, 185, 129, 0.25)'
+              background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)',
+              boxShadow: '0 8px 24px rgba(244,114,182,0.3)'
             }}>
             <Camera className="w-4 h-4 inline mr-2" />
-            {skinAnalysis ? 'Re-Scan' : 'Scan Your Skin'}
+            {skinAnalysis ? 'Update Scan' : 'Analyze Now'}
           </button>
         </Link>
       </div>

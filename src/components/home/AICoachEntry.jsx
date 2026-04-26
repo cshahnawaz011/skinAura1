@@ -14,8 +14,12 @@ export default function AICoachEntry() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.23 }}>
       <Link to="/SkinChat">
-        <div className="ios-card p-6 cursor-pointer hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-pink-50"
-          style={{ border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+        <div className="p-6 rounded-3xl cursor-pointer backdrop-blur-md hover:shadow-lg transition-all"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,246,0.9) 100%)',
+            border: '1px solid rgba(244,114,182,0.15)',
+            boxShadow: '0 8px 32px rgba(244,114,182,0.06)'
+          }}>
           <div className="flex items-start gap-3 mb-4">
             <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}>
               <MessageCircle className="w-5 h-5 text-white" />
@@ -27,11 +31,11 @@ export default function AICoachEntry() {
           </div>
 
           {/* Example prompts */}
-          <div className="space-y-2">
+          <div className="space-y-2.5 mt-3 pt-3 border-t border-gray-200">
             {EXAMPLE_PROMPTS.slice(0, 2).map((prompt, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs text-gray-600 p-2 rounded-lg hover:bg-white/50 transition">
-                <span className="text-lg">→</span>
-                <span>{prompt}</span>
+              <div key={i} className="flex items-center gap-2 text-xs text-gray-700 p-2.5 rounded-lg hover:bg-pink-50 transition">
+                <span className="text-pink-400">→</span>
+                <span className="font-medium">{prompt}</span>
               </div>
             ))}
           </div>

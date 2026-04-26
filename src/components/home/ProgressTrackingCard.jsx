@@ -20,7 +20,12 @@ export default function ProgressTrackingCard({ skinAnalysis }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.20 }}>
       <Link to="/Progress">
-        <div className="ios-card p-6 cursor-pointer hover:shadow-lg transition-all group">
+        <div className="p-6 rounded-3xl cursor-pointer backdrop-blur-md hover:shadow-lg transition-all group"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,248,246,0.9) 100%)',
+            border: '1px solid rgba(244,114,182,0.15)',
+            boxShadow: '0 8px 32px rgba(244,114,182,0.06)'
+          }}>
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5 text-teal-600" />
@@ -30,14 +35,14 @@ export default function ProgressTrackingCard({ skinAnalysis }) {
           </div>
 
           {/* Metrics */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             {metrics.map((metric, i) => (
               <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.22 + i * 0.05 }}>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs font-semibold text-gray-600">{metric.label}</p>
+                <div className="flex items-center justify-between mb-2.5">
+                  <p className="text-xs font-semibold text-gray-700">{metric.label}</p>
                   <p className={`text-sm font-bold ${metric.color}`}>{Math.round(metric.value)}%</p>
                 </div>
-                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: 'rgba(100, 200, 200, 0.1)' }}>
+                <div className="w-full h-2.5 rounded-full overflow-hidden" style={{ background: 'rgba(244,114,182,0.1)' }}>
                   <motion.div className="h-full rounded-full" style={{ background: metric.barColor }}
                     initial={{ width: 0 }}
                     animate={{ width: `${metric.value}%` }}
@@ -47,10 +52,13 @@ export default function ProgressTrackingCard({ skinAnalysis }) {
             ))}
           </div>
 
-          {/* Before/After hint */}
-          <div className="mt-6 p-4 rounded-lg" style={{ background: 'rgba(16, 185, 129, 0.08)' }}>
-            <p className="text-xs text-gray-700 font-medium">
-              💚 Great progress! Your skin barrier is strengthening. Keep consistent with your routine.
+          {/* Insight */}
+          <div className="mt-6 p-4 rounded-2xl" style={{
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.05))',
+            border: '1px solid rgba(16,185,129,0.12)'
+          }}>
+            <p className="text-xs text-gray-700 font-medium leading-relaxed">
+              💚 Amazing progress! Your skin is responding well. Keep up with your routine for sustained results.
             </p>
           </div>
         </div>
