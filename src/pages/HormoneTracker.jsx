@@ -260,9 +260,10 @@ export default function HormoneTracker() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: cycleData } = useQuery({
+  const { data: cycleData, refetch: refetchCycleData } = useQuery({
     queryKey: ['cycleData', user?.email],
     queryFn: async () => {
+      if (!user?.email) return null;
       const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
       if (cycles.length > 0) return cycles[0];
       // Create initial cycle data if none exists
@@ -275,8 +276,8 @@ export default function HormoneTracker() {
         energy_level: 5,
         notes: '',
       };
-      await base44.entities.CycleData.create(initialCycle);
-      return initialCycle;
+      const created = await base44.entities.CycleData.create(initialCycle);
+      return created;
     },
     enabled: !!user?.email,
   });
@@ -296,18 +297,27 @@ export default function HormoneTracker() {
   const phaseConfig = CYCLE_PHASES.find(p => p.key === currentPhase);
 
   const saveCycleMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
+      const cleanData = {
+        user_email: user.email,
+        start_date: data.start_date,
+        cycle_length: data.cycle_length || 28,
+        current_phase: data.current_phase || getCurrentPhase(),
+        symptoms: Array.isArray(data.symptoms) ? data.symptoms : [],
+        mood: data.mood || '',
+        energy_level: data.energy_level || 5,
+        flow_intensity: data.flow_intensity || 'medium',
+        notes: data.notes || '',
+      };
+
       if (cycleData?.id) {
-        return base44.entities.CycleData.update(cycleData.id, data);
+        return base44.entities.CycleData.update(cycleData.id, cleanData);
       }
-      return base44.entities.CycleData.create({ ...data, user_email: user.email });
+      return base44.entities.CycleData.create(cleanData);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['cycleData']);
-      // Sync with DietLog and other features
-      queryClient.invalidateQueries(['dietLog']);
-      queryClient.invalidateQueries(['skinAnalysis']);
-      queryClient.invalidateQueries(['skinRoutine']);
+      queryClient.invalidateQueries({ queryKey: ['cycleData', user?.email] });
+      queryClient.invalidateQueries({ queryKey: ['dietLog30days', user?.email] });
     },
   });
 
@@ -398,7 +408,11 @@ export default function HormoneTracker() {
         <SymptomLogger
           cycleData={cycleData}
           userEmail={user?.email}
-          onSave={(data) => saveCycleMutation.mutate(data)}
+          onSave={(data) => {
+            saveCycleMutation.mutate(data, {
+              onSuccess: () => refetchCycleData(),
+            });
+          }}
         />
       )}
 

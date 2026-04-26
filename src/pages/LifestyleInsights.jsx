@@ -265,7 +265,7 @@ export default function LifestyleInsights() {
       </motion.div>
 
       {/* AI Insights & Advice */}
-      <HealthInsightsCard stats={stats} chartData={chartData} last30Days={last30Days} />
+      <HealthInsightsCard stats={stats} chartData={chartData} last30Days={last30Days} user={user} />
 
       {/* Tips */}
       <div className="rounded-2xl p-5 bg-gray-50 border border-gray-200">
@@ -280,10 +280,18 @@ export default function LifestyleInsights() {
   );
 }
 
-function HealthInsightsCard({ stats, chartData, last30Days }) {
+function HealthInsightsCard({ stats, chartData, last30Days, user }) {
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState(null);
   const [error, setError] = useState(null);
+  const { data: cycleData } = useQuery({
+    queryKey: ['cycleData', user?.email],
+    queryFn: async () => {
+      const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
+      return cycles.length > 0 ? cycles[0] : null;
+    },
+    enabled: !!user?.email,
+  });
 
   // Extract food data
   const foodData = last30Days
@@ -296,6 +304,10 @@ function HealthInsightsCard({ stats, chartData, last30Days }) {
     setLoading(true);
     setError(null);
     try {
+      const cycleContext = cycleData 
+        ? `\nHORMONAL CYCLE:\n- Current Phase: ${cycleData.current_phase}\n- Symptoms: ${cycleData.symptoms?.join(', ') || 'None logged'}\n- Energy Level: ${cycleData.energy_level}/10`
+        : '';
+
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: `Based on this comprehensive health data from the last 30 days, provide personalized wellness insights focused on skin health:
 
@@ -309,11 +321,13 @@ WELLNESS METRICS:
 NUTRITION:
 Top foods consumed: ${foodFreq || 'No food data logged'}
 
+${cycleContext}
+
 Total days tracked: ${chartData.length}
 
 Provide exactly this JSON:
 {
-  "insights": ["insight 1 about their wellness pattern", "insight 2 about stress/energy correlation", "insight 3 about nutrition impact"],
+  "insights": ["insight 1 about their wellness pattern", "insight 2 about stress/energy/cycle correlation", "insight 3 about nutrition impact on skin"],
   "advice": ["actionable tip 1", "actionable tip 2", "actionable tip 3"],
   "foodInsights": "brief insight about their food choices and skin health impact",
   "motivation": "motivational message"
