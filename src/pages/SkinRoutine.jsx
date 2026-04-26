@@ -449,13 +449,32 @@ export default function SkinRoutine() {
   // Auto-compute user's concentration level from feedback history
   const userLevel = computeUserLevel(feedbackHistory);
 
-  // Load saved routine into state whenever savedRoutine changes
+  // Load saved routine into state whenever savedRoutine changes or on mount
   useEffect(() => {
     if (isCleared.current) return; // user explicitly cleared — don't reload
     if (savedRoutine?.steps && !routineData) {
       updateRoutineState({ routineData: savedRoutine.steps });
+      localStorage.setItem('skinRoutineCache', JSON.stringify(savedRoutine.steps));
+    } else if (!routineData && !savedRoutine) {
+      // Try to load from localStorage on mount
+      const cached = localStorage.getItem('skinRoutineCache');
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          updateRoutineState({ routineData: parsed });
+        } catch (e) {
+          localStorage.removeItem('skinRoutineCache');
+        }
+      }
     }
   }, [savedRoutine]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Save to localStorage whenever routineData updates
+  useEffect(() => {
+    if (routineData) {
+      localStorage.setItem('skinRoutineCache', JSON.stringify(routineData));
+    }
+  }, [routineData]);
 
   const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
   const [selectedWeeklyProducts, setSelectedWeeklyProducts] = useState({});
@@ -593,6 +612,7 @@ export default function SkinRoutine() {
   const clearRoutine = async () => {
     isCleared.current = true;
     updateRoutineState({ routineData: null });
+    localStorage.removeItem('skinRoutineCache');
     if (savedRoutine?.id) {
       await base44.entities.SkinRoutine.delete(savedRoutine.id);
       queryClient.invalidateQueries(['skinRoutine']);
