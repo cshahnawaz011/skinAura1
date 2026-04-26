@@ -240,28 +240,35 @@ export default function SkinAnalysis() {
 
     setStep(4);
 
-    const res = await base44.integrations.Core.InvokeLLM({
-      model: 'gemini_3_flash',
-      add_context_from_internet: true,
-      prompt: `You are an expert dermatologist AI performing a comprehensive 360° skin analysis from THREE photos:
-1. FRONT FACE (straight view)
-2. LEFT PROFILE (~45° left)
-3. RIGHT PROFILE (~45° right)
+    const geminiRes = await base44.functions.invoke('gemini', {
+      use_model: 'flash2',
+      image_urls: [f.file_url, l.file_url, r.file_url],
+      response_json: true,
+      prompt: `You are an expert dermatologist AI. Analyze these THREE face photos (front, left profile, right profile) for a comprehensive 360° skin assessment.
 
-Analyze ALL THREE for a holistic clinical assessment. Score everything on a 0–10 scale where relevant, 0–100 for overall_score.
+Return a JSON object with EXACTLY these fields:
+- overall_score: number 0-100 (holistic skin health)
+- skin_type: one of "oily"|"dry"|"combination"|"normal"|"sensitive"
+- skin_tone: string e.g. "warm medium with yellow undertones"
+- acne_level: number 0-10
+- dark_spots: number 0-10
+- wrinkles: number 0-10
+- pores: number 0-10
+- redness: number 0-10
+- oiliness: number 0-10
+- dryness: number 0-10
+- sensitivity: number 0-10
+- recommendations: array of 3-5 short strings
+- skin_strengths: array of 2-4 short strings
+- priority_concerns: array of 2-4 short strings
+- concern_insights: object with keys acne_level, dark_spots, wrinkles, pores, redness, oiliness, dryness, sensitivity — each having: cause, fix, ingredient, timeline
+- zone_notes: object with keys front, left, right — each a 1-2 sentence simple English observation
 
-SCORING:
-- overall_score (0–100): holistic skin health
-- oiliness/dryness/acne_level/dark_spots/wrinkles/pores/redness/sensitivity (0–10): 0=none, 1–3=mild, 4–6=moderate, 7–10=severe
-- skin_type: oily|dry|combination|normal|sensitive
-- skin_tone: descriptive e.g. "warm medium with yellow undertones"
-
-For each concern_insight provide: cause (root cause), fix (specific action today), ingredient (best single ingredient), timeline (weeks to improvement).
-For zone_notes describe what was specifically observed in each angle.
-Be clinically precise, honest, and detailed using all 3 views.`,
-      file_urls: [f.file_url, l.file_url, r.file_url],
-      response_json_schema: FULL_SCHEMA,
+Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     });
+
+    const res = geminiRes.data?.result;
+    if (!res) throw new Error('Analysis failed — no result from Gemini');
 
     setStep(5);
     setResult({ ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url });
