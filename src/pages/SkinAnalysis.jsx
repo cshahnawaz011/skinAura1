@@ -256,36 +256,44 @@ export default function SkinAnalysis() {
     updateAnalysisState({ step: 4 });
     backgroundOps.updateProgress('skinAnalysis', 40);
 
-    const llmRes = await base44.integrations.Core.InvokeLLM({
-      model: 'gemini_3_flash',
-      file_urls: [f.file_url, l.file_url, r.file_url],
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          overall_score: { type: 'number' },
-          skin_type: { type: 'string' },
-          skin_tone: { type: 'string' },
-          acne_level: { type: 'number' },
-          dark_spots: { type: 'number' },
-          wrinkles: { type: 'number' },
-          pores: { type: 'number' },
-          redness: { type: 'number' },
-          oiliness: { type: 'number' },
-          dryness: { type: 'number' },
-          sensitivity: { type: 'number' },
-          recommendations: { type: 'array', items: { type: 'string' } },
-          skin_strengths: { type: 'array', items: { type: 'string' } },
-          priority_concerns: { type: 'array', items: { type: 'string' } },
-          concern_insights: { type: 'object' },
-          zone_notes: { type: 'object' },
+    let res;
+    try {
+      const llmRes = await base44.integrations.Core.InvokeLLM({
+        model: 'gemini_3_flash',
+        file_urls: [f.file_url, l.file_url, r.file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            overall_score: { type: 'number' },
+            skin_type: { type: 'string' },
+            skin_tone: { type: 'string' },
+            acne_level: { type: 'number' },
+            dark_spots: { type: 'number' },
+            wrinkles: { type: 'number' },
+            pores: { type: 'number' },
+            redness: { type: 'number' },
+            oiliness: { type: 'number' },
+            dryness: { type: 'number' },
+            sensitivity: { type: 'number' },
+            recommendations: { type: 'array', items: { type: 'string' } },
+            skin_strengths: { type: 'array', items: { type: 'string' } },
+            priority_concerns: { type: 'array', items: { type: 'string' } },
+            concern_insights: { type: 'object' },
+            zone_notes: { type: 'object' },
+          },
         },
-      },
-      prompt: `You are an expert dermatologist AI. Analyze these THREE face photos (front, left profile, right profile) for a comprehensive 360° skin assessment. Return JSON with overall_score, skin_type, skin_tone, acne_level, dark_spots, wrinkles, pores, redness, oiliness, dryness, sensitivity, recommendations, skin_strengths, priority_concerns, concern_insights, zone_notes.`,
-    });
+        prompt: `Analyze 3 face photos (front, left, right). Return JSON: overall_score (0-100), skin_type, skin_tone, acne_level (0-10), dark_spots (0-10), wrinkles (0-10), pores (0-10), redness (0-10), oiliness (0-10), dryness (0-10), sensitivity (0-10), recommendations (array), skin_strengths (array), priority_concerns (array), concern_insights (object), zone_notes (object with front/left/right keys).`,
+      });
+      res = llmRes;
+      console.log('✅ LLM Response:', res);
+    } catch (err) {
+      console.error('❌ LLM Error:', err);
+      throw err;
+    }
 
-    const res = llmRes;
-    console.log('LLM Response:', res);
-    if (!res || typeof res.overall_score !== 'number') throw new Error(`Analysis failed — invalid response`);
+    if (!res || typeof res.overall_score !== 'number') {
+      throw new Error(`Invalid response structure: ${JSON.stringify(res)}`);
+    }
 
     updateAnalysisState({ step: 5 });
     backgroundOps.updateProgress('skinAnalysis', 90);
