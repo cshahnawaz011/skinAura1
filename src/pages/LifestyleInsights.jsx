@@ -344,7 +344,7 @@ Keep responses conversational, skin-health focused, and based on their actual da
           }
         }
       });
-      setInsights(res.data);
+      setInsights(res);
     } catch (e) {
       console.error('Error:', e);
       setError(e.message || 'Failed to generate insights');
