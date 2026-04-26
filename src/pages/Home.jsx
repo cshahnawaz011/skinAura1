@@ -121,44 +121,40 @@ export default function Home() {
   const firstName = user?.full_name?.split(' ')[0] || 'there';
 
   return (
-    <div className="hero-bg min-h-screen pb-24">
+    <div className="hero-bg pb-24">
       <AnimatePresence>
         {showIntro && <FeaturesIntroPopup onClose={() => { localStorage.setItem('skinaura-intro-seen', '1'); setShowIntro(false); }} />}
       </AnimatePresence>
 
-      <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
+      <div className="max-w-md mx-auto px-4 pt-6 space-y-5">
 
         {/* ── TOP HEADER ─────────────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between pt-2">
           <div>
-            <p className="text-xs font-semibold text-pink-400 tracking-wide uppercase">{greeting} ✨</p>
-            <h1 className="text-xl font-extrabold text-gray-800 leading-tight">
-              {user ? firstName : 'Welcome back'}
+            <p className="text-xs font-semibold text-pink-500 tracking-wide uppercase">{greeting}</p>
+            <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
+              {user ? firstName : 'Welcome'}
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <button className="w-9 h-9 rounded-2xl stat-card flex items-center justify-center">
-              <Search className="w-4 h-4 text-gray-400" />
+            <button className="w-10 h-10 rounded-full ios-card flex items-center justify-center hover:scale-110 transition">
+              <Search className="w-4 h-4 text-gray-600" />
             </button>
-            <button className="w-9 h-9 rounded-2xl stat-card flex items-center justify-center relative">
-              <Bell className="w-4 h-4 text-gray-400" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-400 border border-white" />
+            <button className="w-10 h-10 rounded-full ios-card flex items-center justify-center relative hover:scale-110 transition">
+              <Bell className="w-4 h-4 text-gray-600" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-pink-500" />
             </button>
-            <div className="w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-sm text-white icon-bubble"
-              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-              {user?.full_name?.[0]?.toUpperCase() || '✦'}
-            </div>
           </div>
         </motion.div>
 
         {/* ── HERO SKIN SCORE CARD ────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
-          <div className="glossy-card p-5" style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,235,250,0.8) 50%, rgba(240,230,255,0.75) 100%)'
+          <div className="ios-card p-6" style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.75) 0%, rgba(255,245,250,0.8) 100%)'
           }}>
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <p className="text-xs font-bold text-pink-400 uppercase tracking-widest mb-1">Skin Health Score</p>
+                <p className="text-xs font-bold text-pink-500 uppercase tracking-widest mb-1">Health Score</p>
                 {analysisLoading ? (
                   <div className="h-10 w-24 rounded-xl animate-pulse bg-pink-100" />
                 ) : latestAnalysis ? (
@@ -226,15 +222,14 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }}
           className="grid grid-cols-3 gap-3">
           {[
-            { label: 'Streak', value: '7 days', emoji: '🔥', color: 'text-orange-500' },
-            { label: 'Products', value: latestAnalysis ? '12+' : '--', emoji: '✦', color: 'text-pink-500' },
-            { label: 'Goals', value: '3 active', emoji: '🎯', color: 'text-violet-500' },
+            { label: 'Streak', value: '7 days', color: 'text-orange-500' },
+            { label: 'Products', value: latestAnalysis ? '12' : '0', color: 'text-pink-500' },
+            { label: 'Goals', value: '3', color: 'text-violet-500' },
           ].map((s, i) => (
             <motion.div key={i} initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.16 + i * 0.05 }}
-              className="stat-card p-3 text-center">
-              <p className="text-xl mb-0.5">{s.emoji}</p>
-              <p className={`text-sm font-black ${s.color}`}>{s.value}</p>
-              <p className="text-[10px] text-gray-400 font-medium mt-0.5">{s.label}</p>
+              className="ios-card p-4 text-center">
+              <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-gray-600 font-semibold mt-1">{s.label}</p>
             </motion.div>
           ))}
         </motion.div>
@@ -247,19 +242,15 @@ export default function Home() {
         {/* ── TODAY'S ROUTINE ─────────────────────────────────────────── */}
         {routineData && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <div className="premium-card p-5">
+            <div className="ios-card p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl icon-bubble flex items-center justify-center text-sm"
-                    style={{ background: 'linear-gradient(135deg,#fbbf24,#f97316)' }}>☀️</div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-800">Today's Routine</p>
-                    <p className="text-[10px] text-gray-400">{todayName}</p>
-                  </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">Today's Routine</p>
+                  <p className="text-xs text-gray-500">{todayName}</p>
                 </div>
                 <Link to="/SkinRoutine">
-                  <span className="text-xs font-bold text-pink-400 flex items-center gap-0.5">
-                    Full <ChevronRight className="w-3 h-3" />
+                  <span className="text-xs font-semibold text-pink-500 flex items-center gap-0.5 hover:gap-1 transition">
+                    View <ChevronRight className="w-3 h-3" />
                   </span>
                 </Link>
               </div>
@@ -308,10 +299,7 @@ export default function Home() {
 
         {/* ── FEATURE GRID ─────────────────────────────────────────────── */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-bold text-gray-700">Explore Features</p>
-            <span className="text-xs text-pink-400 font-semibold">All tools →</span>
-          </div>
+          <p className="text-sm font-bold text-gray-900 mb-4">Features</p>
           <div className="grid grid-cols-3 gap-3">
             {FEATURES.map((f, i) => {
               const Icon = f.icon;
@@ -320,15 +308,12 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.24 + i * 0.04 }}
                     whileTap={{ scale: 0.95 }}
-                    className="premium-card p-3.5 flex flex-col items-center text-center gap-2 cursor-pointer"
+                    className="ios-card p-4 flex flex-col items-center text-center gap-2 hover:scale-105 transition"
                   >
-                    <div className={`w-11 h-11 rounded-2xl icon-bubble bg-gradient-to-br ${f.iconBg} flex items-center justify-center`}>
-                      <Icon className="w-5 h-5 text-white" />
+                    <div className="icon-badge">
+                      <Icon className="w-5 h-5 text-pink-500" />
                     </div>
-                    <div>
-                      <p className="text-xs font-bold text-gray-700 leading-tight">{f.title}</p>
-                      <p className="text-[10px] text-gray-400 mt-0.5">{f.desc}</p>
-                    </div>
+                    <p className="text-xs font-semibold text-gray-900">{f.title}</p>
                   </motion.div>
                 </Link>
               );
@@ -364,15 +349,14 @@ export default function Home() {
         {/* ── SIGN IN NUDGE ────────────────────────────────────────────── */}
         {!user && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.34 }}>
-            <div className="glossy-card p-6 text-center">
-              <div className="w-14 h-14 rounded-3xl mx-auto mb-3 flex items-center justify-center text-2xl icon-bubble"
-                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>✨</div>
-              <p className="font-bold text-gray-800 mb-1">Start your glow journey</p>
-              <p className="text-xs text-gray-400 mb-4">Get personalized skincare insights</p>
+            <div className="ios-card p-8 text-center">
+              <div className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl"
+                style={{ background: 'linear-gradient(135deg, rgba(255, 107, 170, 0.2), rgba(200, 150, 255, 0.2))', border: '1px solid rgba(255, 255, 255, 0.5)' }}>✨</div>
+              <p className="font-bold text-gray-900 mb-1">Begin Your Skin Journey</p>
+              <p className="text-sm text-gray-600 mb-6">AI-powered insights for your skin</p>
               <button onClick={() => base44.auth.redirectToLogin()}
-                className="w-full py-3 rounded-2xl text-sm font-bold text-white icon-bubble"
-                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-                Sign In Free ✦
+                className="ios-button w-full">
+                Sign In
               </button>
             </div>
           </motion.div>

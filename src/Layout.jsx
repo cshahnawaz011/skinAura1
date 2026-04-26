@@ -6,7 +6,6 @@ import {
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
   Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, MoreHorizontal, Map, Heart
 } from 'lucide-react';
-import LanguageSelector from '@/components/i18n/LanguageSelector';
 import { useTranslation } from '@/components/i18n/translations';
 import { base44 } from '@/api/base44Client';
 
@@ -100,7 +99,6 @@ export default function Layout({ children, currentPageName }) {
               style={{ background: darkMode ? 'rgba(255,255,255,0.08)' : '#f0ebe6', color: darkMode ? '#d0c0b8' : '#7a6560' }}>
               {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
-            <LanguageSelector compact />
             {user ? (
               <button onClick={() => base44.auth.logout()}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"

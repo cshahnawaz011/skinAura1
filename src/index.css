@@ -192,11 +192,66 @@
 
 /* ── HERO GRADIENT BG ── */
 .hero-bg {
-  background: linear-gradient(160deg,
-    #fff5fb 0%,
-    #fdf0ff 20%,
-    #f5f0ff 45%,
-    #fff4f0 70%,
-    #fff8fc 100%
-  );
+  background: linear-gradient(135deg, #fff5f7 0%, #f8f0ff 100%);
+  min-height: 100vh;
+}
+
+/* ── APPLE iOS CARD ── */
+.ios-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 1.75rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ios-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+}
+
+/* ── SUBTLE BUTTON ── */
+.ios-button {
+  background: linear-gradient(135deg, rgba(255, 107, 170, 0.8), rgba(255, 107, 170, 0.9));
+  border: none;
+  border-radius: 1.25rem;
+  padding: 0.875rem 1.75rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: white;
+  box-shadow: 0 10px 30px rgba(255, 107, 170, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.ios-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 5px 15px rgba(255, 107, 170, 0.2);
+}
+
+/* ── ICON BADGE ── */
+.icon-badge {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgba(255, 107, 170, 0.15), rgba(200, 150, 255, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* Update existing cards to use iOS style */
+.premium-card {
+  @apply ios-card;
+}
+
+.glossy-card {
+  @apply ios-card;
+}
+
+.stat-card {
+  @apply ios-card;
 }
