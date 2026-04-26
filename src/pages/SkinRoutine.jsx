@@ -627,7 +627,7 @@ export default function SkinRoutine() {
                 <Trash2 className="w-3 h-3 mr-1" /> Clear
               </Button>
             )}
-            {routineData && (
+            {(routineData || savedRoutine?.steps) && (
               <Button
                 variant="outline"
                 size="sm"
@@ -654,7 +654,7 @@ export default function SkinRoutine() {
 
       {/* ── Routine Tracker Expanding Section ── */}
       <AnimatePresence>
-        {showTracker && routineData && (
+        {showTracker && (routineData || savedRoutine?.steps) && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
@@ -676,7 +676,7 @@ export default function SkinRoutine() {
                 </div>
               </div>
               <div className="p-4">
-                <RoutineTracker routineData={routineData} />
+                <RoutineTracker routineData={routineData || savedRoutine?.steps} />
               </div>
             </div>
           </motion.div>
