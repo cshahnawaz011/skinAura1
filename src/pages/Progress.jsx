@@ -15,6 +15,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { format } from 'date-fns';
 import { checkAICooldown, recordAIUsage, getCooldownSeconds, checkUploadCooldown, recordUploadUsage, getUploadCooldownSeconds } from '@/components/utils/aiRateLimit';
 import GlowShareCard from '@/components/share/GlowShareCard';
+import HeroProgressCard from '@/components/progress/HeroProgressCard';
+import SkinChangesSnapshot from '@/components/progress/SkinChangesSnapshot';
+import ProgressTimeline from '@/components/progress/ProgressTimeline';
+import RoutineImpactCard from '@/components/progress/RoutineImpactCard';
 
 export default function Progress() {
   const [user, setUser] = useState(null);
@@ -57,6 +61,12 @@ export default function Progress() {
   const { data: analyses = [] } = useQuery({
     queryKey: ['allAnalyses', user?.email],
     queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, 'created_date'),
+    enabled: !!user?.email,
+  });
+
+  const { data: feedbackHistory = [] } = useQuery({
+    queryKey: ['skinFeedback', user?.email],
+    queryFn: () => base44.entities.SkinFeedback.filter({ user_email: user.email }, '-date', 14),
     enabled: !!user?.email,
   });
 
@@ -240,6 +250,19 @@ Give a structured, personalized progress analysis.`,
           </div>
         </GlassCard>
       </div>
+
+      {/* ── NEW PREMIUM CARDS ── */}
+      {analyses.length > 0 && (
+        <HeroProgressCard analyses={analyses} />
+      )}
+
+      {analyses.length >= 2 && (
+        <SkinChangesSnapshot firstAnalysis={analyses[0]} latestAnalysis={analyses[analyses.length - 1]} />
+      )}
+
+      <ProgressTimeline analyses={analyses} progressPhotos={progressPhotos} />
+
+      <RoutineImpactCard analyses={analyses} feedbackHistory={feedbackHistory} />
 
       {/* AI Progress Insight */}
       <GlassCard className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
