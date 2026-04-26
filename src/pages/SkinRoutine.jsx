@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Loader2, Sun, Moon, Calendar, Check, Trash2,
   ShieldCheck, AlertTriangle, TrendingUp, RefreshCw, Info,
-  ChevronDown, ChevronUp, BookOpen, Save, ListChecks
+  ChevronDown, ChevronUp, BookOpen, Save, ListChecks, Zap, ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,15 +19,7 @@ import StepProductPicker from '@/components/routine/StepProductPicker';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
 import { backgroundOps } from '@/lib/BackgroundOperations';
-import BarrierRiskEngine from '@/components/routine/BarrierRiskEngine';
-import IngredientIntelligenceCard from '@/components/routine/IngredientIntelligenceCard';
-import TriggerCorrelationEngine from '@/components/routine/TriggerCorrelationEngine';
-import SkinAnalysisDeepCard from '@/components/routine/SkinAnalysisDeepCard';
-import SeasonalSynthesisCard from '@/components/routine/SeasonalSynthesisCard';
-import ProgressForecastCard from '@/components/routine/ProgressForecastCard';
-import RoutineChangesCard from '@/components/routine/RoutineChangesCard';
-import OutcomeFeaturesCard from '@/components/routine/OutcomeFeaturesCard';
-import RoutineMotivationalQuote from '@/components/routine/RoutineMotivationalQuote';
+
 import RoutineTracker from '@/components/routine/RoutineTracker';
 
 // Initialize from localStorage
@@ -886,38 +879,21 @@ export default function SkinRoutine() {
         </GlassCard>
       )}
 
-      {/* ── ANALYTICS ENGINE CARDS ──────────────────────────── */}
-
-      {/* Section Label */}
-      <div className="flex items-center gap-2 pt-2">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-200 to-transparent" />
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Routine Intelligence</p>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-200 to-transparent" />
-      </div>
-
-      {/* Row 1 — Core Engines */}
-      <BarrierRiskEngine feedbackHistory={feedbackHistory} analysis={latestAnalysis} userLevel={userLevel} />
-      <IngredientIntelligenceCard routineData={routineData} />
-      <TriggerCorrelationEngine feedbackHistory={feedbackHistory} />
-
-      {/* Section Label 2 — Week 12 Monday Focus */}
-      <div className="flex items-center gap-2 pt-1">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent" />
-        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Week 12 · Monday Focus</p>
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent" />
-      </div>
-
-      {/* Row 2 — Deep Analysis Cards */}
-      <SkinAnalysisDeepCard analysis={latestAnalysis} />
-      <SeasonalSynthesisCard />
-      <ProgressForecastCard pastAnalyses={[latestAnalysis].filter(Boolean)} />
-      <RoutineChangesCard feedbackHistory={feedbackHistory} savedRoutine={savedRoutine} />
-
-      {/* Outcome Features */}
-      <OutcomeFeaturesCard />
-
-      {/* Motivational Quote */}
-      <RoutineMotivationalQuote />
+      {/* Link to Routine Intelligence */}
+      <Link to="/RoutineIntelligence">
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border border-violet-200 dark:border-violet-800 hover:shadow-lg hover:scale-[1.02] transition-all cursor-pointer">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-base text-violet-700 dark:text-violet-300 flex items-center gap-2">
+                <Zap className="w-5 h-5" /> Routine Intelligence
+              </h3>
+              <p className="text-sm text-violet-600 dark:text-violet-400 mt-1">Advanced analytics, barrier health, trigger correlation & skin forecasts</p>
+            </div>
+            <ArrowRight className="w-5 h-5 text-violet-500 flex-shrink-0" />
+          </div>
+        </motion.div>
+      </Link>
 
       {!user && (
         <GlassCard className="text-center py-8">
