@@ -46,7 +46,7 @@ function buildTrendData(feedbackHistory) {
 }
 
 export default function BarrierRiskEngine({ feedbackHistory = [], analysis, userLevel = {} }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const score = computeBarrierScore(feedbackHistory, analysis);
   const risk = getRisk(score);
   const trendData = buildTrendData(feedbackHistory);

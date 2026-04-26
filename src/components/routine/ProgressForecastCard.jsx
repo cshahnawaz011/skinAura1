@@ -34,7 +34,7 @@ function getStatus(pastAnalyses = []) {
 }
 
 export default function ProgressForecastCard({ pastAnalyses = [] }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const chartData = buildProjection(pastAnalyses);
   const status = getStatus(pastAnalyses);
   const currentScore = pastAnalyses[0]?.overall_score || 0;

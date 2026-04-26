@@ -46,7 +46,7 @@ function getUVLabel(uv) {
 }
 
 export default function SeasonalSynthesisCard() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [weather, setWeather] = useState(null);
   const [location, setLocation] = useState(null);
   const [loading, setLoading] = useState(true);

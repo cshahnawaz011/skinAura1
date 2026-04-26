@@ -68,7 +68,7 @@ const CELL_COLORS = {
 };
 
 export default function IngredientIntelligenceCard({ savedProducts = [], routineData = null }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [showMatrix, setShowMatrix] = useState(false);
 
   const ingredients = extractIngredients(savedProducts, routineData);
