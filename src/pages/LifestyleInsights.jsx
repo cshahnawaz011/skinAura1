@@ -256,9 +256,11 @@ export default function LifestyleInsights() {
 function HealthInsightsCard({ stats, chartData }) {
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState(null);
+  const [error, setError] = useState(null);
 
   const generateInsights = async () => {
     setLoading(true);
+    setError(null);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
         prompt: `Based on this health data from the last 30 days, provide personalized insights and actionable advice:
@@ -269,10 +271,12 @@ Exercise: Average ${stats?.exercise.avg} minutes/day (Goal: 30 minutes)
 
 Days meeting goals - Water: ${stats?.water.goalMet}, Sleep: ${stats?.sleep.goalMet}, Exercise: ${stats?.exercise.goalMet} out of ${chartData.length}
 
-Provide:
-1. Key insights about their wellness pattern
-2. Top 3 actionable advice points
-3. One motivational message
+Provide exactly this JSON structure:
+{
+  "insights": ["insight 1", "insight 2", "insight 3"],
+  "advice": ["advice 1", "advice 2", "advice 3"],
+  "motivation": "motivational message"
+}
 
 Keep it conversational and skin-health focused.`,
         response_json_schema: {
@@ -286,7 +290,8 @@ Keep it conversational and skin-health focused.`,
       });
       setInsights(res.data);
     } catch (e) {
-      console.error(e);
+      console.error('Error:', e);
+      setError(e.message || 'Failed to generate insights');
     }
     setLoading(false);
   };
@@ -314,12 +319,18 @@ Keep it conversational and skin-health focused.`,
         </Button>
       </div>
 
-      {insights && (
+      {error && (
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+          <p className="text-xs font-semibold text-red-800">❌ Error: {error}</p>
+        </div>
+      )}
+
+      {insights && insights.insights && (
         <div className="space-y-4">
           <div>
             <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-2">Your Patterns</p>
             <ul className="space-y-1.5">
-              {insights.insights.map((insight, i) => (
+              {(Array.isArray(insights.insights) ? insights.insights : []).map((insight, i) => (
                 <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                   <span className="text-emerald-600 flex-shrink-0">•</span>
                   <span>{insight}</span>
@@ -331,7 +342,7 @@ Keep it conversational and skin-health focused.`,
           <div>
             <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-2">Action Steps</p>
             <ol className="space-y-1.5">
-              {insights.advice.map((adv, i) => (
+              {(Array.isArray(insights.advice) ? insights.advice : []).map((adv, i) => (
                 <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                   <span className="text-emerald-600 font-bold flex-shrink-0">{i + 1}.</span>
                   <span>{adv}</span>
@@ -340,9 +351,11 @@ Keep it conversational and skin-health focused.`,
             </ol>
           </div>
 
-          <div className="p-3 rounded-lg bg-white/60 border border-emerald-100">
-            <p className="text-xs font-semibold text-emerald-800">💪 {insights.motivation}</p>
-          </div>
+          {insights.motivation && (
+            <div className="p-3 rounded-lg bg-white/60 border border-emerald-100">
+              <p className="text-xs font-semibold text-emerald-800">💪 {insights.motivation}</p>
+            </div>
+          )}
         </div>
       )}
     </motion.div>
