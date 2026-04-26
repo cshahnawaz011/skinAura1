@@ -205,7 +205,7 @@ export default function Layout({ children, currentPageName }) {
               style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)' }}>
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>GlowAI</span>
+            <span className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
           </Link>
 
           {/* Active section pill */}
@@ -275,7 +275,7 @@ export default function Layout({ children, currentPageName }) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-xs font-bold truncate" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>
-                      {user.full_name || 'Glow User'}
+                      {user.full_name || 'Skin User'}
                     </p>
                     <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
                   </div>
@@ -337,7 +337,7 @@ export default function Layout({ children, currentPageName }) {
                       style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)' }}>
                       <Sparkles className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>GlowAI</span>
+                    <span className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
                   </div>
 
                   {user && (
@@ -349,7 +349,7 @@ export default function Layout({ children, currentPageName }) {
                           {user.full_name?.[0]?.toUpperCase() || '?'}
                         </div>
                         <div>
-                          <p className="text-xs font-bold">{user.full_name || 'Glow User'}</p>
+                          <p className="text-xs font-bold">{user.full_name || 'Skin User'}</p>
                           <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
                         </div>
                       </div>

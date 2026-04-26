@@ -16,7 +16,7 @@ import ProductCompareTool from '@/components/products/ProductCompareTool';
 const TABS = [
   { key: 'routine', label: 'Routine Stack', icon: Layers, emoji: '🧴' },
   { key: 'ingredients', label: 'Ingredient Intel', icon: FlaskConical, emoji: '🔬' },
-  { key: 'adjustments', label: 'Adjustments', icon: TrendingUp, emoji: '📈' },
+  { key: 'adjustments', label: 'Smart Adjustments', icon: TrendingUp, emoji: '📈' },
   { key: 'impact', label: 'Impact Tracker', icon: TrendingUp, emoji: '📊' },
   { key: 'avoid', label: 'Avoid List', icon: AlertTriangle, emoji: '🚫' },
   { key: 'compare', label: 'Compare', icon: GitCompare, emoji: '⚖️' },
@@ -93,7 +93,7 @@ export default function Products() {
               style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🧴</div>
             <div>
               <h1 className="text-2xl font-black">Product Engine</h1>
-              <p className="text-xs text-gray-500">Personalized · AI-matched · Skin-first</p>
+              <p className="text-xs text-gray-500">Personalized · Smart-matched · Skin-first</p>
             </div>
           </div>
         </div>

@@ -19,10 +19,10 @@ import { AnimatePresence } from 'framer-motion';
 
 // ── Quick Action Feature Cards ──────────────────────────────────────────────
 const FEATURES = [
-  { icon: Camera,       title: 'Skin Analysis',   desc: 'AI-powered scan', page: 'SkinAnalysis',  gradient: 'from-rose-400 to-pink-500',    bg: 'from-rose-50 to-pink-50',    iconBg: 'from-rose-400 to-pink-500' },
+  { icon: Camera,       title: 'Skin Analysis',   desc: 'Smart scan',      page: 'SkinAnalysis',  gradient: 'from-rose-400 to-pink-500',    bg: 'from-rose-50 to-pink-50',    iconBg: 'from-rose-400 to-pink-500' },
   { icon: Sparkles,     title: 'My Routine',      desc: 'Daily care plan',  page: 'SkinRoutine',   gradient: 'from-amber-400 to-orange-400', bg: 'from-amber-50 to-orange-50', iconBg: 'from-amber-400 to-orange-400' },
   { icon: TrendingUp,   title: 'Progress',        desc: 'Track glow',       page: 'Progress',      gradient: 'from-emerald-400 to-teal-400', bg: 'from-emerald-50 to-teal-50', iconBg: 'from-emerald-400 to-teal-400' },
-  { icon: MessageCircle,title: 'AI Coach',        desc: 'Ask anything',     page: 'SkinChat',      gradient: 'from-violet-400 to-purple-500',bg: 'from-violet-50 to-purple-50',iconBg: 'from-violet-400 to-purple-500' },
+  { icon: MessageCircle,title: 'Skin Coach',       desc: 'Ask anything',     page: 'SkinChat',      gradient: 'from-violet-400 to-purple-500',bg: 'from-violet-50 to-purple-50',iconBg: 'from-violet-400 to-purple-500' },
   { icon: Droplets,     title: 'Products',        desc: 'Find your match',  page: 'Products',      gradient: 'from-sky-400 to-blue-400',     bg: 'from-sky-50 to-blue-50',     iconBg: 'from-sky-400 to-blue-400' },
   { icon: Heart,        title: 'Glow Goals',      desc: '21-day challenge', page: 'SkinGoalChallenge', gradient: 'from-pink-400 to-rose-400', bg: 'from-pink-50 to-rose-50',    iconBg: 'from-pink-400 to-rose-400' },
 ];
@@ -64,7 +64,7 @@ function ScoreRing({ score }) {
 
 export default function Home() {
   const [user, setUser] = useState(null);
-  const [showIntro, setShowIntro] = useState(() => !localStorage.getItem('glowai-intro-seen'));
+  const [showIntro, setShowIntro] = useState(() => !localStorage.getItem('skinaura-intro-seen'));
   const greeting = (() => {
     const h = new Date().getHours();
     return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
@@ -123,7 +123,7 @@ export default function Home() {
   return (
     <div className="hero-bg min-h-screen pb-24">
       <AnimatePresence>
-        {showIntro && <FeaturesIntroPopup onClose={() => { localStorage.setItem('glowai-intro-seen', '1'); setShowIntro(false); }} />}
+        {showIntro && <FeaturesIntroPopup onClose={() => { localStorage.setItem('skinaura-intro-seen', '1'); setShowIntro(false); }} />}
       </AnimatePresence>
 
       <div className="max-w-md mx-auto px-4 pt-4 space-y-5">
@@ -368,7 +368,7 @@ export default function Home() {
               <div className="w-14 h-14 rounded-3xl mx-auto mb-3 flex items-center justify-center text-2xl icon-bubble"
                 style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>✨</div>
               <p className="font-bold text-gray-800 mb-1">Start your glow journey</p>
-              <p className="text-xs text-gray-400 mb-4">Get personalized AI skincare insights</p>
+              <p className="text-xs text-gray-400 mb-4">Get personalized skincare insights</p>
               <button onClick={() => base44.auth.redirectToLogin()}
                 className="w-full py-3 rounded-2xl text-sm font-bold text-white icon-bubble"
                 style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>

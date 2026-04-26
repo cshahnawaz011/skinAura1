@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Plus, X, Sun, Moon, Star, Clock, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Plus, X, Sun, Moon, Star, Clock, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -216,9 +215,6 @@ function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fall
 
 // ── Main Component ───────────────────────────────────────────────────────────
 export default function RoutineStack({ savedProducts, latestAnalysis, savedRoutines = [], onRemove, onAdd }) {
-  const [generating, setGenerating] = useState(false);
-  const [aiStack, setAiStack] = useState(null);
-
   // Find morning/night/weekly routines from savedRoutines
   const morningRoutine = savedRoutines.find(r => r.routine_type === 'morning') || null;
   const nightRoutine = savedRoutines.find(r => r.routine_type === 'night') || null;
@@ -228,46 +224,7 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
   const morningProducts = savedProducts.filter(p => MORNING_ORDER.includes(p.category));
   const nightProducts = savedProducts.filter(p => p.category === 'retinol' || NIGHT_ORDER.includes(p.category));
 
-  // Build routine summary for AI
-  const routineSummary = savedRoutines.map(r => {
-    const steps = (r.steps || []).map(s => `${s.step_number}. ${s.name} (${s.product_type}) — ingredients: ${(s.key_ingredients || []).join(', ')}`).join('; ');
-    return `${r.routine_type?.toUpperCase()} [${r.skin_type || 'unknown'} skin, ${r.total_time || '?'}]: ${steps || 'empty'}`;
-  }).join('\n');
 
-  const generateStack = async () => {
-    if (!latestAnalysis) return;
-    setGenerating(true);
-    const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a dermatologist AI routine optimizer. Use ALL data below to generate a precise, personalized morning and night routine.
-
-SKIN ANALYSIS:
-- Skin type: ${latestAnalysis.skin_type}
-- Acne: ${latestAnalysis.acne_level}/10, Oiliness: ${latestAnalysis.oiliness}/10, Dryness: ${latestAnalysis.dryness}/10
-- Sensitivity: ${latestAnalysis.sensitivity}/10, Dark spots: ${latestAnalysis.dark_spots}/10, Redness: ${latestAnalysis.redness}/10
-- Overall score: ${latestAnalysis.overall_score}/100
-- Priority concerns: ${(latestAnalysis.priority_concerns || []).join(', ') || 'none listed'}
-
-SAVED DAILY ROUTINES (user's actual routine tracker data):
-${routineSummary || 'No routines saved yet'}
-
-PRODUCT SHELF:
-${savedProducts.map(p => `- ${p.product_name} (${p.category}), ingredients: ${(p.key_ingredients || []).join(', ')}`).join('\n') || 'No products on shelf'}
-
-Generate an optimized morning and night routine. Prioritize their saved routine steps. Include specific tips for their skin concerns.`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          morning_order: { type: 'array', items: { type: 'string' } },
-          night_order: { type: 'array', items: { type: 'string' } },
-          morning_tips: { type: 'string' },
-          night_tips: { type: 'string' },
-          missing_products: { type: 'array', items: { type: 'string' } },
-        }
-      }
-    });
-    setAiStack(res);
-    setGenerating(false);
-  };
 
   return (
     <div className="space-y-5">
@@ -280,64 +237,7 @@ Generate an optimized morning and night routine. Prioritize their saved routine 
         </div>
       )}
 
-      {/* AI Stack CTA */}
-      <div className="rounded-2xl p-4 flex items-center justify-between gap-3"
-        style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.08),rgba(167,139,250,0.1))', border: '1px solid rgba(244,114,182,0.2)' }}>
-        <div>
-          <p className="font-black text-sm">AI Routine Optimizer</p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            {savedRoutines.length > 0 ? 'Optimizes using your saved routines + skin data' : 'Get step-by-step ordering advice from your dermatology AI'}
-          </p>
-        </div>
-        <Button onClick={generateStack} disabled={generating || !latestAnalysis}
-          className="text-white gap-1.5 flex-shrink-0 text-xs"
-          style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-          {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : '✨'}
-          {generating ? 'Optimizing…' : 'Optimize'}
-        </Button>
-      </div>
 
-      {/* AI result */}
-      <AnimatePresence>
-        {aiStack && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
-            <p className="font-black text-sm">✨ AI Recommended Order</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-bold text-amber-600 mb-2">☀️ Morning</p>
-                {aiStack.morning_order?.map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs mb-1.5">
-                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-black text-[10px] flex-shrink-0">{i + 1}</span>
-                    <span>{step}</span>
-                  </div>
-                ))}
-                {aiStack.morning_tips && <p className="text-[10px] text-gray-500 mt-2 italic">💡 {aiStack.morning_tips}</p>}
-              </div>
-              <div>
-                <p className="text-xs font-bold text-violet-600 mb-2">🌙 Night</p>
-                {aiStack.night_order?.map((step, i) => (
-                  <div key={i} className="flex items-center gap-2 text-xs mb-1.5">
-                    <span className="w-5 h-5 rounded-full bg-violet-100 text-violet-700 flex items-center justify-center font-black text-[10px] flex-shrink-0">{i + 1}</span>
-                    <span>{step}</span>
-                  </div>
-                ))}
-                {aiStack.night_tips && <p className="text-[10px] text-gray-500 mt-2 italic">💡 {aiStack.night_tips}</p>}
-              </div>
-            </div>
-            {aiStack.missing_products?.length > 0 && (
-              <div className="pt-2 border-t border-gray-100">
-                <p className="text-xs font-bold text-gray-500 mb-1.5">🛒 Missing from your shelf:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {aiStack.missing_products.map((p, i) => (
-                    <span key={i} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-100">{p}</span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Morning Routine */}
       <RoutineSection
