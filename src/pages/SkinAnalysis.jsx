@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { backgroundOps } from '@/lib/BackgroundOperations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -244,6 +245,7 @@ export default function SkinAnalysis() {
   const runAnalysis = async () => {
     if (!allReady) return;
     updateAnalysisState({ analyzing: true, step: 0 });
+    backgroundOps.start('skinAnalysis', '🔬 Skin Analysis');
 
     const [f, l, r] = await Promise.all([
       base44.integrations.Core.UploadFile({ file: photos.front.file }),
@@ -285,6 +287,7 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
 
     updateAnalysisState({ step: 5 });
     updateAnalysisState({ result: { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url }, analyzing: false });
+    backgroundOps.complete('skinAnalysis');
 
     // Auto-save
     if (user) {

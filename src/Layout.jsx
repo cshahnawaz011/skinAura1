@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsFetching } from '@tanstack/react-query';
+import BackgroundOperationBar from '@/components/BackgroundOperationBar';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
@@ -183,6 +184,9 @@ export default function Layout({ children, currentPageName }) {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* Global Background Operations Bar */}
+      <BackgroundOperationBar />
 
     </div>
   );

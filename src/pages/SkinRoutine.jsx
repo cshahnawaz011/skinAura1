@@ -17,6 +17,7 @@ import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuid
 import StepProductPicker from '@/components/routine/StepProductPicker';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
+import { backgroundOps } from '@/lib/BackgroundOperations';
 import BarrierRiskEngine from '@/components/routine/BarrierRiskEngine';
 import IngredientIntelligenceCard from '@/components/routine/IngredientIntelligenceCard';
 import TriggerCorrelationEngine from '@/components/routine/TriggerCorrelationEngine';
@@ -479,8 +480,9 @@ export default function SkinRoutine() {
   });
 
   const generateRoutine = async () => {
-    isCleared.current = false; // allow saves to update state again
+    isCleared.current = false;
     updateRoutineState({ generating: true });
+    backgroundOps.start('skinRoutine', '✨ Skin Routine');
     const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -567,6 +569,7 @@ export default function SkinRoutine() {
     });
 
     updateRoutineState({ routineData: result, generating: false });
+    backgroundOps.complete('skinRoutine');
 
     // Auto-save — after this savedRoutine will update but useEffect won't overwrite
     // because routineData is already set to `result`
