@@ -483,8 +483,20 @@ export default function SkinRoutine() {
   const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
   const [selectedWeeklyProducts, setSelectedWeeklyProducts] = useState({});
 
+  // Sync selected products to SavedProduct shelf
+  const syncProductsToShelf = async (products, routineId) => {
+    try {
+      await base44.functions.invoke('syncRoutineProductsToShelf', {
+        products,
+        routine_id: routineId,
+      });
+    } catch (error) {
+      console.warn('Failed to sync products to shelf:', error);
+    }
+  };
+
   const saveMutation = useMutation({
-    mutationFn: (data) => {
+    mutationFn: async (data) => {
       const enrichedData = {
         ...data,
         selected_products: {
@@ -492,13 +504,24 @@ export default function SkinRoutine() {
           weekly: selectedWeeklyProducts,
         },
       };
-      if (savedRoutine?.id) {
-        return base44.entities.SkinRoutine.update(savedRoutine.id, enrichedData);
+      const result = savedRoutine?.id
+        ? await base44.entities.SkinRoutine.update(savedRoutine.id, enrichedData)
+        : await base44.entities.SkinRoutine.create(enrichedData);
+      
+      // Sync products to shelf
+      const allProducts = Object.values(selectedMorningProducts)
+        .concat(Object.values(selectedWeeklyProducts))
+        .filter(Boolean);
+      
+      if (allProducts.length > 0) {
+        await syncProductsToShelf(allProducts, result?.id || 'new');
       }
-      return base44.entities.SkinRoutine.create(enrichedData);
+      
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['skinRoutine']);
+      queryClient.invalidateQueries(['savedProducts']);
     },
   });
 
@@ -846,6 +869,7 @@ export default function SkinRoutine() {
               userEmail={user?.email}
               onProductsSelected={(products) => {
                 setSelectedMorningProducts(products);
+                syncProductsToShelf(Object.values(products).filter(Boolean), savedRoutine?.id || 'new');
                 saveMutation.mutate({
                   user_email: user.email,
                   routine_type: 'morning',
@@ -882,6 +906,7 @@ export default function SkinRoutine() {
                 userEmail={user?.email}
                 onProductsSelected={(products) => {
                   setSelectedWeeklyProducts(products);
+                  syncProductsToShelf(Object.values(products).filter(Boolean), savedRoutine?.id || 'new');
                   saveMutation.mutate({
                     user_email: user.email,
                     routine_type: 'morning',
