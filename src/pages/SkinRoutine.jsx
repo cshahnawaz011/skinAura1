@@ -377,10 +377,10 @@ export default function SkinRoutine() {
 
   // Load saved routine into state whenever savedRoutine changes
   useEffect(() => {
-    if (savedRoutine?.steps && !isCleared.current) {
+    if (isCleared.current) return; // user explicitly cleared — don't reload
+    if (savedRoutine?.steps) {
       setRoutineData(savedRoutine.steps);
     }
-    isCleared.current = false;
   }, [savedRoutine]);
 
   const saveMutation = useMutation({
@@ -394,6 +394,7 @@ export default function SkinRoutine() {
   });
 
   const generateRoutine = async () => {
+    isCleared.current = false; // allow saves to update state again
     setGenerating(true);
     const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
 
