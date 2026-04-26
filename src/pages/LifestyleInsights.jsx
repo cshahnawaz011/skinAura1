@@ -4,8 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format, subDays, isAfter } from 'date-fns';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { TrendingUp, Calendar, Target } from 'lucide-react';
+import { TrendingUp, Calendar, Target, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AnimatePresence } from 'framer-motion';
 
 const WATER_GOAL = 8;
 const SLEEP_GOAL = 7;
@@ -236,6 +237,9 @@ export default function LifestyleInsights() {
         </div>
       </motion.div>
 
+      {/* Health Parameters Doctor Guide */}
+      <HealthParametersGuideWithData stats={stats} chartData={chartData} />
+
       {/* Tips */}
       <div className="rounded-2xl p-5 bg-gray-50 border border-gray-200">
         <h3 className="font-semibold text-gray-900 mb-3">💡 Quick Tips</h3>
@@ -244,6 +248,133 @@ export default function LifestyleInsights() {
           <li>✓ Getting {SLEEP_GOAL}+ hours improves skin repair & radiance</li>
           <li>✓ {EXERCISE_GOAL}+ min of exercise boosts blood circulation & glow</li>
         </ul>
+      </div>
+    </div>
+  );
+}
+
+function HealthParametersGuideWithData({ stats, chartData }) {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const parameters = [
+    {
+      emoji: '💧',
+      name: 'Water (Glasses)',
+      goal: '8 glasses/day',
+      simple: 'रोज़ कितना पानी पिया है',
+      explanation: 'आपके शरीर को रोज़ 8-10 गिलास पानी चाहिए। यह त्वचा को नमी देता है, किडनी को साफ रखता है, और चेहरे पर निखार लाता है। कम पानी = सूखी और बेजान त्वचा।',
+      benefits: ['त्वचा कोमल और चमकदार रहती है', 'पिंपल्स कम होते हैं', 'बेहतर पाचन'],
+      current: stats?.water.avg,
+      goalMet: stats?.water.goalMet,
+      total: chartData.length,
+    },
+    {
+      emoji: '🌙',
+      name: 'Sleep (Hours)',
+      goal: '7-8 hours/night',
+      simple: 'रात को कितने घंटे सोए हो',
+      explanation: 'नींद वह समय है जब आपकी त्वचा खुद को ठीक करती है। 7-8 घंटे की नींद कोलेजन बनाती है। कम नींद = काले घेरे, जल्दी बुढ़ापा दिखना, पिंपल्स बढ़ना।',
+      benefits: ['त्वचा ठीक-ठाक होती है', 'काले घेरे कम होते हैं', 'बेहतर मानसिक स्वास्थ्य'],
+      current: stats?.sleep.avg,
+      goalMet: stats?.sleep.goalMet,
+      total: chartData.length,
+    },
+    {
+      emoji: '🏃',
+      name: 'Exercise (Minutes)',
+      goal: '30 min/day',
+      simple: 'रोज़ कितना व्यायाम किया है',
+      explanation: 'व्यायाम खून का बहाव बढ़ाता है जिससे त्वचा को ज़्यादा ऑक्सीजन मिलती है। 30 मिनट का व्यायाम तो त्वचा में गुलाबी रंग आता है, पिंपल्स कम होते हैं।',
+      benefits: ['त्वचा में निखार आता है', 'मानसिक तनाव कम होता है', 'वजन नियंत्रित रहता है'],
+      current: stats?.exercise.avg,
+      goalMet: stats?.exercise.goalMet,
+      total: chartData.length,
+    },
+  ];
+
+  return (
+    <div className="rounded-2xl p-5 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 space-y-3">
+      <div>
+        <h3 className="font-black text-base text-gray-900 flex items-center gap-2">
+          👨‍⚕️ डॉक्टर की सलाह (Doctor's Advice)
+        </h3>
+        <p className="text-xs text-gray-500 mt-1">आपके डेटा के आधार पर विस्तार से समझो</p>
+      </div>
+
+      <div className="space-y-2">
+        {parameters.map((param, idx) => (
+          <motion.div key={idx} layout className="rounded-xl overflow-hidden bg-white border border-gray-100">
+            <button
+              onClick={() => setOpenIndex(openIndex === idx ? null : idx)}
+              className="w-full flex items-center justify-between p-3.5 hover:bg-gray-50 transition-colors"
+            >
+              <div className="flex items-center gap-3 flex-1 text-left">
+                <span className="text-2xl">{param.emoji}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-gray-900">{param.name}</p>
+                  <p className="text-xs text-indigo-600 font-medium">{param.simple}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-right">
+                  <p className="text-xs font-bold text-gray-400">आपका</p>
+                  <p className="text-sm font-black text-indigo-600">{param.current}</p>
+                </div>
+                <motion.div animate={{ rotate: openIndex === idx ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                </motion.div>
+              </div>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {openIndex === idx && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden border-t border-gray-100"
+                >
+                  <div className="p-3.5 space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="p-2 bg-indigo-50 rounded-lg">
+                        <p className="text-xs font-bold text-indigo-600">लक्ष्य</p>
+                        <p className="text-sm text-indigo-700 font-semibold">{param.goal}</p>
+                      </div>
+                      <div className="p-2 bg-green-50 rounded-lg">
+                        <p className="text-xs font-bold text-green-600">कितने दिन सफल?</p>
+                        <p className="text-sm text-green-700 font-semibold">{param.goalMet}/{param.total}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <p className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">डॉक्टर क्या कहते हैं?</p>
+                      <p className="text-sm text-gray-700 leading-relaxed font-medium">{param.explanation}</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-bold text-gray-600 uppercase tracking-wide">इसके फायदे</p>
+                      <ul className="space-y-1">
+                        {param.benefits.map((benefit, i) => (
+                          <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                            <span className="text-green-500 font-bold flex-shrink-0">✓</span>
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+        <p className="text-xs text-amber-800 font-semibold">
+          💡 बेस्ट टिप्स: सब कुछ बैलेंस में करो। कोई एक चीज़ ही सब कुछ नहीं है।
+        </p>
       </div>
     </div>
   );

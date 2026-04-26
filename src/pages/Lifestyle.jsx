@@ -7,7 +7,6 @@ import { Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import MetricCard from '@/components/lifestyle/MetricCard';
 import FoodSearchCard from '@/components/lifestyle/FoodSearchCard';
-import HealthParametersGuide from '@/components/lifestyle/HealthParametersGuide';
 
 const SKIN_METRICS = [
   { key: 'acne_level', label: 'Acne Level', emoji: '🔴', color: '#ef4444', values: [0,1,2,3,4,5] },
@@ -224,11 +223,6 @@ export default function Lifestyle() {
             </div>
           </MetricCard>
         ))}
-      </div>
-
-      {/* Health Parameters Guide */}
-      <div className="px-2">
-        <HealthParametersGuide />
       </div>
 
       {/* Skincare Checklist */}
