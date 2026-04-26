@@ -61,6 +61,12 @@ export default function Products() {
     enabled: !!user?.email,
   });
 
+  const { data: savedRoutines = [] } = useQuery({
+    queryKey: ['savedRoutines', user?.email],
+    queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }, '-created_date', 5),
+    enabled: !!user?.email,
+  });
+
   const saveMutation = useMutation({
     mutationFn: (product) => base44.entities.SavedProduct.create({ user_email: user.email, ...product }),
     onSuccess: () => queryClient.invalidateQueries(['savedProducts']),
@@ -153,7 +159,7 @@ export default function Products() {
       <AnimatePresence mode="wait">
         {activeTab === 'routine' && (
           <motion.div key="routine" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-            <RoutineStack savedProducts={savedProducts} latestAnalysis={latestAnalysis} onRemove={(id) => removeMutation.mutate(id)} onAdd={() => setShowAddModal(true)} />
+            <RoutineStack savedProducts={savedProducts} latestAnalysis={latestAnalysis} savedRoutines={savedRoutines} onRemove={(id) => removeMutation.mutate(id)} onAdd={() => setShowAddModal(true)} />
           </motion.div>
         )}
         {activeTab === 'ingredients' && (

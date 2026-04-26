@@ -119,7 +119,7 @@ function RoutineSection({ title, icon: Icon, order, products, analysis, onRemove
   );
 }
 
-export default function RoutineStack({ savedProducts, latestAnalysis, onRemove, onAdd }) {
+export default function RoutineStack({ savedProducts, latestAnalysis, savedRoutines = [], onRemove, onAdd }) {
   const [generating, setGenerating] = useState(false);
   const [aiStack, setAiStack] = useState(null);
 
@@ -128,14 +128,32 @@ export default function RoutineStack({ savedProducts, latestAnalysis, onRemove, 
     p.category === 'retinol' || NIGHT_ORDER.includes(p.category)
   );
 
+  // Build a readable summary of saved routines
+  const routineSummary = savedRoutines.map(r => {
+    const steps = (r.steps || []).map(s => `${s.step_number || ''}. ${s.product_name || s.name || s.step || ''} (${s.category || ''})`).join(', ');
+    return `${r.routine_type?.toUpperCase()} routine (${r.skin_type || 'unknown skin'}): ${steps || r.routine_summary || 'no steps saved'}`;
+  }).join('\n');
+
   const generateStack = async () => {
     if (!latestAnalysis) return;
     setGenerating(true);
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a dermatologist. The user has: ${latestAnalysis.skin_type} skin, acne ${latestAnalysis.acne_level}/10, oiliness ${latestAnalysis.oiliness}/10, dryness ${latestAnalysis.dryness}/10, sensitivity ${latestAnalysis.sensitivity}/10.
-Current shelf: ${savedProducts.map(p => `${p.product_name} (${p.category})`).join(', ') || 'none'}.
-Generate a morning and night routine stack using the products on their shelf where possible. Also suggest 1–2 missing key products.
-Keep it concise and practical.`,
+      prompt: `You are a dermatologist AI routine optimizer. Use ALL data below to generate a precise, personalized morning and night routine.
+
+SKIN ANALYSIS:
+- Skin type: ${latestAnalysis.skin_type}
+- Acne: ${latestAnalysis.acne_level}/10, Oiliness: ${latestAnalysis.oiliness}/10, Dryness: ${latestAnalysis.dryness}/10
+- Sensitivity: ${latestAnalysis.sensitivity}/10, Dark spots: ${latestAnalysis.dark_spots}/10, Redness: ${latestAnalysis.redness}/10
+- Overall score: ${latestAnalysis.overall_score}/100
+- Priority concerns: ${(latestAnalysis.priority_concerns || []).join(', ') || 'none listed'}
+
+SAVED DAILY ROUTINES (from user's routine tracker):
+${routineSummary || 'No routines saved yet'}
+
+PRODUCT SHELF:
+${savedProducts.map(p => `- ${p.product_name} (${p.category}), ingredients: ${(p.key_ingredients || []).join(', ')}`).join('\n') || 'No products on shelf'}
+
+Generate an optimized morning and night routine. Prioritize their saved routine steps and shelf products. Suggest missing steps where critical gaps exist. Include specific application tips tied to their skin concerns.`,
       response_json_schema: {
         type: 'object',
         properties: {
