@@ -15,6 +15,8 @@ import HabitsSection from '@/components/lifestyle/HabitsSection';
 import CycleSection from '@/components/lifestyle/CycleSection';
 import SkinLogSection from '@/components/lifestyle/SkinLogSection';
 import LifestyleCalendar from '@/components/lifestyle/LifestyleCalendar';
+import LifestyleScoreCard from '@/components/lifestyle/LifestyleScoreCard';
+import { WellnessCorrelationCard, CyclePhaseInsightCard, HabitStreakCard } from '@/components/lifestyle/LifestyleIntelligence';
 
 const TABS = [
   { key: 'sleep',       label: 'Sleep',       icon: Moon,        color: '#7c3aed' },
@@ -155,32 +157,32 @@ export default function Lifestyle() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-10 space-y-4">
+    <div className="max-w-4xl mx-auto pb-10 space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
-            style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🌿</div>
-          <div>
-            <h1 className="text-2xl font-black">Lifestyle Tracker</h1>
-            <p className="text-sm text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMMM d, yyyy')}</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl"
+          style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🌿</div>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black">Lifestyle Tracker</h1>
+          <p className="text-sm text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMMM d, yyyy')}</p>
         </div>
-        {/* Glow Score */}
-        <div className="flex items-center gap-3">
-          <div className="text-center px-4 py-2 rounded-2xl"
-            style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.1),rgba(167,139,250,0.1))', border: '1.5px solid rgba(244,114,182,0.2)' }}>
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Glow Score</p>
-            <p className="text-2xl font-black" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {glowScore}
-            </p>
-          </div>
-          <Button onClick={handleSave} disabled={saving}
-            className="bg-gradient-to-r from-pink-500 to-violet-500 text-white font-bold">
-            {saving ? 'Saving…' : 'Save Log'}
-          </Button>
-        </div>
+        <Button onClick={handleSave} disabled={saving}
+          className="ml-auto bg-gradient-to-r from-pink-500 to-violet-500 text-white font-bold">
+          {saving ? 'Saving…' : 'Save Log'}
+        </Button>
       </div>
+
+      {/* Analytics Intelligence Cards */}
+      {existingLog && (
+        <div className="space-y-4">
+          <LifestyleScoreCard dietLogs={[existingLog]} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <WellnessCorrelationCard dietLogs={[existingLog]} cyclePhase={log.cycle_phase} />
+            <HabitStreakCard dietLogs={[existingLog]} />
+          </div>
+          <CyclePhaseInsightCard cyclePhase={log.cycle_phase} dietLogs={[existingLog]} />
+        </div>
+      )}
 
       {/* Tab Bar */}
       <div className="flex gap-1.5 overflow-x-auto pb-1 hide-scrollbar">
