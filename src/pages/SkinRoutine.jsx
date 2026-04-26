@@ -418,10 +418,10 @@ export default function SkinRoutine() {
   // Load saved routine into state whenever savedRoutine changes
   useEffect(() => {
     if (isCleared.current) return; // user explicitly cleared — don't reload
-    if (savedRoutine?.steps) {
+    if (savedRoutine?.steps && !routineData) {
       setRoutineData(savedRoutine.steps);
     }
-  }, [savedRoutine]);
+  }, [savedRoutine]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
@@ -524,7 +524,8 @@ export default function SkinRoutine() {
     setRoutineData(result);
     setGenerating(false);
 
-    // Auto-save
+    // Auto-save — after this savedRoutine will update but useEffect won't overwrite
+    // because routineData is already set to `result`
     if (user) {
       saveMutation.mutate({
         user_email: user.email,
