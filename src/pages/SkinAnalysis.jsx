@@ -67,6 +67,105 @@ const FULL_SCHEMA = {
   }
 };
 
+// ── Zone Observations Collapsible Glowing Cards ───────────────────────────────
+const ZONE_CONFIG = [
+  {
+    key: 'front',
+    emoji: '😊',
+    label: 'Front View',
+    hint: 'Overall face — center zone',
+    gradient: 'linear-gradient(135deg,rgba(244,114,182,0.18),rgba(251,207,232,0.25))',
+    glow: 'rgba(244,114,182,0.25)',
+    border: 'rgba(244,114,182,0.35)',
+    color: '#db2777',
+  },
+  {
+    key: 'left',
+    emoji: '👈',
+    label: 'Left Side',
+    hint: 'Left cheek & jaw',
+    gradient: 'linear-gradient(135deg,rgba(167,139,250,0.18),rgba(221,214,254,0.25))',
+    glow: 'rgba(167,139,250,0.25)',
+    border: 'rgba(167,139,250,0.35)',
+    color: '#7c3aed',
+  },
+  {
+    key: 'right',
+    emoji: '👉',
+    label: 'Right Side',
+    hint: 'Right cheek & jaw',
+    gradient: 'linear-gradient(135deg,rgba(251,191,36,0.18),rgba(253,230,138,0.25))',
+    glow: 'rgba(251,191,36,0.25)',
+    border: 'rgba(251,191,36,0.35)',
+    color: '#d97706',
+  },
+];
+
+function simplifyNote(text) {
+  if (!text) return null;
+  // Shorten long clinical sentences to max ~120 chars
+  return text.length > 130 ? text.slice(0, 127) + '…' : text;
+}
+
+function ZoneCard({ zone, note }) {
+  const [open, setOpen] = React.useState(false);
+  const short = simplifyNote(note);
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl overflow-hidden cursor-pointer"
+      style={{
+        background: zone.gradient,
+        border: `1.5px solid ${zone.border}`,
+        boxShadow: `0 4px 20px ${zone.glow}, 0 1px 4px rgba(0,0,0,0.06)`,
+      }}
+      onClick={() => setOpen(o => !o)}
+    >
+      <div className="flex items-center gap-3 px-4 py-3">
+        <span className="text-xl flex-shrink-0">{zone.emoji}</span>
+        <div className="flex-1 min-w-0">
+          <p className="font-black text-sm" style={{ color: zone.color }}>{zone.label}</p>
+          <p className="text-[10px] text-gray-400">{zone.hint}</p>
+        </div>
+        <motion.div animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown className="w-4 h-4" style={{ color: zone.color }} />
+        </motion.div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <p className="px-4 pb-4 text-xs text-gray-700 leading-relaxed border-t border-white/40 pt-2">
+              {short || '—'}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+function ZoneObservationsCard({ zoneNotes }) {
+  return (
+    <div className="rounded-2xl p-4 space-y-2"
+      style={{ background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(244,114,182,0.15)', backdropFilter: 'blur(16px)', boxShadow: '0 8px 32px rgba(244,114,182,0.08)' }}>
+      <p className="font-black text-sm mb-1">👁️ What We Saw — Tap to Read</p>
+      <p className="text-[10px] text-gray-400 mb-3">Quick notes from each face angle</p>
+      {ZONE_CONFIG.map(z => (
+        <ZoneCard key={z.key} zone={z} note={zoneNotes[z.key]} />
+      ))}
+    </div>
+  );
+}
+
 const TABS = [
   { key: 'overview',     label: 'Overview',     emoji: '⭐' },
   { key: 'parameters',  label: 'Parameters',   emoji: '🧬' },
@@ -397,23 +496,7 @@ Be clinically precise, honest, and detailed using all 3 views.`,
                   <SkinScoreHero analysis={result} previousScore={previousScore} />
 
                   {/* Zone per-view notes */}
-                  {result.zone_notes && (
-                    <div className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
-                      <p className="font-black text-sm mb-3">📐 Per-View Clinical Observations</p>
-                      <div className="grid grid-cols-1 gap-2">
-                        {[
-                          { key: 'front', label: '😊 Front View', bg: 'bg-pink-50' },
-                          { key: 'left', label: '👈 Left Profile', bg: 'bg-violet-50' },
-                          { key: 'right', label: '👉 Right Profile', bg: 'bg-amber-50' },
-                        ].map(z => (
-                          <div key={z.key} className={`p-3 rounded-xl ${z.bg}`}>
-                            <p className="text-[10px] font-black text-gray-600 mb-1">{z.label}</p>
-                            <p className="text-xs text-gray-600 leading-relaxed">{result.zone_notes[z.key] || '—'}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {result.zone_notes && <ZoneObservationsCard zoneNotes={result.zone_notes} />}
 
                   <NextStepsAfterAnalysis />
                 </motion.div>
