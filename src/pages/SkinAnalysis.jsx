@@ -256,7 +256,7 @@ export default function SkinAnalysis() {
     updateAnalysisState({ step: 4 });
     backgroundOps.updateProgress('skinAnalysis', 40);
 
-    const res = await base44.integrations.Core.InvokeLLM({
+    const llmRes = await base44.integrations.Core.InvokeLLM({
       model: 'gemini_3_flash',
       file_urls: [f.file_url, l.file_url, r.file_url],
       response_json_schema: {
@@ -280,13 +280,12 @@ export default function SkinAnalysis() {
           zone_notes: { type: 'object' },
         },
       },
-      prompt: `You are an expert dermatologist AI. Analyze these THREE face photos (front, left profile, right profile) for a comprehensive 360° skin assessment.
-
-Return EXACTLY the JSON structure requested. 
-Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
+      prompt: `You are an expert dermatologist AI. Analyze these THREE face photos (front, left profile, right profile) for a comprehensive 360° skin assessment. Return JSON with overall_score, skin_type, skin_tone, acne_level, dark_spots, wrinkles, pores, redness, oiliness, dryness, sensitivity, recommendations, skin_strengths, priority_concerns, concern_insights, zone_notes.`,
     });
 
-    if (!res || !res.overall_score) throw new Error('Analysis failed — no result');
+    const res = llmRes;
+    console.log('LLM Response:', res);
+    if (!res || typeof res.overall_score !== 'number') throw new Error(`Analysis failed — invalid response`);
 
     updateAnalysisState({ step: 5 });
     backgroundOps.updateProgress('skinAnalysis', 90);
