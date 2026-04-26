@@ -256,35 +256,37 @@ export default function SkinAnalysis() {
     updateAnalysisState({ step: 4 });
     backgroundOps.updateProgress('skinAnalysis', 40);
 
-    const geminiRes = await base44.functions.invoke('gemini', {
-      use_model: 'flash2',
-      image_urls: [f.file_url, l.file_url, r.file_url],
-      response_json: true,
+    const res = await base44.integrations.Core.InvokeLLM({
+      model: 'gemini_3_flash',
+      file_urls: [f.file_url, l.file_url, r.file_url],
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          overall_score: { type: 'number' },
+          skin_type: { type: 'string' },
+          skin_tone: { type: 'string' },
+          acne_level: { type: 'number' },
+          dark_spots: { type: 'number' },
+          wrinkles: { type: 'number' },
+          pores: { type: 'number' },
+          redness: { type: 'number' },
+          oiliness: { type: 'number' },
+          dryness: { type: 'number' },
+          sensitivity: { type: 'number' },
+          recommendations: { type: 'array', items: { type: 'string' } },
+          skin_strengths: { type: 'array', items: { type: 'string' } },
+          priority_concerns: { type: 'array', items: { type: 'string' } },
+          concern_insights: { type: 'object' },
+          zone_notes: { type: 'object' },
+        },
+      },
       prompt: `You are an expert dermatologist AI. Analyze these THREE face photos (front, left profile, right profile) for a comprehensive 360° skin assessment.
 
-Return a JSON object with EXACTLY these fields:
-- overall_score: number 0-100 (holistic skin health)
-- skin_type: one of "oily"|"dry"|"combination"|"normal"|"sensitive"
-- skin_tone: string e.g. "warm medium with yellow undertones"
-- acne_level: number 0-10
-- dark_spots: number 0-10
-- wrinkles: number 0-10
-- pores: number 0-10
-- redness: number 0-10
-- oiliness: number 0-10
-- dryness: number 0-10
-- sensitivity: number 0-10
-- recommendations: array of 3-5 short strings
-- skin_strengths: array of 2-4 short strings
-- priority_concerns: array of 2-4 short strings
-- concern_insights: object with keys acne_level, dark_spots, wrinkles, pores, redness, oiliness, dryness, sensitivity — each having: cause, fix, ingredient, timeline
-- zone_notes: object with keys front, left, right — each a 1-2 sentence simple English observation
-
+Return EXACTLY the JSON structure requested. 
 Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     });
 
-    const res = geminiRes.data?.result || geminiRes.data;
-    if (!res || !res.overall_score) throw new Error('Analysis failed — no result from Gemini');
+    if (!res || !res.overall_score) throw new Error('Analysis failed — no result');
 
     updateAnalysisState({ step: 5 });
     backgroundOps.updateProgress('skinAnalysis', 90);
