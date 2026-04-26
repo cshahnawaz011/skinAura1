@@ -13,7 +13,6 @@ const CAT_EMOJI = {
   exfoliant: '🔬', retinol: '🌙', other: '📦',
 };
 
-// Map routine step names to category emojis where possible
 function getStepEmoji(name = '', productType = '') {
   const n = (name + ' ' + productType).toLowerCase();
   if (n.includes('cleanser') || n.includes('wash') || n.includes('foam')) return '🧴';
@@ -29,7 +28,6 @@ function getStepEmoji(name = '', productType = '') {
   return '📦';
 }
 
-// ── Routine Step Card (from SkinRoutine entity) ──────────────────────────────
 function RoutineStepCard({ step, index, color }) {
   const [expanded, setExpanded] = useState(false);
   const emoji = getStepEmoji(step.name, step.product_type);
@@ -92,7 +90,6 @@ function RoutineStepCard({ step, index, color }) {
   );
 }
 
-// ── Saved Product Card (from SavedProduct entity) ────────────────────────────
 function SavedProductCard({ product, analysis, onRemove }) {
   const score = getMatchScore(product, analysis);
   return (
@@ -151,12 +148,10 @@ function getMatchScore(product, analysis) {
   return Math.min(99, Math.max(45, score));
 }
 
-// ── Routine Section ──────────────────────────────────────────────────────────
 function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fallbackOrder, analysis, onRemove, color }) {
   const steps = routineData?.steps || [];
   const hasRoutineSteps = steps.length > 0;
 
-  // Fallback: filter savedProducts by category order
   const fallbackSorted = [...fallbackProducts].sort((a, b) => {
     const ai = fallbackOrder.indexOf(a.category);
     const bi = fallbackOrder.indexOf(b.category);
@@ -176,7 +171,6 @@ function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fall
         {!hasRoutineSteps && <span className="text-xs text-gray-400">{fallbackSorted.length} products</span>}
       </div>
 
-      {/* Show saved routine steps */}
       {hasRoutineSteps ? (
         <div className="space-y-2">
           {routineData.routine_summary && (
@@ -192,7 +186,6 @@ function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fall
           )}
         </div>
       ) : fallbackSorted.length > 0 ? (
-        /* Fallback: show saved products from shelf */
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {fallbackSorted.map((p, i) => (
             <div key={p.id} className="relative">
@@ -213,14 +206,10 @@ function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fall
   );
 }
 
-// ── Main Component ───────────────────────────────────────────────────────────
 export default function RoutineStack({ savedProducts, latestAnalysis, savedRoutines = [], onRemove, onAdd }) {
-  // The AI routine saves its entire JSON into the `steps` field of SkinRoutine entity.
-  // So we pick the latest saved routine and extract morning/night from its steps object.
   const latestSaved = savedRoutines[0] || null;
-  const aiRoutineData = latestSaved?.steps || null; // This is the full AI JSON
+  const aiRoutineData = latestSaved?.steps || null;
 
-  // Build morning routine steps from AI data
   const morningSteps = aiRoutineData?.morning_routine?.map(s => ({
     name: s.name,
     product_type: s.product_type,
@@ -228,8 +217,7 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
     application_tip: s.tip,
   })) || [];
 
-  // Build night routine steps — today's day plan from night_week_plan
-  const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0
+  const todayIdx = (new Date().getDay() + 6) % 7;
   const todayNightPlan = aiRoutineData?.night_week_plan?.[todayIdx];
   const nightSteps = todayNightPlan?.steps?.map(s => ({
     name: s.name,
@@ -238,7 +226,6 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
     key_ingredients: s.active ? [todayNightPlan.active_name].filter(Boolean) : [],
   })) || [];
 
-  // Weekly add-ons
   const weeklyAddons = aiRoutineData?.weekly_addons?.map(a => ({
     name: a.name,
     product_type: a.frequency,
@@ -263,16 +250,11 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
     routine_summary: 'Weekly booster treatments',
   } : null;
 
-  // Fallback savedProducts by category
   const morningProducts = savedProducts.filter(p => MORNING_ORDER.includes(p.category));
   const nightProducts = savedProducts.filter(p => p.category === 'retinol' || NIGHT_ORDER.includes(p.category));
 
-
-
   return (
     <div className="space-y-5">
-
-      {/* Source banner */}
       {aiRoutineData ? (
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-emerald-700"
           style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)' }}>
@@ -285,7 +267,6 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
         </div>
       ) : null}
 
-      {/* Products saved via StepProductPicker "Save to Shelf" */}
       {!aiRoutineData && savedProducts.filter(p => p.routine_step).length > 0 && (
         <div className="space-y-2">
           <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Saved from Routine Steps</p>
@@ -297,9 +278,6 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
         </div>
       )}
 
-
-
-      {/* Morning Routine */}
       <RoutineSection
         title="Morning Routine"
         icon={Sun}
@@ -311,7 +289,6 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
         color="linear-gradient(135deg,#f59e0b,#f97316)"
       />
 
-      {/* Night Routine */}
       <RoutineSection
         title="Night Routine"
         icon={Moon}
@@ -323,7 +300,6 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
         color="linear-gradient(135deg,#7c3aed,#a78bfa)"
       />
 
-      {/* Weekly Routine */}
       {weeklyRoutine && weeklyRoutine.steps?.length > 0 && (
         <RoutineSection
           title="Weekly Treatments"
