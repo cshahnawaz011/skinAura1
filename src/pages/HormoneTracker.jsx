@@ -157,20 +157,30 @@ function SymptomLogger({ cycleData, userEmail, onSave }) {
   const [mood, setMood] = useState(cycleData?.mood || '');
   const [energy, setEnergy] = useState(cycleData?.energy_level || 5);
   const [flow, setFlow] = useState(cycleData?.flow_intensity || 'medium');
+  const [isSaving, setIsSaving] = useState(false);
   const availableSymptoms = PHASE_SYMPTOMS[cycleData?.current_phase] || [];
+
+  useEffect(() => {
+    setSymptoms(cycleData?.symptoms || []);
+    setMood(cycleData?.mood || '');
+    setEnergy(cycleData?.energy_level || 5);
+    setFlow(cycleData?.flow_intensity || 'medium');
+  }, [cycleData?.id]);
 
   const toggleSymptom = (sym) => {
     setSymptoms(prev => prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]);
   };
 
-  const handleSave = () => {
-    onSave({
+  const handleSave = async () => {
+    setIsSaving(true);
+    await onSave({
       ...cycleData,
       symptoms,
       mood,
       energy_level: energy,
       flow_intensity: flow,
     });
+    setIsSaving(false);
   };
 
   return (
@@ -244,8 +254,8 @@ function SymptomLogger({ cycleData, userEmail, onSave }) {
         </div>
       )}
 
-      <Button onClick={handleSave} size="sm" className="w-full bg-pink-500 hover:bg-pink-600">
-        Save Data
+      <Button onClick={handleSave} disabled={isSaving} size="sm" className="w-full bg-pink-500 hover:bg-pink-600 disabled:opacity-50">
+        {isSaving ? 'Saving...' : 'Save Data'}
       </Button>
     </div>
   );
