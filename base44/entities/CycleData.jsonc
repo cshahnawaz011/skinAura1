@@ -1,0 +1,61 @@
+{
+  "name": "CycleData",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "First day of menstrual cycle"
+    },
+    "cycle_length": {
+      "type": "number",
+      "default": 28,
+      "description": "Total cycle length in days"
+    },
+    "current_phase": {
+      "type": "string",
+      "enum": [
+        "menstrual",
+        "follicular",
+        "ovulation",
+        "luteal"
+      ],
+      "description": "Current phase of cycle"
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Current symptoms"
+    },
+    "flow_intensity": {
+      "type": "string",
+      "enum": [
+        "light",
+        "medium",
+        "heavy"
+      ],
+      "description": "Flow intensity during menstrual phase"
+    },
+    "mood": {
+      "type": "string",
+      "description": "Current mood during cycle"
+    },
+    "energy_level": {
+      "type": "number",
+      "description": "Energy level 1-10"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Personal notes"
+    }
+  },
+  "required": [
+    "user_email",
+    "start_date"
+  ]
+}

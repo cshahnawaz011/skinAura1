@@ -153,33 +153,99 @@ function SkinCareInsightCard({ phase }) {
 }
 
 function SymptomLogger({ cycleData, userEmail, onSave }) {
-  const [symptoms, setSymptoms] = useState(cycleData?.current_symptoms || []);
+  const [symptoms, setSymptoms] = useState(cycleData?.symptoms || []);
+  const [mood, setMood] = useState(cycleData?.mood || '');
+  const [energy, setEnergy] = useState(cycleData?.energy_level || 5);
+  const [flow, setFlow] = useState(cycleData?.flow_intensity || 'medium');
   const availableSymptoms = PHASE_SYMPTOMS[cycleData?.current_phase] || [];
 
   const toggleSymptom = (sym) => {
     setSymptoms(prev => prev.includes(sym) ? prev.filter(s => s !== sym) : [...prev, sym]);
   };
 
+  const handleSave = () => {
+    onSave({
+      ...cycleData,
+      symptoms,
+      mood,
+      energy_level: energy,
+      flow_intensity: flow,
+    });
+  };
+
   return (
     <div className="rounded-2xl p-4 bg-white/90 space-y-3">
-      <p className="font-bold text-sm">Today's Symptoms</p>
-      <div className="flex flex-wrap gap-2">
-        {availableSymptoms.map(sym => (
-          <button
-            key={sym}
-            onClick={() => toggleSymptom(sym)}
-            className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
-            style={{
-              background: symptoms.includes(sym) ? '#f472b6' : '#f0f0f0',
-              color: symptoms.includes(sym) ? '#fff' : '#9ca3af',
-            }}
-          >
-            {sym}
-          </button>
-        ))}
+      <p className="font-bold text-sm">Log Today's Data</p>
+      
+      {/* Symptoms */}
+      <div>
+        <p className="text-xs font-semibold text-gray-600 mb-2">Symptoms</p>
+        <div className="flex flex-wrap gap-2">
+          {availableSymptoms.map(sym => (
+            <button
+              key={sym}
+              onClick={() => toggleSymptom(sym)}
+              className="px-3 py-1.5 rounded-full text-xs font-semibold transition-all"
+              style={{
+                background: symptoms.includes(sym) ? '#f472b6' : '#f0f0f0',
+                color: symptoms.includes(sym) ? '#fff' : '#9ca3af',
+              }}
+            >
+              {sym}
+            </button>
+          ))}
+        </div>
       </div>
-      <Button onClick={() => onSave({ ...cycleData, current_symptoms: symptoms })} size="sm" className="w-full bg-pink-500">
-        Save Symptoms
+
+      {/* Mood */}
+      <div>
+        <p className="text-xs font-semibold text-gray-600 mb-2">Mood</p>
+        <input
+          type="text"
+          value={mood}
+          onChange={(e) => setMood(e.target.value)}
+          placeholder="e.g., Happy, Anxious, Calm"
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs"
+        />
+      </div>
+
+      {/* Energy Level */}
+      <div>
+        <p className="text-xs font-semibold text-gray-600 mb-2">Energy Level: {energy}/10</p>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          value={energy}
+          onChange={(e) => setEnergy(Number(e.target.value))}
+          className="w-full"
+        />
+      </div>
+
+      {/* Flow Intensity (menstrual phase only) */}
+      {cycleData?.current_phase === 'menstrual' && (
+        <div>
+          <p className="text-xs font-semibold text-gray-600 mb-2">Flow Intensity</p>
+          <div className="flex gap-2">
+            {['light', 'medium', 'heavy'].map(f => (
+              <button
+                key={f}
+                onClick={() => setFlow(f)}
+                className="flex-1 px-3 py-2 rounded-lg text-xs font-semibold transition-all capitalize"
+                style={{
+                  background: flow === f ? '#ef4444' : '#f0f0f0',
+                  color: flow === f ? '#fff' : '#9ca3af',
+                }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <Button onClick={handleSave} size="sm" className="w-full bg-pink-500 hover:bg-pink-600">
+        Save Data
       </Button>
     </div>
   );
@@ -197,13 +263,20 @@ export default function HormoneTracker() {
   const { data: cycleData } = useQuery({
     queryKey: ['cycleData', user?.email],
     queryFn: async () => {
-      const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: format(new Date(), 'yyyy-MM-dd') }, '-created_date', 1);
-      return logs[0] || {
-        cycle_phase: 'follicular',
-        cycle_notes: '',
+      const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
+      if (cycles.length > 0) return cycles[0];
+      // Create initial cycle data if none exists
+      const initialCycle = {
+        user_email: user.email,
         start_date: format(addDays(new Date(), -10), 'yyyy-MM-dd'),
-        current_symptoms: [],
+        cycle_length: 28,
+        current_phase: 'follicular',
+        symptoms: [],
+        energy_level: 5,
+        notes: '',
       };
+      await base44.entities.CycleData.create(initialCycle);
+      return initialCycle;
     },
     enabled: !!user?.email,
   });
@@ -224,10 +297,18 @@ export default function HormoneTracker() {
 
   const saveCycleMutation = useMutation({
     mutationFn: (data) => {
-      if (cycleData?.id) return base44.entities.DietLog.update(cycleData.id, data);
-      return base44.entities.DietLog.create({ ...data, user_email: user.email, log_date: format(new Date(), 'yyyy-MM-dd') });
+      if (cycleData?.id) {
+        return base44.entities.CycleData.update(cycleData.id, data);
+      }
+      return base44.entities.CycleData.create({ ...data, user_email: user.email });
     },
-    onSuccess: () => queryClient.invalidateQueries(['cycleData']),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['cycleData']);
+      // Sync with DietLog and other features
+      queryClient.invalidateQueries(['dietLog']);
+      queryClient.invalidateQueries(['skinAnalysis']);
+      queryClient.invalidateQueries(['skinRoutine']);
+    },
   });
 
   if (!user) {

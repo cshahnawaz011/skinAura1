@@ -74,9 +74,25 @@ export default function Lifestyle() {
 
   const { data: existingLog } = useQuery({
     queryKey: ['dietLog', user?.email, selectedDate],
-    queryFn: () =>
-      base44.entities.DietLog.filter({ user_email: user.email, log_date: selectedDate }, '-created_date', 1)
-        .then(r => r[0] || null),
+    queryFn: async () => {
+      const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: selectedDate }, '-created_date', 1);
+      const log = logs[0] || null;
+      
+      // Auto-sync cycle data if available
+      if (log && user?.email) {
+        const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
+        if (cycles.length > 0) {
+          const cycle = cycles[0];
+          const daysInCycle = Math.floor((new Date(selectedDate) - new Date(cycle.start_date)) / (1000 * 60 * 60 * 24)) % 28;
+          return {
+            ...log,
+            cycle_phase: cycle.current_phase,
+            cycle_notes: cycle.notes,
+          };
+        }
+      }
+      return log;
+    },
     enabled: !!user?.email,
   });
 
@@ -97,6 +113,10 @@ export default function Lifestyle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['dietLog', user?.email, selectedDate]);
+      // Auto-sync to other features
+      queryClient.invalidateQueries(['cycleData']);
+      queryClient.invalidateQueries(['skinRoutine']);
+      queryClient.invalidateQueries(['skinAnalysis']);
       setSaving(false);
     },
   });
