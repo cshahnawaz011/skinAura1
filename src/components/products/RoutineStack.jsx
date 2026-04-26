@@ -215,10 +215,53 @@ function RoutineSection({ title, icon: Icon, routineData, fallbackProducts, fall
 
 // ── Main Component ───────────────────────────────────────────────────────────
 export default function RoutineStack({ savedProducts, latestAnalysis, savedRoutines = [], onRemove, onAdd }) {
-  // Find morning/night/weekly routines from savedRoutines
-  const morningRoutine = savedRoutines.find(r => r.routine_type === 'morning') || null;
-  const nightRoutine = savedRoutines.find(r => r.routine_type === 'night') || null;
-  const weeklyRoutine = savedRoutines.find(r => r.routine_type === 'weekly') || null;
+  // The AI routine saves its entire JSON into the `steps` field of SkinRoutine entity.
+  // So we pick the latest saved routine and extract morning/night from its steps object.
+  const latestSaved = savedRoutines[0] || null;
+  const aiRoutineData = latestSaved?.steps || null; // This is the full AI JSON
+
+  // Build morning routine steps from AI data
+  const morningSteps = aiRoutineData?.morning_routine?.map(s => ({
+    name: s.name,
+    product_type: s.product_type,
+    key_ingredients: s.key_ingredients,
+    application_tip: s.tip,
+  })) || [];
+
+  // Build night routine steps — today's day plan from night_week_plan
+  const todayIdx = (new Date().getDay() + 6) % 7; // Mon=0
+  const todayNightPlan = aiRoutineData?.night_week_plan?.[todayIdx];
+  const nightSteps = todayNightPlan?.steps?.map(s => ({
+    name: s.name,
+    product_type: todayNightPlan.active_name || s.name,
+    application_tip: s.tip,
+    key_ingredients: s.active ? [todayNightPlan.active_name].filter(Boolean) : [],
+  })) || [];
+
+  // Weekly add-ons
+  const weeklyAddons = aiRoutineData?.weekly_addons?.map(a => ({
+    name: a.name,
+    product_type: a.frequency,
+    application_tip: a.tip,
+    key_ingredients: [],
+  })) || [];
+
+  const morningRoutine = morningSteps.length > 0 ? {
+    steps: morningSteps,
+    routine_summary: aiRoutineData?.skin_summary?.current_barrier_status || '',
+    total_time: `${morningSteps.length} steps`,
+  } : null;
+
+  const nightRoutine = nightSteps.length > 0 ? {
+    steps: nightSteps,
+    routine_summary: todayNightPlan ? `${todayNightPlan.day_label} · ${todayNightPlan.day_type}` : '',
+    priority_note: aiRoutineData?.todays_adjustment?.summary || '',
+  } : null;
+
+  const weeklyRoutine = weeklyAddons.length > 0 ? {
+    steps: weeklyAddons,
+    routine_summary: 'Weekly booster treatments',
+  } : null;
 
   // Fallback savedProducts by category
   const morningProducts = savedProducts.filter(p => MORNING_ORDER.includes(p.category));
@@ -230,10 +273,27 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
     <div className="space-y-5">
 
       {/* Source banner */}
-      {savedRoutines.length > 0 && (
+      {aiRoutineData ? (
         <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-emerald-700"
           style={{ background: 'rgba(52,211,153,0.1)', border: '1px solid rgba(52,211,153,0.25)' }}>
-          ✅ Showing your <strong>{savedRoutines.length} saved routine{savedRoutines.length > 1 ? 's' : ''}</strong> from the Routine Tracker
+          ✅ Synced from your <strong>AI Skin Routine</strong> — steps auto-extracted
+        </div>
+      ) : savedProducts.filter(p => p.routine_step).length > 0 ? (
+        <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-violet-700"
+          style={{ background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.25)' }}>
+          🧴 {savedProducts.filter(p => p.routine_step).length} product(s) saved from Routine picker · showing below
+        </div>
+      ) : null}
+
+      {/* Products saved via StepProductPicker "Save to Shelf" */}
+      {!aiRoutineData && savedProducts.filter(p => p.routine_step).length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-black text-gray-400 uppercase tracking-wider">Saved from Routine Steps</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {savedProducts.filter(p => p.routine_step).map(p => (
+              <SavedProductCard key={p.id} product={p} analysis={latestAnalysis} onRemove={onRemove} />
+            ))}
+          </div>
         </div>
       )}
 

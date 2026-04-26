@@ -30,7 +30,7 @@ const LEVEL_COLORS = {
   'Level 3': 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
 };
 
-export default function WeekPlanGrid({ weekPlan }) {
+export default function WeekPlanGrid({ weekPlan, userEmail }) {
   const todayIndex = new Date().getDay();
   const todayDayIndex = (todayIndex + 6) % 7;
 
@@ -137,6 +137,7 @@ export default function WeekPlanGrid({ weekPlan }) {
                           country={country}
                           onCountryChange={setCountry}
                           selectedProduct={pickedProduct}
+                          userEmail={userEmail}
                           onProductSelect={(p) => setProduct(i, si, p)}
                         />
 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, ShoppingBag, Clock, MapPin, Layers, ChevronDown, ChevronUp, Star, X, Globe } from 'lucide-react';
+import { Loader2, ShoppingBag, Clock, MapPin, Layers, ChevronDown, ChevronUp, Star, X, Globe, BookmarkCheck, Bookmark } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const COUNTRY_OPTIONS = [
@@ -15,7 +15,7 @@ const COUNTRY_OPTIONS = [
   { code: 'AE', label: '🇦🇪 UAE' },
 ];
 
-function ProductCard({ product, onSelect, selected }) {
+function ProductCard({ product, onSelect, selected, onSaveToShelf, savedToShelf }) {
   const [expanded, setExpanded] = useState(false);
   const isSelected = selected?.name === product.name;
 
@@ -67,17 +67,30 @@ function ProductCard({ product, onSelect, selected }) {
             </div>
           </div>
 
-          {/* Select button */}
-          <button
-            onClick={() => onSelect(isSelected ? null : product)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-              isSelected
-                ? 'bg-pink-500 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-pink-100 hover:text-pink-600'
-            }`}
-          >
-            {isSelected ? '✓ Selected' : 'Use This'}
-          </button>
+          {/* Select + Save buttons */}
+          <div className="flex flex-col gap-1 flex-shrink-0">
+            <button
+              onClick={() => onSelect(isSelected ? null : product)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                isSelected
+                  ? 'bg-pink-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-pink-100 hover:text-pink-600'
+              }`}
+            >
+              {isSelected ? '✓ Selected' : 'Use This'}
+            </button>
+            <button
+              onClick={() => onSaveToShelf && onSaveToShelf(product)}
+              className={`flex items-center gap-1 px-2 py-1 rounded-xl text-[10px] font-bold transition-all ${
+                savedToShelf
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : 'bg-violet-50 text-violet-600 hover:bg-violet-100'
+              }`}
+            >
+              {savedToShelf ? <BookmarkCheck className="w-3 h-3" /> : <Bookmark className="w-3 h-3" />}
+              {savedToShelf ? 'Saved' : 'Save'}
+            </button>
+          </div>
         </div>
 
         {/* Quick info row */}
@@ -188,10 +201,41 @@ function ProductCard({ product, onSelect, selected }) {
   );
 }
 
-export default function StepProductPicker({ stepName, stepType, country, onCountryChange, selectedProduct, onProductSelect }) {
+export default function StepProductPicker({ stepName, stepType, country, onCountryChange, selectedProduct, onProductSelect, userEmail }) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
+  const [savedNames, setSavedNames] = useState(new Set());
+
+  const handleSaveToShelf = async (product) => {
+    if (!userEmail || savedNames.has(product.name)) return;
+    // Determine category from stepName/stepType
+    const n = (stepName + ' ' + (stepType || '')).toLowerCase();
+    let category = 'other';
+    if (n.includes('cleanser') || n.includes('wash')) category = 'cleanser';
+    else if (n.includes('toner')) category = 'toner';
+    else if (n.includes('serum') || n.includes('vitamin c') || n.includes('niacinamide')) category = 'serum';
+    else if (n.includes('moisturizer') || n.includes('cream') || n.includes('gel')) category = 'moisturizer';
+    else if (n.includes('sunscreen') || n.includes('spf')) category = 'sunscreen';
+    else if (n.includes('eye')) category = 'eye_cream';
+    else if (n.includes('mask')) category = 'face_mask';
+    else if (n.includes('retinol') || n.includes('retinoid')) category = 'retinol';
+    else if (n.includes('exfol') || n.includes('aha') || n.includes('bha')) category = 'exfoliant';
+    else if (n.includes('treatment') || n.includes('acne') || n.includes('spot')) category = 'treatment';
+
+    await base44.entities.SavedProduct.create({
+      user_email: userEmail,
+      product_name: product.name,
+      brand: product.brand || '',
+      category,
+      key_ingredients: product.key_ingredients || [],
+      price_range: product.price_range || 'mid',
+      rating: product.rating || null,
+      routine_step: stepName,
+      benefits: product.beginner_tip || '',
+    });
+    setSavedNames(prev => new Set([...prev, product.name]));
+  };
 
   const fetchProducts = async () => {
     if (products.length > 0) { setOpen(true); return; }
@@ -331,6 +375,8 @@ Focus on products actually sold in ${COUNTRY_OPTIONS.find(c => c.code === countr
                     product={product}
                     selected={selectedProduct}
                     onSelect={(p) => { onProductSelect(p); if (p) setOpen(false); }}
+                    onSaveToShelf={userEmail ? handleSaveToShelf : null}
+                    savedToShelf={savedNames.has(product.name)}
                   />
                 ))}
               </div>

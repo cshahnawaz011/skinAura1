@@ -195,7 +195,7 @@ function SkinSummaryCard({ summary }) {
   );
 }
 
-function MorningRoutineCard({ steps }) {
+function MorningRoutineCard({ steps, userEmail }) {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [country, setCountry] = useState('IN');
   if (!steps?.length) return null;
@@ -227,6 +227,7 @@ function MorningRoutineCard({ steps }) {
             country={country}
             onCountryChange={setCountry}
             selectedProduct={selectedProducts[i] || null}
+            userEmail={userEmail}
             onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
           />
           {selectedProducts[i] && (
@@ -301,7 +302,7 @@ function AdaptiveGuidanceCard({ guidance }) {
   );
 }
 
-function WeeklyAddonsCard({ addons }) {
+function WeeklyAddonsCard({ addons, userEmail }) {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [country, setCountry] = useState('IN');
   if (!addons?.length) return null;
@@ -323,6 +324,7 @@ function WeeklyAddonsCard({ addons }) {
             country={country}
             onCountryChange={setCountry}
             selectedProduct={selectedProducts[i] || null}
+            userEmail={userEmail}
             onProductSelect={(p) => setSelectedProducts(prev => ({ ...prev, [i]: p }))}
           />
           {selectedProducts[i] && (
@@ -725,7 +727,7 @@ export default function SkinRoutine() {
             defaultOpen={false}
             badge={<span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{routineData.morning_routine?.length || 0} steps</span>}
           >
-            <MorningRoutineCard steps={routineData.morning_routine} />
+            <MorningRoutineCard steps={routineData.morning_routine} userEmail={user?.email} />
           </CollapsibleSection>
 
           {/* Night 7-Day Plan */}
@@ -736,7 +738,7 @@ export default function SkinRoutine() {
               defaultOpen={false}
               badge={<span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">7 days</span>}
             >
-              <WeekPlanGrid weekPlan={routineData.night_week_plan} />
+              <WeekPlanGrid weekPlan={routineData.night_week_plan} userEmail={user?.email} />
             </CollapsibleSection>
           )}
 
@@ -747,7 +749,7 @@ export default function SkinRoutine() {
               icon={<Calendar className="w-4 h-4 text-teal-500" />}
               defaultOpen={false}
             >
-              <WeeklyAddonsCard addons={routineData.weekly_addons} />
+              <WeeklyAddonsCard addons={routineData.weekly_addons} userEmail={user?.email} />
             </CollapsibleSection>
           )}
 
