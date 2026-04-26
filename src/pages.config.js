@@ -55,7 +55,7 @@ import GamifiedTracker from './pages/GamifiedTracker';
 import GlowMap from './pages/GlowMap';
 import Home from './pages/Home';
 import IngredientChecker from './pages/IngredientChecker';
-import Lifestyle from './pages/Lifestyle';
+import Lifestyle from './pages/Lifestyle.jsx';
 import MakeupTryOn from './pages/MakeupTryOn';
 import ProductComparison from './pages/ProductComparison';
 import Products from './pages/Products';
