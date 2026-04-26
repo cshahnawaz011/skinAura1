@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import SeasonalSynthesisCard from '@/components/routine/SeasonalSynthesisCard';
 
 const EXPLORE_GRID = [
   { icon: Camera, label: 'Analyse', page: '/SkinAnalysis', color: '#f472b6', bgColor: 'rgba(244,114,182,0.1)' },
@@ -79,22 +80,8 @@ export default function Home() {
         </motion.div>
 
         {/* Weather Briefing */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="p-5 rounded-3xl mb-6 bg-white border border-gray-100/80 shadow-[0_2px_10px_rgba(0,0,0,0.02)] relative overflow-hidden"
-        >
-          <div className="flex items-start justify-between relative z-10">
-            <div>
-              <h3 className="font-bold text-gray-900 text-sm mb-1.5 flex items-center gap-2">
-                Weather Skin Briefing
-              </h3>
-              <p className="text-xs text-gray-500 leading-relaxed max-w-[220px] mb-4">
-                Tap "Get Advice" for a real-time skin briefing based on your local weather.
-              </p>
-              <button className="text-xs font-bold text-gray-700 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200/60 hover:bg-gray-100 transition-colors">
-                Get Advice
-              </button>
-            </div>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-6">
+          <SeasonalSynthesisCard />
         </motion.div>
 
         {/* Glow Score & Latest Analysis */}
