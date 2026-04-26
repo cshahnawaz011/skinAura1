@@ -1,0 +1,29 @@
+{
+  "name": "ProgressPhoto",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "photo_url": {
+      "type": "string"
+    },
+    "skin_score": {
+      "type": "number"
+    },
+    "week_number": {
+      "type": "number"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "photo_date": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "user_email",
+    "photo_url"
+  ]
+}
