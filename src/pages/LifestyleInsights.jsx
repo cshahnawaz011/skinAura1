@@ -60,6 +60,9 @@ export default function LifestyleInsights() {
       water: log.water_glasses || 0,
       sleep: log.sleep_hours || 0,
       exercise: log.exercise_minutes || 0,
+      stress: log.stress_level || 0,
+      energy: log.energy_level || 0,
+      foods: log.morning_foods || log.breakfast_foods || log.pm_foods || [],
     }));
   }, [last30Days]);
 
@@ -69,6 +72,8 @@ export default function LifestyleInsights() {
     const water = chartData.reduce((a, b) => a + b.water, 0) / chartData.length;
     const sleep = chartData.reduce((a, b) => a + b.sleep, 0) / chartData.length;
     const exercise = chartData.reduce((a, b) => a + b.exercise, 0) / chartData.length;
+    const stress = chartData.reduce((a, b) => a + (b.stress || 0), 0) / chartData.length;
+    const energy = chartData.reduce((a, b) => a + (b.energy || 0), 0) / chartData.length;
     const waterGoalMet = chartData.filter(d => d.water >= WATER_GOAL).length;
     const sleepGoalMet = chartData.filter(d => d.sleep >= SLEEP_GOAL).length;
     const exerciseGoalMet = chartData.filter(d => d.exercise >= EXERCISE_GOAL).length;
@@ -77,6 +82,8 @@ export default function LifestyleInsights() {
       water: { avg: water.toFixed(1), goalMet: waterGoalMet },
       sleep: { avg: sleep.toFixed(1), goalMet: sleepGoalMet },
       exercise: { avg: exercise.toFixed(1), goalMet: exerciseGoalMet },
+      stress: { avg: stress.toFixed(1) },
+      energy: { avg: energy.toFixed(1) },
       total: chartData.length,
     };
   }, [chartData]);
@@ -117,10 +124,10 @@ export default function LifestyleInsights() {
 
       {/* Stats Grid */}
       {stats && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl p-4 bg-blue-50 border border-blue-100">
-            <p className="text-xs text-blue-600 font-semibold mb-2">Water</p>
+            <p className="text-xs text-blue-600 font-semibold mb-2">💧 Water</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-blue-600">{stats.water.avg}</span>
               <span className="text-xs text-gray-500">/ {WATER_GOAL}</span>
@@ -130,7 +137,7 @@ export default function LifestyleInsights() {
 
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl p-4 bg-violet-50 border border-violet-100">
-            <p className="text-xs text-violet-600 font-semibold mb-2">Sleep</p>
+            <p className="text-xs text-violet-600 font-semibold mb-2">🌙 Sleep</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-violet-600">{stats.sleep.avg}</span>
               <span className="text-xs text-gray-500">/ {SLEEP_GOAL}</span>
@@ -140,12 +147,32 @@ export default function LifestyleInsights() {
 
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
             className="rounded-2xl p-4 bg-emerald-50 border border-emerald-100">
-            <p className="text-xs text-emerald-600 font-semibold mb-2">Exercise</p>
+            <p className="text-xs text-emerald-600 font-semibold mb-2">🏃 Exercise</p>
             <div className="flex items-baseline gap-1">
               <span className="text-2xl font-black text-emerald-600">{stats.exercise.avg}</span>
               <span className="text-xs text-gray-500">/ {EXERCISE_GOAL}</span>
             </div>
             <p className="text-[10px] text-gray-500 mt-1">{stats.exercise.goalMet} days met</p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl p-4 bg-orange-50 border border-orange-100">
+            <p className="text-xs text-orange-600 font-semibold mb-2">😰 Stress</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-orange-600">{stats.stress.avg}</span>
+              <span className="text-xs text-gray-500">/ 10</span>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1">avg level</p>
+          </motion.div>
+
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl p-4 bg-yellow-50 border border-yellow-100">
+            <p className="text-xs text-yellow-600 font-semibold mb-2">⚡ Energy</p>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-black text-yellow-600">{stats.energy.avg}</span>
+              <span className="text-xs text-gray-500">/ 10</span>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-1">avg level</p>
           </motion.div>
         </div>
       )}
@@ -238,7 +265,7 @@ export default function LifestyleInsights() {
       </motion.div>
 
       {/* AI Insights & Advice */}
-      <HealthInsightsCard stats={stats} chartData={chartData} />
+      <HealthInsightsCard stats={stats} chartData={chartData} last30Days={last30Days} />
 
       {/* Tips */}
       <div className="rounded-2xl p-5 bg-gray-50 border border-gray-200">
@@ -253,37 +280,52 @@ export default function LifestyleInsights() {
   );
 }
 
-function HealthInsightsCard({ stats, chartData }) {
+function HealthInsightsCard({ stats, chartData, last30Days }) {
   const [loading, setLoading] = useState(false);
   const [insights, setInsights] = useState(null);
   const [error, setError] = useState(null);
+
+  // Extract food data
+  const foodData = last30Days
+    .flatMap(log => [...(log.morning_foods || []), ...(log.breakfast_foods || []), ...(log.pm_foods || [])])
+    .filter(Boolean);
+  const uniqueFoods = [...new Set(foodData)];
+  const foodFreq = uniqueFoods.slice(0, 5).join(', ');
 
   const generateInsights = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Based on this health data from the last 30 days, provide personalized insights and actionable advice:
+        prompt: `Based on this comprehensive health data from the last 30 days, provide personalized wellness insights focused on skin health:
 
-Water intake: Average ${stats?.water.avg} glasses/day (Goal: 8 glasses)
-Sleep: Average ${stats?.sleep.avg} hours/night (Goal: 7-8 hours)
-Exercise: Average ${stats?.exercise.avg} minutes/day (Goal: 30 minutes)
+WELLNESS METRICS:
+- Water intake: Average ${stats?.water.avg} glasses/day (Goal: 8 glasses, ${stats?.water.goalMet} days met)
+- Sleep: Average ${stats?.sleep.avg} hours/night (Goal: 7-8 hours, ${stats?.sleep.goalMet} days met)
+- Exercise: Average ${stats?.exercise.avg} minutes/day (Goal: 30 minutes, ${stats?.exercise.goalMet} days met)
+- Stress Level: Average ${stats?.stress.avg}/10
+- Energy Level: Average ${stats?.energy.avg}/10
 
-Days meeting goals - Water: ${stats?.water.goalMet}, Sleep: ${stats?.sleep.goalMet}, Exercise: ${stats?.exercise.goalMet} out of ${chartData.length}
+NUTRITION:
+Top foods consumed: ${foodFreq || 'No food data logged'}
 
-Provide exactly this JSON structure:
+Total days tracked: ${chartData.length}
+
+Provide exactly this JSON:
 {
-  "insights": ["insight 1", "insight 2", "insight 3"],
-  "advice": ["advice 1", "advice 2", "advice 3"],
+  "insights": ["insight 1 about their wellness pattern", "insight 2 about stress/energy correlation", "insight 3 about nutrition impact"],
+  "advice": ["actionable tip 1", "actionable tip 2", "actionable tip 3"],
+  "foodInsights": "brief insight about their food choices and skin health impact",
   "motivation": "motivational message"
 }
 
-Keep it conversational and skin-health focused.`,
+Keep responses conversational, skin-health focused, and based on their actual data.`,
         response_json_schema: {
           type: 'object',
           properties: {
             insights: { type: 'array', items: { type: 'string' } },
             advice: { type: 'array', items: { type: 'string' } },
+            foodInsights: { type: 'string' },
             motivation: { type: 'string' },
           }
         }
@@ -328,7 +370,7 @@ Keep it conversational and skin-health focused.`,
       {insights && insights.insights && (
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-2">Your Patterns</p>
+            <p className="text-xs font-bold text-emerald-700 uppercase tracking-wide mb-2">Your Wellness Patterns</p>
             <ul className="space-y-1.5">
               {(Array.isArray(insights.insights) ? insights.insights : []).map((insight, i) => (
                 <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
@@ -350,6 +392,13 @@ Keep it conversational and skin-health focused.`,
               ))}
             </ol>
           </div>
+
+          {insights.foodInsights && (
+            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
+              <p className="text-xs font-bold text-amber-800 mb-1">🍎 Food Impact on Skin</p>
+              <p className="text-xs text-amber-900">{insights.foodInsights}</p>
+            </div>
+          )}
 
           {insights.motivation && (
             <div className="p-3 rounded-lg bg-white/60 border border-emerald-100">
