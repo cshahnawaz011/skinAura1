@@ -4,6 +4,9 @@ import { queryClientInstance } from '@/lib/query-client'
 import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
+import OfflineIndicator from '@/components/OfflineIndicator';
+import { useEffect } from 'react';
+import { initializeCache } from '@/lib/cacheService';
 import ProductAnalytics from './pages/ProductAnalytics';
 import SmartScheduler from './pages/SmartScheduler';
 import SkinDiary from './pages/SkinDiary';
@@ -104,11 +107,16 @@ const AuthenticatedApp = () => {
 
 
 function App() {
+  useEffect(() => {
+    // Initialize cache on app load
+    initializeCache().catch(err => console.error('Cache init failed:', err));
+  }, []);
 
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <OfflineIndicator />
           <AuthenticatedApp />
         </Router>
         <Toaster />
