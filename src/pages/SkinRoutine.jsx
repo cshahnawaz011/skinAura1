@@ -28,6 +28,16 @@ import OutcomeFeaturesCard from '@/components/routine/OutcomeFeaturesCard';
 import RoutineMotivationalQuote from '@/components/routine/RoutineMotivationalQuote';
 import RoutineTracker from '@/components/routine/RoutineTracker';
 
+let sharedRoutineState = {
+  generating: false,
+  routineData: null,
+};
+const routineListeners = new Set();
+const updateRoutineState = (updates) => {
+  sharedRoutineState = { ...sharedRoutineState, ...updates };
+  routineListeners.forEach(l => l(sharedRoutineState));
+};
+
 // ─── AI Prompt Builder ────────────────────────────────────────────────────────
 function buildRoutinePrompt(analysis, feedbackHistory, userLevel = {}) {
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -392,11 +402,16 @@ function CollapsibleSection({ title, icon, defaultOpen = true, children, badge }
 // ─── Main Page ───────────────────────────────────────────────────────────────
 export default function SkinRoutine() {
   const [user, setUser] = useState(null);
-  const [generating, setGenerating] = useState(false);
-  const [routineData, setRoutineData] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
   const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
+
+  const [localState, setLocalState] = useState(sharedRoutineState);
+  useEffect(() => {
+    routineListeners.add(setLocalState);
+    return () => routineListeners.delete(setLocalState);
+  }, []);
+  const { generating, routineData } = localState;
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -437,7 +452,7 @@ export default function SkinRoutine() {
   useEffect(() => {
     if (isCleared.current) return; // user explicitly cleared — don't reload
     if (savedRoutine?.steps && !routineData) {
-      setRoutineData(savedRoutine.steps);
+      updateRoutineState({ routineData: savedRoutine.steps });
     }
   }, [savedRoutine]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -465,7 +480,7 @@ export default function SkinRoutine() {
 
   const generateRoutine = async () => {
     isCleared.current = false; // allow saves to update state again
-    setGenerating(true);
+    updateRoutineState({ generating: true });
     const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
 
     const result = await base44.integrations.Core.InvokeLLM({
@@ -551,8 +566,7 @@ export default function SkinRoutine() {
       },
     });
 
-    setRoutineData(result);
-    setGenerating(false);
+    updateRoutineState({ routineData: result, generating: false });
 
     // Auto-save — after this savedRoutine will update but useEffect won't overwrite
     // because routineData is already set to `result`
@@ -575,7 +589,7 @@ export default function SkinRoutine() {
 
   const clearRoutine = async () => {
     isCleared.current = true;
-    setRoutineData(null);
+    updateRoutineState({ routineData: null });
     if (savedRoutine?.id) {
       await base44.entities.SkinRoutine.delete(savedRoutine.id);
       queryClient.invalidateQueries(['skinRoutine']);

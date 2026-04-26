@@ -190,9 +190,7 @@ export default function GlowDashboard() {
           </h1>
           <p className="text-sm text-gray-400">{format(new Date(), 'EEEE, MMM d')}</p>
         </div>
-        <Button onClick={() => setShowShare(true)} variant="outline" size="sm" className="gap-1.5">
-          <Share2 className="w-4 h-4" /> Share
-        </Button>
+
       </div>
 
       {/* Score + Streak hero */}

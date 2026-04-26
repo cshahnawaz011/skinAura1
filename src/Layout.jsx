@@ -101,7 +101,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Hamburger Menu */}
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
-              <button className="p-2 -ml-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-white/10">
+              <button className="p-2 -ml-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-white/10 active:opacity-50 active:scale-95">
                 <Menu className="w-5 h-5" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }} />
               </button>
             </SheetTrigger>

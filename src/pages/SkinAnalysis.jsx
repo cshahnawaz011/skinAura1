@@ -17,6 +17,30 @@ import ZoneHeatmapPanel from '@/components/analysis/ZoneHeatmapPanel';
 import ConfidenceRiskPanel from '@/components/analysis/ConfidenceRiskPanel';
 import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis';
 
+let sharedAnalysisState = {
+  photos: { front: null, left: null, right: null },
+  analyzing: false,
+  step: 0,
+  result: null,
+  cooldownLeft: 0,
+};
+let analysisCooldownTimer = null;
+const analysisListeners = new Set();
+const updateAnalysisState = (updates) => {
+  sharedAnalysisState = { ...sharedAnalysisState, ...updates };
+  analysisListeners.forEach(l => l(sharedAnalysisState));
+};
+
+const startAnalysisCooldown = (seconds) => {
+  if (analysisCooldownTimer) clearInterval(analysisCooldownTimer);
+  updateAnalysisState({ cooldownLeft: seconds });
+  analysisCooldownTimer = setInterval(() => {
+    const next = sharedAnalysisState.cooldownLeft - 1;
+    updateAnalysisState({ cooldownLeft: next });
+    if (next <= 0) clearInterval(analysisCooldownTimer);
+  }, 1000);
+};
+
 const ANALYSIS_STEPS = [
   'Uploading 3 face photos…',
   'Analyzing front view — skin health & tone…',
@@ -185,29 +209,20 @@ const COOLDOWN_SECONDS = 10;
 
 export default function SkinAnalysis() {
   const [user, setUser] = useState(null);
-  const [photos, setPhotos] = useState({ front: null, left: null, right: null });
-  const [analyzing, setAnalyzing] = useState(false);
-  const [step, setStep] = useState(0);
-  const [result, setResult] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
-  const [cooldownLeft, setCooldownLeft] = useState(0);
   const [routineMsg] = useState(() => ROUTINE_MESSAGES[Math.floor(Math.random() * ROUTINE_MESSAGES.length)]);
   const queryClient = useQueryClient();
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
-
-  // Cooldown timer
+  const [localState, setLocalState] = useState(sharedAnalysisState);
   useEffect(() => {
-    if (cooldownLeft <= 0) return;
-    const timer = setInterval(() => {
-      setCooldownLeft(prev => {
-        if (prev <= 1) { clearInterval(timer); return 0; }
-        return prev - 1;
-      });
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldownLeft]);
+    analysisListeners.add(setLocalState);
+    return () => analysisListeners.delete(setLocalState);
+  }, []);
+
+  const { photos, analyzing, step, result, cooldownLeft } = localState;
+
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: pastAnalyses = [] } = useQuery({
     queryKey: ['skinAnalyses', user?.email],
@@ -221,16 +236,14 @@ export default function SkinAnalysis() {
   });
 
   const handlePhotoChange = (slotId, value) => {
-    setPhotos(prev => ({ ...prev, [slotId]: value }));
-    setResult(null);
+    updateAnalysisState({ photos: { ...photos, [slotId]: value }, result: null });
   };
 
   const allReady = photos.front && photos.left && photos.right;
 
   const runAnalysis = async () => {
     if (!allReady) return;
-    setAnalyzing(true);
-    setStep(0);
+    updateAnalysisState({ analyzing: true, step: 0 });
 
     const [f, l, r] = await Promise.all([
       base44.integrations.Core.UploadFile({ file: photos.front.file }),
@@ -238,7 +251,7 @@ export default function SkinAnalysis() {
       base44.integrations.Core.UploadFile({ file: photos.right.file }),
     ]);
 
-    setStep(4);
+    updateAnalysisState({ step: 4 });
 
     const geminiRes = await base44.functions.invoke('gemini', {
       use_model: 'flash2',
@@ -270,9 +283,8 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     const res = geminiRes.data?.result;
     if (!res) throw new Error('Analysis failed — no result from Gemini');
 
-    setStep(5);
-    setResult({ ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url });
-    setAnalyzing(false);
+    updateAnalysisState({ step: 5 });
+    updateAnalysisState({ result: { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url }, analyzing: false });
 
     // Auto-save
     if (user) {
@@ -291,13 +303,12 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     }
 
     // Start cooldown
-    setCooldownLeft(COOLDOWN_SECONDS);
+    startAnalysisCooldown(COOLDOWN_SECONDS);
   };
 
   const reset = () => {
-    setResult(null);
-    setPhotos({ front: null, left: null, right: null });
-    setStep(0); setActiveTab('overview');
+    updateAnalysisState({ result: null, photos: { front: null, left: null, right: null }, step: 0 });
+    setActiveTab('overview');
   };
 
   const previousScore = pastAnalyses.length > 0 ? pastAnalyses[0]?.overall_score : null;
