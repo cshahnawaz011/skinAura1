@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIsFetching } from '@tanstack/react-query';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
@@ -48,6 +50,7 @@ export default function Layout({ children, currentPageName }) {
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const { tr, lang } = useTranslation();
+  const isFetching = useIsFetching();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
@@ -75,6 +78,18 @@ export default function Layout({ children, currentPageName }) {
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
       style={{ background: darkMode ? '#0a0814' : '#f8f4f0' }}>
 
+      {/* GLOBAL LOADING INDICATOR */}
+      {isFetching > 0 && (
+        <div className="fixed top-0 left-0 right-0 h-1 z-50 overflow-hidden bg-pink-100">
+          <motion.div
+            className="h-full bg-gradient-to-r from-pink-400 to-purple-500"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+      )}
+
       {/* ── TOP NAVBAR ── */}
       <header className="sticky top-0 z-40 w-full"
         style={{
@@ -83,12 +98,46 @@ export default function Layout({ children, currentPageName }) {
           backdropFilter: 'blur(24px)',
         }}>
         <div className="max-w-7xl mx-auto px-4 flex items-center h-14 gap-4">
+          {/* Hamburger Menu */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="p-2 -ml-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-white/10">
+                <Menu className="w-5 h-5" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }} />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0" style={{ background: darkMode ? '#0a0814' : '#f8f4f0', borderColor: darkMode ? 'rgba(255,255,255,0.06)' : '#ede8e3' }}>
+              <SheetHeader className="p-6 text-left border-b" style={{ borderColor: darkMode ? 'rgba(255,255,255,0.06)' : '#ede8e3' }}>
+                <SheetTitle className="flex items-center gap-3">
+                  <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-xl object-cover shadow-sm" alt="SkinAura" />
+                  <span className="font-black text-xl" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
+                </SheetTitle>
+              </SheetHeader>
+              <div className="p-4 flex flex-col gap-2 overflow-y-auto h-[calc(100vh-100px)]">
+                {ALL_FEATURES.map((feature) => {
+                  const FeatureIcon = feature.icon;
+                  const isActive = currentPageName === feature.page;
+                  return (
+                    <Link
+                      key={feature.key}
+                      to={createPageUrl(feature.page)}
+                      className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
+                        isActive
+                          ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
+                      }`}
+                    >
+                      <FeatureIcon className="w-5 h-5" />
+                      <span>{feature.label}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </SheetContent>
+          </Sheet>
+
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm"
-              style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)' }}>
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
             <span className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
           </Link>
 
@@ -108,7 +157,7 @@ export default function Layout({ children, currentPageName }) {
               </button>
             ) : (
               <button onClick={() => base44.auth.redirectToLogin()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ios-button-3d"
                 style={{ background: 'linear-gradient(135deg,#e8a0b0,#c98bc4)', color: '#fff' }}>
                 <LogIn className="w-3.5 h-3.5" />
                 <span>Sign In</span>
@@ -119,7 +168,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="flex-1 overflow-y-auto pb-6">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPageName}
@@ -134,91 +183,6 @@ export default function Layout({ children, currentPageName }) {
         </AnimatePresence>
       </main>
 
-      {/* ── BOTTOM NAVIGATION ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50"
-        style={{
-          background: darkMode ? 'rgba(10,8,20,0.96)' : 'rgba(255,252,249,0.97)',
-          borderTop: darkMode ? '1px solid rgba(255,255,255,0.06)' : '1px solid #ede8e3',
-          backdropFilter: 'blur(24px)',
-        }}>
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-16 gap-2">
-          {BOTTOM_NAV.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPageName === item.page;
-
-            if (item.key === 'more') {
-              return (
-                <div key="more" className="relative flex-1 max-w-xs">
-                  <button
-                    onClick={() => setMoreMenuOpen(!moreMenuOpen)}
-                    className={`w-full flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-xl transition-all ${
-                      moreMenuOpen
-                        ? 'bg-gray-100 dark:bg-white/10'
-                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5" />
-                    <span className="text-xs font-semibold">More</span>
-                  </button>
-
-                  {/* More menu dropdown */}
-                  <AnimatePresence>
-                    {moreMenuOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute bottom-full left-0 right-0 mb-2 rounded-2xl p-2 shadow-xl grid grid-cols-3 gap-1"
-                        style={{
-                          background: darkMode ? 'rgba(10,8,20,0.96)' : 'rgba(255,252,249,0.97)',
-                          border: darkMode ? '1px solid rgba(255,255,255,0.06)' : '1px solid #ede8e3',
-                          backdropFilter: 'blur(24px)',
-                        }}
-                      >
-                        {ALL_FEATURES.slice(3).map((feature) => {
-                          const FeatureIcon = feature.icon;
-                          const isFeatureActive = currentPageName === feature.page;
-                          return (
-                            <Link
-                              key={feature.page}
-                              to={createPageUrl(feature.page)}
-                              onClick={() => setMoreMenuOpen(false)}
-                              className={`flex flex-col items-center justify-center gap-1 p-2 rounded-xl text-xs font-semibold transition-all ${
-                                isFeatureActive
-                                  ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300'
-                                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                              }`}
-                            >
-                              <FeatureIcon className="w-4 h-4" />
-                              <span className="line-clamp-1">{feature.label}</span>
-                            </Link>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.page}
-                to={createPageUrl(item.page)}
-                onClick={() => setMoreMenuOpen(false)}
-                className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-3 rounded-xl transition-all ${
-                  isActive
-                    ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300'
-                    : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-semibold">{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
     </div>
   );
 }

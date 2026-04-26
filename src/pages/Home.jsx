@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Home as HomeIcon, Camera, Sparkles, TrendingUp, MessageCircle, User, ArrowRight, Zap, Target, Calendar, Flame } from 'lucide-react';
+import { Home as HomeIcon, Camera, Sparkles, TrendingUp, MessageCircle, User, ArrowRight, Zap, Target, Calendar, Flame, HelpCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 
 const BOTTOM_NAV = [
@@ -14,17 +16,29 @@ const BOTTOM_NAV = [
 ];
 
 const FEATURE_GRID = [
-  { icon: Camera, label: 'Scan Skin', page: '/SkinAnalysis', color: '#f472b6', bgColor: 'rgba(244,114,182,0.1)' },
-  { icon: Sparkles, label: 'Routine', page: '/SkinRoutine', color: '#a78bfa', bgColor: 'rgba(167,139,250,0.1)' },
-  { icon: MessageCircle, label: 'AI Chat', page: '/SkinChat', color: '#06b6d4', bgColor: 'rgba(6,182,212,0.1)' },
-  { icon: Calendar, label: 'Scheduler', page: '/SmartScheduler', color: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)' },
-  { icon: Zap, label: 'Insights', page: '/AiInsights', color: '#10b981', bgColor: 'rgba(16,185,129,0.1)' },
-  { icon: Target, label: 'Goals', page: '/SkinGoals', color: '#8b5cf6', bgColor: 'rgba(139,92,246,0.1)' },
+  { icon: Camera, label: 'Scan Skin', desc: "AI-powered facial analysis to detect acne, hydration, and more.", page: '/SkinAnalysis', color: '#f472b6', bgColor: 'rgba(244,114,182,0.1)' },
+  { icon: Sparkles, label: 'Routine', desc: "Your personalized daily skincare routine and product tracking.", page: '/SkinRoutine', color: '#a78bfa', bgColor: 'rgba(167,139,250,0.1)' },
+  { icon: MessageCircle, label: 'AI Chat', desc: "Ask any skincare question to your intelligent dermatologist AI.", page: '/SkinChat', color: '#06b6d4', bgColor: 'rgba(6,182,212,0.1)' },
+  { icon: Calendar, label: 'Scheduler', desc: "Plan your treatments and track consistency over time.", page: '/SmartScheduler', color: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)' },
+  { icon: Zap, label: 'Insights', desc: "Deep dive into what's working for your skin and what's not.", page: '/AiInsights', color: '#10b981', bgColor: 'rgba(16,185,129,0.1)' },
+  { icon: Target, label: 'Goals', desc: "Set specific targets like 'Clear Acne' and track progress.", page: '/SkinGoals', color: '#8b5cf6', bgColor: 'rgba(139,92,246,0.1)' },
 ];
 
 export default function Home() {
   const [user, setUser] = useState(null);
+  const [showJourney, setShowJourney] = useState(false);
   const currentPath = window.location.pathname;
+
+  useEffect(() => {
+    const hasSeen = localStorage.getItem('journey_seen');
+    if (!hasSeen) {
+      const timer = setTimeout(() => {
+        setShowJourney(true);
+        localStorage.setItem('journey_seen', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -71,14 +85,13 @@ export default function Home() {
             backdropFilter: 'blur(16px)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.08)'
           }}>
-          <div className="text-5xl mb-6">✨</div>
+          <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-24 h-24 mx-auto rounded-3xl object-cover shadow-lg mb-6" alt="SkinAura" />
           <h2 className="text-2xl font-black text-gray-900 mb-2">SkinAura</h2>
           <p className="text-gray-600 text-sm mb-8 leading-relaxed">Your personal AI skin companion</p>
           <button onClick={() => base44.auth.redirectToLogin()}
-            className="w-full py-3 rounded-xl font-bold text-white transition-all hover:shadow-lg active:scale-95"
+            className="w-full py-3 rounded-xl font-bold text-white transition-all hover:shadow-lg active:scale-95 ios-button"
             style={{
-              background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)',
-              boxShadow: '0 6px 20px rgba(244,114,182,0.25)'
+              background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)'
             }}>
             Get Started
           </button>
@@ -88,7 +101,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: 'linear-gradient(180deg, #f9f7f4 0%, #fef9f6 50%, #faf8f5 100%)' }}>
+    <div className="min-h-screen pb-10" style={{ background: 'linear-gradient(180deg, #f9f7f4 0%, #fef9f6 50%, #faf8f5 100%)' }}>
       <div className="max-w-2xl mx-auto px-4 pt-6">
         {/* HEADER */}
         <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between mb-8">
@@ -154,14 +167,29 @@ export default function Home() {
             {FEATURE_GRID.map((feature, i) => {
               const Icon = feature.icon;
               return (
-                <Link key={i} to={feature.page}>
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    className="p-4 rounded-xl text-center transition-all cursor-pointer"
-                    style={{ background: feature.bgColor, border: `1.5px solid ${feature.color}30` }}>
-                    <Icon className="w-5 h-5 mx-auto mb-2" style={{ color: feature.color }} />
-                    <p className="text-xs font-bold text-gray-900">{feature.label}</p>
-                  </motion.div>
-                </Link>
+                <div key={i} className="relative group">
+                  <Link to={feature.page} className="block h-full">
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                      className="p-4 rounded-xl text-center transition-all cursor-pointer h-full ios-button-3d"
+                      style={{ background: feature.bgColor, border: `1.5px solid ${feature.color}30` }}>
+                      <Icon className="w-5 h-5 mx-auto mb-2" style={{ color: feature.color }} />
+                      <p className="text-[11px] font-bold text-gray-900">{feature.label}</p>
+                    </motion.div>
+                  </Link>
+                  <div className="absolute -top-2 -right-2 z-10">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="w-6 h-6 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center text-gray-500 hover:text-pink-500 transition-colors">
+                          <HelpCircle className="w-3.5 h-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-3 text-sm rounded-xl shadow-xl" side="top">
+                        <p className="font-bold text-gray-900 mb-1">{feature.label}</p>
+                        <p className="text-gray-600 text-xs">{feature.desc}</p>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -195,52 +223,70 @@ export default function Home() {
           className="flex gap-3"
           >
           <Link to="/SkinChat" className="flex-1">
-            <div className="p-4 rounded-xl text-center text-white font-bold text-sm transition-all hover:shadow-md"
+            <div className="p-4 rounded-xl text-center text-white font-bold text-sm transition-all hover:shadow-md ios-button-3d"
               style={{ background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)' }}>
               Ask AI Coach
             </div>
           </Link>
           <Link to="/Progress" className="flex-1">
-            <div className="p-4 rounded-xl text-center font-bold text-sm transition-all"
+            <div className="p-4 rounded-xl text-center font-bold text-sm transition-all ios-button-3d"
               style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(0,0,0,0.08)', color: 'rgb(23,23,23)' }}>
               View Progress
             </div>
           </Link>
         </motion.div>
 
-        {/* BOTTOM NAVIGATION */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 px-4 py-3 safe-area-pb"
-        style={{
-          background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(250,248,246,0.95) 15%, rgba(250,248,246,0.98) 100%)',
-          backdropFilter: 'blur(24px)',
-          borderTop: '1px solid rgba(244, 114, 182, 0.08)'
-        }}>
-        <div className="max-w-2xl mx-auto flex items-center justify-around">
-          {BOTTOM_NAV.map((item) => {
-            const Icon = item.icon;
-            const isActive = currentPath === item.page;
-            return (
-              <Link key={item.key} to={item.page} className="flex flex-col items-center gap-1.5">
-                <motion.div
-                  whileTap={{ scale: 0.88 }}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
-                  style={{
-                    background: isActive ? 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)' : 'transparent',
-                    boxShadow: isActive ? '0 6px 16px rgba(244,114,182,0.25)' : 'none'
-                  }}>
-                  <Icon className={`w-5 h-5 transition-colors ${isActive ? 'text-white' : 'text-gray-600'}`} />
+      </div>
+
+      {/* SKIN JOURNEY MODAL */}
+      <Dialog open={showJourney} onOpenChange={setShowJourney}>
+        <DialogContent className="sm:max-w-md rounded-3xl border-0 overflow-hidden p-0" style={{ background: 'linear-gradient(135deg, #fdf4ff 0%, #f0f6ff 100%)' }}>
+          <div className="p-8 text-center relative">
+            {/* Background elements */}
+            <div className="absolute top-[-20%] left-[-10%] w-40 h-40 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+            <div className="absolute top-[-20%] right-[-10%] w-40 h-40 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+            
+            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-20 h-20 mx-auto rounded-2xl shadow-xl mb-6 relative z-10 object-cover" alt="SkinAura Journey" />
+            
+            <DialogHeader>
+              <DialogTitle className="text-3xl font-black text-gray-900 mb-2 relative z-10">Your Skin Journey</DialogTitle>
+              <DialogDescription className="text-gray-600 text-sm leading-relaxed relative z-10">
+                Welcome to SkinAura! Follow these steps to achieve your glow:
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-8 space-y-4 text-left relative z-10">
+              {[
+                { icon: '📸', title: '1. Skin Analysis', desc: 'Scan your face to detect concerns.' },
+                { icon: '✨', title: '2. Routine', desc: 'Get a personalized daily regimen.' },
+                { icon: '📈', title: '3. Progress', desc: 'Track improvements over time.' },
+                { icon: '💡', title: '4. Insights', desc: 'Learn what works best for you.' }
+              ].map((step, idx) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.15 }}
+                  key={idx} className="flex items-start gap-3 bg-white/60 p-3 rounded-xl backdrop-blur-sm border border-white/40 shadow-sm"
+                >
+                  <span className="text-2xl">{step.icon}</span>
+                  <div>
+                    <h4 className="font-bold text-gray-900 text-sm">{step.title}</h4>
+                    <p className="text-xs text-gray-600">{step.desc}</p>
+                  </div>
                 </motion.div>
-                <span className={`text-[10px] font-bold transition-colors ${
-                  isActive ? 'text-pink-600' : 'text-gray-400'
-                }`}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-      </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={() => setShowJourney(false)}
+              className="mt-8 w-full py-3 rounded-xl font-bold text-white transition-all hover:shadow-lg active:scale-95 relative z-10 ios-button-3d"
+              style={{ background: 'linear-gradient(135deg, #f472b6 0%, #a78bfa 100%)' }}
+            >
+              Start My Journey
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
