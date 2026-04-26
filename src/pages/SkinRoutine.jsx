@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Loader2, Sun, Moon, Calendar, Check, Trash2,
   ShieldCheck, AlertTriangle, TrendingUp, RefreshCw, Info,
-  ChevronDown, ChevronUp, BookOpen, Save
+  ChevronDown, ChevronUp, BookOpen, Save, ListChecks
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ import ProgressForecastCard from '@/components/routine/ProgressForecastCard';
 import RoutineChangesCard from '@/components/routine/RoutineChangesCard';
 import OutcomeFeaturesCard from '@/components/routine/OutcomeFeaturesCard';
 import RoutineMotivationalQuote from '@/components/routine/RoutineMotivationalQuote';
+import RoutineTracker from '@/components/routine/RoutineTracker';
 
 // ─── AI Prompt Builder ────────────────────────────────────────────────────────
 function buildRoutinePrompt(analysis, feedbackHistory, userLevel = {}) {
@@ -377,6 +378,7 @@ export default function SkinRoutine() {
   const [user, setUser] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [routineData, setRoutineData] = useState(null);
+  const [showTracker, setShowTracker] = useState(false);
   const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
 
@@ -619,10 +621,21 @@ export default function SkinRoutine() {
                 : 'Based on your skin analysis — provide daily feedback to adapt'}
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {routineData && (
               <Button variant="outline" size="sm" onClick={clearRoutine} className="text-red-500 hover:text-red-600">
                 <Trash2 className="w-3 h-3 mr-1" /> Clear
+              </Button>
+            )}
+            {routineData && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTracker(t => !t)}
+                className={showTracker ? 'bg-violet-50 border-violet-300 text-violet-700' : 'text-violet-600'}
+              >
+                <ListChecks className="w-3.5 h-3.5 mr-1" />
+                {showTracker ? 'Hide Tracker' : 'Track Today'}
               </Button>
             )}
             <Button
@@ -638,6 +651,37 @@ export default function SkinRoutine() {
           </div>
         </div>
       </GlassCard>
+
+      {/* ── Routine Tracker Expanding Section ── */}
+      <AnimatePresence>
+        {showTracker && routineData && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden"
+          >
+            <div className="rounded-2xl border-2 border-violet-200 overflow-hidden"
+              style={{ background: 'linear-gradient(145deg,#faf5ff,#f5f3ff)' }}>
+              {/* Header */}
+              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-violet-100">
+                <div className="w-8 h-8 rounded-xl flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg,#a78bfa,#7c3aed)' }}>
+                  <ListChecks className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-black text-sm text-violet-800">Today's Routine Tracker</p>
+                  <p className="text-[10px] text-violet-400">Check off steps as you complete them · resets daily</p>
+                </div>
+              </div>
+              <div className="p-4">
+                <RoutineTracker routineData={routineData} />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Routine Output — always visible if saved, collapsible */}
       {routineData && (
