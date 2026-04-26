@@ -254,6 +254,7 @@ export default function SkinAnalysis() {
     ]);
 
     updateAnalysisState({ step: 4 });
+    backgroundOps.updateProgress('skinAnalysis', 40);
 
     const geminiRes = await base44.functions.invoke('gemini', {
       use_model: 'flash2',
@@ -286,7 +287,9 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
     if (!res) throw new Error('Analysis failed — no result from Gemini');
 
     updateAnalysisState({ step: 5 });
+    backgroundOps.updateProgress('skinAnalysis', 90);
     updateAnalysisState({ result: { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url }, analyzing: false });
+    backgroundOps.updateProgress('skinAnalysis', 100);
     backgroundOps.complete('skinAnalysis');
 
     // Auto-save
