@@ -16,6 +16,15 @@ import UserLevelTracker from '@/components/routine/UserLevelTracker';
 import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
+import BarrierRiskEngine from '@/components/routine/BarrierRiskEngine';
+import IngredientIntelligenceCard from '@/components/routine/IngredientIntelligenceCard';
+import TriggerCorrelationEngine from '@/components/routine/TriggerCorrelationEngine';
+import SkinAnalysisDeepCard from '@/components/routine/SkinAnalysisDeepCard';
+import SeasonalSynthesisCard from '@/components/routine/SeasonalSynthesisCard';
+import ProgressForecastCard from '@/components/routine/ProgressForecastCard';
+import RoutineChangesCard from '@/components/routine/RoutineChangesCard';
+import OutcomeFeaturesCard from '@/components/routine/OutcomeFeaturesCard';
+import RoutineMotivationalQuote from '@/components/routine/RoutineMotivationalQuote';
 
 // ─── AI Prompt Builder ────────────────────────────────────────────────────────
 function buildRoutinePrompt(analysis, feedbackHistory, userLevel = {}) {
@@ -700,6 +709,39 @@ export default function SkinRoutine() {
           />
         </GlassCard>
       )}
+
+      {/* ── ANALYTICS ENGINE CARDS ──────────────────────────── */}
+
+      {/* Section Label */}
+      <div className="flex items-center gap-2 pt-2">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-200 to-transparent" />
+        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Routine Intelligence</p>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-200 to-transparent" />
+      </div>
+
+      {/* Row 1 — Core Engines */}
+      <BarrierRiskEngine feedbackHistory={feedbackHistory} analysis={latestAnalysis} userLevel={userLevel} />
+      <IngredientIntelligenceCard routineData={routineData} />
+      <TriggerCorrelationEngine feedbackHistory={feedbackHistory} />
+
+      {/* Section Label 2 — Week 12 Monday Focus */}
+      <div className="flex items-center gap-2 pt-1">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent" />
+        <p className="text-xs font-black text-gray-400 uppercase tracking-widest px-2">Week 12 · Monday Focus</p>
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent via-violet-200 to-transparent" />
+      </div>
+
+      {/* Row 2 — Deep Analysis Cards */}
+      <SkinAnalysisDeepCard analysis={latestAnalysis} />
+      <SeasonalSynthesisCard />
+      <ProgressForecastCard pastAnalyses={[latestAnalysis].filter(Boolean)} />
+      <RoutineChangesCard feedbackHistory={feedbackHistory} savedRoutine={savedRoutine} />
+
+      {/* Outcome Features */}
+      <OutcomeFeaturesCard />
+
+      {/* Motivational Quote */}
+      <RoutineMotivationalQuote />
 
       {!user && (
         <GlassCard className="text-center py-8">
