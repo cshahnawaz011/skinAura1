@@ -39,7 +39,7 @@ function CooldownButton({ cooldownKey, onClick, loading, children, className }) 
   );
 }
 
-export default function AiInsights() {
+export default function Insights() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('celebrity');
   const [results, setResults] = useState({});

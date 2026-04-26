@@ -18,7 +18,7 @@ import BeautyCalendar from './pages/BeautyCalendar';
 import TravelSkincare from './pages/TravelSkincare';
 
 import GlowChallenge from './pages/GlowChallenge';
-import SkinGoalChallenge from './pages/SkinGoalChallenge';
+
 import SkinAnalysisPage from './pages/SkinAnalysis';
 import FacialHeatmap from './pages/FacialHeatmap';
 import IngredientLibrary from './pages/IngredientLibrary';
@@ -91,7 +91,7 @@ const AuthenticatedApp = () => {
       <Route path="/TravelSkincare" element={<LayoutWrapper currentPageName="TravelSkincare"><TravelSkincare /></LayoutWrapper>} />
 
       <Route path="/GlowChallenge" element={<LayoutWrapper currentPageName="GlowChallenge"><GlowChallenge /></LayoutWrapper>} />
-      <Route path="/SkinGoalChallenge" element={<LayoutWrapper currentPageName="SkinGoalChallenge"><SkinGoalChallenge /></LayoutWrapper>} />
+
       <Route path="/FacialHeatmap" element={<LayoutWrapper currentPageName="FacialHeatmap"><FacialHeatmap /></LayoutWrapper>} />
       <Route path="/IngredientLibrary" element={<LayoutWrapper currentPageName="IngredientLibrary"><IngredientLibrary /></LayoutWrapper>} />
       <Route path="/Diet" element={<LayoutWrapper currentPageName="Diet"><Diet /></LayoutWrapper>} />

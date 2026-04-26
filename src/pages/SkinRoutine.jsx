@@ -592,7 +592,7 @@ export default function SkinRoutine() {
           ✨
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">AI Skin Routine</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">Skin Routine</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Minimal · Rotational · Barrier-First · Adaptive
           </p>

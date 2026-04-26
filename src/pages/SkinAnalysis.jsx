@@ -308,7 +308,7 @@ Scoring: 0=none, 1-3=mild, 4-6=moderate, 7-10=severe. Be honest and concise.`,
       {/* Header */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div>
-          <h1 className="text-2xl font-black">AI Skin Analysis</h1>
+          <h1 className="text-2xl font-black">Skin Analysis</h1>
           <p className="text-xs text-gray-500 mt-0.5">360° · Front + Left + Right · Clinic-grade diagnostic</p>
         </div>
         {user && pastAnalyses.length > 0 && (

@@ -135,7 +135,7 @@ export default function AdaptiveSkinMap() {
           <div className="flex items-center gap-2 mb-1">
             <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-lg" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🗺️</div>
             <div>
-              <h1 className="text-2xl font-black">Adaptive Skin Map</h1>
+              <h1 className="text-2xl font-black">Skin Map</h1>
               <p className="text-xs text-gray-500">Interactive diagnostic intelligence</p>
             </div>
           </div>
