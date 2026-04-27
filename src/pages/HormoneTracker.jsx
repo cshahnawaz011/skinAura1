@@ -453,7 +453,7 @@ export default function HormoneTracker() {
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [selectedMood, setSelectedMood] = useState('');
   const [energy, setEnergy] = useState(5);
-  const [startDateInput, setStartDateInput] = useState(cycleData?.start_date || today);
+  const [startDateInput, setStartDateInput] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -461,7 +461,7 @@ export default function HormoneTracker() {
       setSelectedSymptoms(cycleData.symptoms || []);
       setSelectedMood(cycleData.mood || '');
       setEnergy(cycleData.energy_level || 5);
-      setStartDateInput(cycleData.start_date || today);
+      setStartDateInput(cycleData.start_date || '');
     }
   }, [cycleData?.id]);
 
