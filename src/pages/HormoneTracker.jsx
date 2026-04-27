@@ -445,8 +445,9 @@ export default function HormoneTracker() {
     },
   });
 
-  const currentPhase = cycleData?.start_date ? getPhaseFromDay(getCycleDay(cycleData.start_date)) : null;
-  const cycleDay = cycleData?.start_date ? getCycleDay(cycleData.start_date) : null;
+  const effectiveStartDate = cycleData?.start_date || null;
+  const currentPhase = effectiveStartDate ? getPhaseFromDay(getCycleDay(effectiveStartDate)) : null;
+  const cycleDay = effectiveStartDate ? getCycleDay(effectiveStartDate) : null;
   const phaseConfig = PHASES.find(p => p.key === (currentPhase || 'follicular'));
   const daysUntilNext = currentPhase === 'menstrual' ? 6 - cycleDay : currentPhase === 'follicular' ? 13 - cycleDay : currentPhase === 'ovulation' ? 17 - cycleDay : 29 - cycleDay;
 
@@ -467,11 +468,12 @@ export default function HormoneTracker() {
 
   const handleSave = async () => {
     setSaving(true);
+    const newPhase = startDateInput ? getPhaseFromDay(getCycleDay(startDateInput)) : 'follicular';
     await saveMutation.mutateAsync({
       user_email: user.email,
       start_date: startDateInput,
       cycle_length: 28,
-      current_phase: currentPhase,
+      current_phase: newPhase,
       symptoms: selectedSymptoms,
       mood: selectedMood,
       energy_level: energy,
