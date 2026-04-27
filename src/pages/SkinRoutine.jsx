@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { backgroundOps } from '@/lib/BackgroundOperations';
 import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib/routineSessionCache';
 import RoutineTracker from '@/components/routine/RoutineTracker';
+import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
 import { usePageState } from '@/lib/pageStateContext';
 
 // ── Shared state ──────────────────────────────────────────────────────────────
@@ -418,6 +419,9 @@ export default function SkinRoutine() {
               </div>
             </div>
           )}
+
+          {/* Level & Frequency Guide */}
+          <ConcentrationLevelGuide currentLevel={userLevel.currentLevel} />
 
           {/* Skin Summary */}
           {routineData.skin_summary && (
