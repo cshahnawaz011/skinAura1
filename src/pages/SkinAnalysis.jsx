@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { backgroundOps } from '@/lib/BackgroundOperations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { setLastAutoRoutineTime, shouldAutoGenerateRoutine } from '@/lib/autoRoutineGenerator';
+import { mergeSkinData } from '@/lib/skinDataOrchestration';
 import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -307,12 +308,16 @@ All results must be internally consistent and based on the parameter scores.`,
       throw new Error(`Invalid response structure: ${JSON.stringify(res)}`);
     }
     const analysisResult = { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url };
-    updateAnalysisState({ result: analysisResult, analyzing: false });
-    localStorage.setItem('skinAnalysisCache', JSON.stringify(analysisResult));
-    backgroundOps.updateProgress('skinAnalysis', 100);
-    backgroundOps.complete('skinAnalysis', { analysisResult });
+    // Merge with historical data for richer context
+    const mergedAnalysis = await mergeSkinData(analysisResult, pastAnalyses);
+    const finalAnalysisData = mergedAnalysis || analysisResult;
 
-    // Auto-save
+    updateAnalysisState({ result: finalAnalysisData, analyzing: false });
+    localStorage.setItem('skinAnalysisCache', JSON.stringify(finalAnalysisData));
+    backgroundOps.updateProgress('skinAnalysis', 100);
+    backgroundOps.complete('skinAnalysis', { analysisResult: finalAnalysisData });
+
+    // Auto-save merged data
     if (user) {
       saveMutation.mutate({
         user_email: user.email,
@@ -325,6 +330,8 @@ All results must be internally consistent and based on the parameter scores.`,
         recommendations: res.recommendations, skin_strengths: res.skin_strengths,
         priority_concerns: res.priority_concerns, concern_insights: res.concern_insights,
         zone_notes: res.zone_notes, analysis_date: new Date().toISOString(),
+        skin_trends: finalAnalysisData.skin_trends,
+        merged_insights: finalAnalysisData.merged_insights,
       });
     }
 

@@ -18,6 +18,7 @@ import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
 import { backgroundOps } from '@/lib/BackgroundOperations';
 import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib/routineSessionCache';
+import { mergeSkinData } from '@/lib/skinDataOrchestration';
 import RoutineTracker from '@/components/routine/RoutineTracker';
 import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
 import AdvancedTolerancePhases from '@/components/routine/AdvancedTolerancePhases';
@@ -210,6 +211,12 @@ export default function SkinRoutine() {
     enabled: !!user?.email,
   });
 
+  const { data: pastAnalyses = [] } = useQuery({
+    queryKey: ['skinAnalysisHistory', user?.email],
+    queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 10),
+    enabled: !!user?.email,
+  });
+
   const { data: savedRoutine } = useQuery({
     queryKey: ['skinRoutine', user?.email],
     queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
@@ -251,7 +258,13 @@ export default function SkinRoutine() {
     isCleared.current = false;
     updateRoutineState({ generating: true });
     backgroundOps.start('skinRoutine', '✨ Skin Routine', { userEmail: user?.email });
-    const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
+    
+    // Merge new analysis with historical data for richer context
+    const mergedAnalysis = latestAnalysis && pastAnalyses ? 
+      await mergeSkinData(latestAnalysis, pastAnalyses) : 
+      latestAnalysis;
+    
+    const prompt = buildRoutinePrompt(mergedAnalysis || latestAnalysis, feedbackHistory, userLevel);
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
       response_json_schema: {
