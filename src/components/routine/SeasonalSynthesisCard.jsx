@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cloud, ChevronDown, ChevronUp, MapPin, Loader2, RefreshCw, Wind, Droplets, Sun, Thermometer } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from 'recharts';
+import { useRealLocation } from '@/hooks/useRealLocation';
 
 function getSkinModeFromWeather(temp, humidity, uvIndex, weatherCode) {
   const isRainy = weatherCode >= 51 && weatherCode <= 82;
@@ -48,13 +49,13 @@ function getUVLabel(uv) {
 export default function SeasonalSynthesisCard() {
   const [open, setOpen] = useState(false);
   const [weather, setWeather] = useState(null);
-  const [location, setLocation] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [hourlyTrend, setHourlyTrend] = useState([]);
-  const [source, setSource] = useState('');
+  const [weatherLoading, setWeatherLoading] = useState(false);
+
+  const { location, loading, error, source, refetch } = useRealLocation({ autoFetch: true });
 
   const fetchWeatherByCoords = async (lat, lon) => {
+    setWeatherLoading(true);
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,uv_index&hourly=temperature_2m,relative_humidity_2m,uv_index&timezone=auto&forecast_days=1`;
     const res = await fetch(url);
     const data = await res.json();
@@ -78,64 +79,26 @@ export default function SeasonalSynthesisCard() {
       });
     }
     setHourlyTrend(trend);
+    setWeatherLoading(false);
   };
 
-  const fetchLocation = async () => {
-    setLoading(true);
-    setError(null);
+  useEffect(() => {
+    if (location) fetchWeatherByCoords(location.lat, location.lon);
+  }, [location]);
+
+  const handleRefresh = async () => {
     setWeather(null);
-
-    // Step 1 — GPS (works on real HTTPS devices)
-    const tryGPS = () => new Promise((resolve, reject) => {
-      if (!navigator.geolocation) return reject('no_geo');
-      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-    });
-
-    try {
-      const pos = await tryGPS();
-      const { latitude, longitude } = pos.coords;
-      try {
-        const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-        const geoData = await geoRes.json();
-        const city = geoData.address?.city || geoData.address?.town || geoData.address?.village || 'Your Location';
-        setLocation({ city, lat: latitude, lon: longitude });
-      } catch {
-        setLocation({ city: 'Your Location', lat: latitude, lon: longitude });
-      }
-      setSource('GPS');
-      await fetchWeatherByCoords(latitude, longitude);
-      setLoading(false);
-      return;
-    } catch {
-      // GPS unavailable — try IP fallback
-    }
-
-    // Step 2 — IP-based fallback (works in preview/browser without permission)
-    try {
-      const ipRes = await fetch('https://ipapi.co/json/');
-      const ipData = await ipRes.json();
-      if (ipData.latitude && ipData.longitude) {
-        setLocation({ city: ipData.city || ipData.region || 'Your Location', lat: ipData.latitude, lon: ipData.longitude });
-        setSource('IP');
-        await fetchWeatherByCoords(ipData.latitude, ipData.longitude);
-        setLoading(false);
-        return;
-      }
-    } catch {
-      // IP also failed
-    }
-
-    setError('Location detection failed. Please allow location access in your browser.');
-    setLoading(false);
+    await refetch();
   };
 
-  useEffect(() => { fetchLocation(); }, []);
+  const isLoading = loading || weatherLoading;
 
   const mode = weather
     ? getSkinModeFromWeather(weather.temp, weather.humidity, weather.uvIndex, weather.weatherCode)
     : { emoji: '🌤️', label: 'Loading…', color: '#a78bfa', rec: '', warning: null };
 
   const uvInfo = weather ? getUVLabel(weather.uvIndex) : null;
+  const displaySource = source === 'GPS' ? '(GPS ✓)' : source === 'IP' ? '(IP-based)' : '';
 
   return (
     <div className="rounded-2xl border-2 overflow-hidden"
@@ -147,24 +110,24 @@ export default function SeasonalSynthesisCard() {
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center text-xl"
             style={{ background: `${mode.color}15` }}>
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: mode.color }} /> : mode.emoji}
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" style={{ color: mode.color }} /> : mode.emoji}
           </div>
           <div className="text-left">
             <p className="font-black text-sm">Real-Time Weather Skin Synthesis</p>
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 text-gray-400" />
               <p className="text-[10px] text-gray-400">
-                {loading ? 'Detecting location…' : location ? `${location.city} ${source === 'IP' ? '(IP-based)' : '(GPS)'}` : 'Location unavailable'}
+                {isLoading ? 'Detecting location…' : location ? `${location.city} ${displaySource}` : error ? 'Location unavailable' : 'Detecting…'}
               </p>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={(e) => { e.stopPropagation(); fetchLocation(); }}
+          <button onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
             className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Refresh">
             <RefreshCw className="w-3.5 h-3.5 text-gray-400" />
           </button>
-          {!loading && weather && (
+          {!isLoading && weather && (
             <span className="text-xs font-black px-2 py-0.5 rounded-full text-white"
               style={{ background: mode.color }}>{mode.label}</span>
           )}
@@ -178,24 +141,24 @@ export default function SeasonalSynthesisCard() {
             exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.22 }} className="overflow-hidden">
             <div className="px-4 pb-4 space-y-3">
 
-              {loading && (
+              {isLoading && (
                 <div className="flex flex-col items-center justify-center py-8 gap-3">
                   <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
-                  <p className="text-sm text-gray-500">Detecting location and weather...</p>
+                  <p className="text-sm text-gray-500">Requesting location & fetching weather…</p>
                 </div>
               )}
 
-              {error && !loading && (
+              {error && !isLoading && (
                 <div className="rounded-xl p-4 bg-red-50 border border-red-200 text-center space-y-2">
                   <p className="text-xs font-bold text-red-600">📍 {error}</p>
-                  <button onClick={fetchLocation}
+                  <button onClick={handleRefresh}
                     className="px-4 py-1.5 rounded-lg text-xs font-bold text-white bg-red-500">
-                    Retry
+                    Allow Location & Retry
                   </button>
                 </div>
               )}
 
-              {weather && !loading && (
+              {weather && !isLoading && (
                 <>
                   {mode.warning && (
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-amber-50 border border-amber-200">
