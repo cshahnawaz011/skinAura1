@@ -337,23 +337,33 @@ export default function SkinRoutine() {
           )}
 
           {/* Action buttons */}
-          <div className="flex items-center gap-2">
-            <button onClick={generateRoutine} disabled={generating}
-              className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-black text-sm text-white ios-button-3d disabled:opacity-60"
-              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-              {generating
-                ? <><Loader2 className="w-4 h-4 animate-spin" />Analyzing…</>
-                : <><Sparkles className="w-4 h-4" />{routineData ? 'Regenerate' : 'Generate Routine'}</>}
-            </button>
-            {(routineData || savedRoutine?.steps) && (
-              <button onClick={() => setShowTracker(t => !t)}
-                className="flex items-center gap-1.5 px-4 py-3 rounded-2xl font-bold text-sm transition-all"
-                style={{ background: showTracker ? 'rgba(167,139,250,0.12)' : '#f5f5f5', color: showTracker ? '#7c3aed' : '#6b7280', border: showTracker ? '1.5px solid rgba(167,139,250,0.4)' : '1.5px solid transparent' }}>
-                <ListChecks className="w-4 h-4" />
-                {showTracker ? 'Hide' : 'Track'}
+          {!latestAnalysis && user ? (
+            <Link to="/SkinAnalysis" className="block">
+              <div className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl font-black text-sm text-white ios-button-3d"
+                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                <span>🔬</span> Scan Your Skin First
+              </div>
+              <p className="text-center text-[11px] text-gray-400 mt-1.5">A skin analysis is required to generate your personalized routine</p>
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button onClick={generateRoutine} disabled={generating || !latestAnalysis}
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl font-black text-sm text-white ios-button-3d disabled:opacity-60"
+                style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                {generating
+                  ? <><Loader2 className="w-4 h-4 animate-spin" />Analyzing…</>
+                  : <><Sparkles className="w-4 h-4" />{routineData ? 'Regenerate' : 'Generate Routine'}</>}
               </button>
-            )}
-          </div>
+              {(routineData || savedRoutine?.steps) && (
+                <button onClick={() => setShowTracker(t => !t)}
+                  className="flex items-center gap-1.5 px-4 py-3 rounded-2xl font-bold text-sm transition-all"
+                  style={{ background: showTracker ? 'rgba(167,139,250,0.12)' : '#f5f5f5', color: showTracker ? '#7c3aed' : '#6b7280', border: showTracker ? '1.5px solid rgba(167,139,250,0.4)' : '1.5px solid transparent' }}>
+                  <ListChecks className="w-4 h-4" />
+                  {showTracker ? 'Hide' : 'Track'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
