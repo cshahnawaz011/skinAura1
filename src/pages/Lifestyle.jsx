@@ -3,10 +3,21 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Save } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Save, Plus, X, Search, Loader2 } from 'lucide-react';
 import MetricCard from '@/components/lifestyle/MetricCard';
-import FoodSearchCard from '@/components/lifestyle/FoodSearchCard';
+
+const MOODS = [
+  { val: 'Great', emoji: '😄' },
+  { val: 'Good', emoji: '🙂' },
+  { val: 'Okay', emoji: '😐' },
+  { val: 'Tired', emoji: '😴' },
+  { val: 'Rough', emoji: '😟' },
+];
+
+const VITAMINS_LIST = ['Vitamin C', 'Vitamin D', 'Vitamin E', 'Zinc', 'Omega-3', 'Biotin', 'Iron', 'Magnesium', 'Collagen'];
+
+const GOOD_FOODS = ['Berries', 'Avocado', 'Salmon', 'Spinach', 'Sweet Potato', 'Nuts', 'Green Tea', 'Turmeric', 'Eggs', 'Broccoli', 'Cucumber', 'Olive Oil', 'Flaxseed', 'Yogurt', 'Tomatoes'];
+const BAD_FOODS = ['Sugar', 'Dairy', 'Fried Food', 'Alcohol', 'Caffeine', 'White Bread', 'Processed Food', 'Spicy Food', 'Fast Food', 'Soda'];
 
 const SKIN_METRICS = [
   { key: 'acne_level', label: 'Acne Level', emoji: '🔴', color: '#ef4444', values: [0,1,2,3,4,5] },
@@ -25,10 +36,23 @@ const DEFAULT_LOG = {
   water_glasses: 0,
   sleep_hours: 0,
   exercise_minutes: 0,
+  daily_steps: 0,
   stress_level: 3,
+  mood: 'Good',
+  screen_time_hours: 0,
+  caffeine_cups: 0,
+  alcohol_drinks: 0,
+  meditation_minutes: 0,
+  outdoor_minutes: 0,
   morning_foods: [],
   breakfast_foods: [],
   pm_foods: [],
+  foods_good: [],
+  foods_bad: [],
+  vitamins_taken: [],
+  skincare_done_morning: false,
+  skincare_done_night: false,
+  sunscreen_applied: false,
   acne_level: 0,
   hydration: 'Medium',
   oiliness: 3,
@@ -39,63 +63,116 @@ const DEFAULT_LOG = {
   radiance: 3,
   breakouts: 'None',
   itching: 'None',
-  skincare_done_morning: false,
-  skincare_done_night: false,
 };
+
+function Section({ title, children }) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+function FoodTagInput({ label, emoji, value = [], onChange, suggestions, color }) {
+  const [input, setInput] = useState('');
+  const filtered = input.length > 1 ? suggestions.filter(s => s.toLowerCase().includes(input.toLowerCase()) && !value.includes(s)) : [];
+
+  const add = (item) => {
+    if (!value.includes(item)) onChange([...value, item]);
+    setInput('');
+  };
+  const remove = (item) => onChange(value.filter(v => v !== item));
+
+  return (
+    <div className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+      <p className="font-bold text-sm mb-2">{emoji} {label}</p>
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {value.map(v => (
+          <span key={v} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold text-white" style={{ background: color }}>
+            {v} <button onClick={() => remove(v)}><X className="w-3 h-3" /></button>
+          </span>
+        ))}
+      </div>
+      <div className="relative">
+        <input value={input} onChange={e => setInput(e.target.value)} placeholder={`Search ${label.toLowerCase()}…`}
+          className="w-full px-3 py-2 rounded-xl text-xs border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:border-pink-300 transition-all" />
+        {filtered.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 shadow-lg z-10 max-h-36 overflow-y-auto">
+            {filtered.map(s => (
+              <button key={s} onClick={() => add(s)} className="w-full text-left px-3 py-2 text-xs hover:bg-gray-50 dark:hover:bg-gray-700 transition-all">{s}</button>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="flex flex-wrap gap-1 mt-2">
+        {suggestions.filter(s => !value.includes(s)).slice(0, 6).map(s => (
+          <button key={s} onClick={() => add(s)} className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 transition-all">
+            + {s}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Lifestyle() {
   const [user, setUser] = useState(null);
   const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [log, setLog] = useState(DEFAULT_LOG);
   const [saving, setSaving] = useState(false);
+  const [aiFood, setAiFood] = useState('');
+  const [aiFoodResult, setAiFoodResult] = useState(null);
+  const [aiFoodLoading, setAiFoodLoading] = useState(false);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: existingLog } = useQuery({
     queryKey: ['dietLog', user?.email, selectedDate],
     queryFn: async () => {
-      const logs = await base44.entities.DietLog.filter(
-        { user_email: user.email, log_date: selectedDate },
-        '-created_date',
-        1
-      );
+      const logs = await base44.entities.DietLog.filter({ user_email: user.email, log_date: selectedDate }, '-created_date', 1);
       return logs[0] || null;
     },
     enabled: !!user?.email,
   });
 
   useEffect(() => {
-    if (existingLog) {
-      setLog({ ...DEFAULT_LOG, ...existingLog });
-    } else {
-      setLog(DEFAULT_LOG);
-    }
+    setLog(existingLog ? { ...DEFAULT_LOG, ...existingLog } : DEFAULT_LOG);
   }, [existingLog, selectedDate]);
 
   const saveMutation = useMutation({
-    mutationFn: async (data) => {
-      if (existingLog?.id) {
-        return base44.entities.DietLog.update(existingLog.id, data);
-      }
-      return base44.entities.DietLog.create(data);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['dietLog', user?.email, selectedDate]);
-      setSaving(false);
-    },
+    mutationFn: (data) => existingLog?.id
+      ? base44.entities.DietLog.update(existingLog.id, data)
+      : base44.entities.DietLog.create(data),
+    onSuccess: () => { queryClient.invalidateQueries(['dietLog', user?.email, selectedDate]); setSaving(false); },
   });
 
-  const updateField = (field, value) => {
-    setLog(prev => ({ ...prev, [field]: value }));
-  };
+  const updateField = (field, value) => setLog(prev => ({ ...prev, [field]: value }));
 
   const handleSave = () => {
     if (!user) return;
     setSaving(true);
     saveMutation.mutate({ ...log, user_email: user.email, log_date: selectedDate });
+  };
+
+  const analyzeFood = async () => {
+    if (!aiFood.trim()) return;
+    setAiFoodLoading(true);
+    setAiFoodResult(null);
+    const res = await base44.integrations.Core.InvokeLLM({
+      prompt: `Analyze this food/drink for skin health: "${aiFood}". Is it good or bad for skin? Why? Give a verdict.`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          verdict: { type: 'string', enum: ['Good for skin', 'Bad for skin', 'Neutral'] },
+          reason: { type: 'string' },
+          tip: { type: 'string' },
+        }
+      }
+    });
+    setAiFoodResult(res);
+    setAiFoodLoading(false);
   };
 
   if (!user) {
@@ -110,14 +187,15 @@ export default function Lifestyle() {
   }
 
   return (
-    <div className="max-w-md mx-auto pb-12 space-y-4">
+    <div className="max-w-md mx-auto pb-12 space-y-5">
+
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🌿</div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Lifestyle</h1>
-            <p className="text-sm text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'EEEE, MMM d')}</p>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Lifestyle Tracker</h1>
+            <p className="text-sm text-gray-500">Diet impacts your skin & health</p>
           </div>
         </div>
         <button onClick={handleSave} disabled={saving}
@@ -127,122 +205,281 @@ export default function Lifestyle() {
         </button>
       </div>
 
-      {/* Date Picker */}
-      <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all" />
+      {/* Date + quick import */}
+      <div className="flex gap-2 items-center">
+        <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
+          className="flex-1 px-4 py-2.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all" />
+        <span className="text-xs text-gray-400 font-medium">System Adaptive ✦</span>
+      </div>
 
-      {/* Wellness Metrics */}
-      <div className="space-y-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Wellness</p>
-        <MetricCard icon="💧" title="Water" color="#0ea5e9">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl font-black text-blue-500">{log.water_glasses || 0}</span>
+      {/* Today's Overview chips */}
+      <div className="grid grid-cols-4 gap-2">
+        {[
+          { emoji: '💧', label: 'Water', val: `${log.water_glasses}g`, color: '#0ea5e9' },
+          { emoji: '🌙', label: 'Sleep', val: `${log.sleep_hours}h`, color: '#a855f7' },
+          { emoji: '🏃', label: 'Exercise', val: `${log.exercise_minutes}m`, color: '#10b981' },
+          { emoji: '🧠', label: 'Stress', val: `${log.stress_level}/5`, color: '#ef4444' },
+        ].map(c => (
+          <div key={c.label} className="rounded-2xl p-2.5 text-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+            <p className="text-sm">{c.emoji}</p>
+            <p className="text-base font-black" style={{ color: c.color }}>{c.val}</p>
+            <p className="text-[9px] text-gray-400">{c.label}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* ─── WELLNESS ─── */}
+      <Section title="Wellness">
+        {/* Water */}
+        <MetricCard icon="💧" title="Water Intake" color="#0ea5e9">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-blue-500">{log.water_glasses}</span>
             <span className="text-xs text-gray-500">glasses</span>
           </div>
-          <div className="flex gap-1 mt-2">
-            {[0, 4, 8, 12].map(v => (
+          <div className="flex gap-1">
+            {[0,2,4,6,8,10,12].map(v => (
               <button key={v} onClick={() => updateField('water_glasses', v)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  log.water_glasses === v ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-600'
-                }`}>
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${log.water_glasses === v ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>{v}</button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Sleep */}
+        <MetricCard icon="🌙" title="Sleep Hours" color="#a855f7">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-violet-500">{log.sleep_hours}</span>
+            <span className="text-xs text-gray-500">hrs</span>
+          </div>
+          <input type="range" min="0" max="12" step="0.5" value={log.sleep_hours}
+            onChange={e => updateField('sleep_hours', parseFloat(e.target.value))}
+            className="w-full accent-violet-500" />
+          <div className="flex justify-between text-[10px] text-gray-400 mt-1">
+            <span>0</span><span>4</span><span>8</span><span>12h</span>
+          </div>
+        </MetricCard>
+
+        {/* Exercise */}
+        <MetricCard icon="🏃" title="Exercise" color="#10b981">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-emerald-500">{log.exercise_minutes}</span>
+            <span className="text-xs text-gray-500">min</span>
+          </div>
+          <div className="flex gap-1">
+            {[0,15,30,45,60,90].map(m => (
+              <button key={m} onClick={() => updateField('exercise_minutes', m)}
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${log.exercise_minutes === m ? 'bg-emerald-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>
+                {m === 0 ? '0' : `${m}`}
+              </button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Daily Steps */}
+        <MetricCard icon="👟" title="Daily Steps" color="#f59e0b">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-amber-500">{(log.daily_steps || 0).toLocaleString()}</span>
+            <span className="text-xs text-gray-500">steps</span>
+          </div>
+          <div className="flex gap-1">
+            {[0, 2000, 5000, 8000, 10000, 15000].map(s => (
+              <button key={s} onClick={() => updateField('daily_steps', s)}
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${log.daily_steps === s ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>
+                {s === 0 ? '0' : s >= 1000 ? `${s/1000}k` : s}
+              </button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Stress Level */}
+        <MetricCard icon="🧠" title="Stress Level" color="#ef4444">
+          <p className="text-xs text-gray-400 mb-2">Current stress (1 = calm, 5 = very stressed)</p>
+          <div className="flex gap-1">
+            {[1,2,3,4,5].map(s => (
+              <button key={s} onClick={() => updateField('stress_level', s)}
+                className={`flex-1 py-2.5 rounded-xl font-black text-sm transition-all ${log.stress_level === s ? 'bg-red-500 text-white shadow-md' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>{s}</button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Mood */}
+        <MetricCard icon="😊" title="Mood" color="#ec4899">
+          <div className="flex gap-2 flex-wrap">
+            {MOODS.map(m => (
+              <button key={m.val} onClick={() => updateField('mood', m.val)}
+                className={`flex flex-col items-center px-3 py-2 rounded-2xl transition-all ${log.mood === m.val ? 'bg-pink-500 text-white shadow-md' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                <span className="text-xl">{m.emoji}</span>
+                <span className="text-[10px] font-semibold mt-0.5">{m.val}</span>
+              </button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Screen Time */}
+        <MetricCard icon="📱" title="Screen Time" color="#6366f1">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-indigo-500">{log.screen_time_hours || 0}</span>
+            <span className="text-xs text-gray-500">hrs</span>
+          </div>
+          <input type="range" min="0" max="16" step="0.5" value={log.screen_time_hours || 0}
+            onChange={e => updateField('screen_time_hours', parseFloat(e.target.value))}
+            className="w-full accent-indigo-500" />
+        </MetricCard>
+
+        {/* Caffeine */}
+        <MetricCard icon="☕" title="Caffeine" color="#a16207">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black" style={{ color: '#a16207' }}>{log.caffeine_cups || 0}</span>
+            <span className="text-xs text-gray-500">cups</span>
+          </div>
+          <div className="flex gap-1">
+            {[0,1,2,3,4,5].map(v => (
+              <button key={v} onClick={() => updateField('caffeine_cups', v)}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${(log.caffeine_cups || 0) === v ? 'text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}
+                style={(log.caffeine_cups || 0) === v ? { background: '#a16207' } : {}}>{v}</button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Alcohol */}
+        <MetricCard icon="🍷" title="Alcohol" color="#b91c1c">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-red-700">{log.alcohol_drinks || 0}</span>
+            <span className="text-xs text-gray-500">drinks</span>
+          </div>
+          <div className="flex gap-1">
+            {[0,1,2,3,4].map(v => (
+              <button key={v} onClick={() => updateField('alcohol_drinks', v)}
+                className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${(log.alcohol_drinks || 0) === v ? 'bg-red-700 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>{v}</button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Meditation */}
+        <MetricCard icon="🧘" title="Meditation" color="#0d9488">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-teal-600">{log.meditation_minutes || 0}</span>
+            <span className="text-xs text-gray-500">min</span>
+          </div>
+          <div className="flex gap-1">
+            {[0,5,10,15,20,30].map(v => (
+              <button key={v} onClick={() => updateField('meditation_minutes', v)}
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${(log.meditation_minutes || 0) === v ? 'bg-teal-600 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>{v === 0 ? '0' : `${v}m`}</button>
+            ))}
+          </div>
+        </MetricCard>
+
+        {/* Outdoor / Sunlight */}
+        <MetricCard icon="☀️" title="Outdoor / Sunlight Time" color="#d97706">
+          <div className="flex items-baseline gap-1 mb-2">
+            <span className="text-3xl font-black text-amber-600">{log.outdoor_minutes || 0}</span>
+            <span className="text-xs text-gray-500">min</span>
+          </div>
+          <div className="flex gap-1">
+            {[0,15,30,60,90,120].map(v => (
+              <button key={v} onClick={() => updateField('outdoor_minutes', v)}
+                className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${(log.outdoor_minutes || 0) === v ? 'bg-amber-500 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}>{v === 0 ? '0' : `${v}m`}</button>
+            ))}
+          </div>
+        </MetricCard>
+      </Section>
+
+      {/* ─── SKINCARE CHECKLIST ─── */}
+      <Section title="Skincare Checklist">
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { key: 'skincare_done_morning', label: 'Morning\nRoutine', emoji: '🌅' },
+            { key: 'skincare_done_night', label: 'Night\nRoutine', emoji: '🌙' },
+            { key: 'sunscreen_applied', label: 'Sunscreen\nApplied', emoji: '🧴' },
+          ].map(item => (
+            <button key={item.key} onClick={() => updateField(item.key, !log[item.key])}
+              className={`p-4 rounded-2xl font-semibold transition-all flex flex-col items-center gap-1.5 ${log[item.key] ? 'text-white shadow-md' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'}`}
+              style={log[item.key] ? { background: 'linear-gradient(135deg,#f472b6,#a78bfa)' } : {}}>
+              <span className="text-2xl">{item.emoji}</span>
+              <span className="text-[10px] text-center leading-tight whitespace-pre">{item.label}</span>
+              <span className="text-sm">{log[item.key] ? '✓' : '○'}</span>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      {/* ─── VITAMINS & SUPPLEMENTS ─── */}
+      <Section title="Vitamins & Supplements">
+        <div className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <div className="flex flex-wrap gap-1.5">
+            {VITAMINS_LIST.map(v => (
+              <button key={v} onClick={() => {
+                const cur = log.vitamins_taken || [];
+                updateField('vitamins_taken', cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v]);
+              }}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all border ${
+                  (log.vitamins_taken || []).includes(v) ? 'text-white border-transparent' : 'bg-gray-50 border-gray-200 text-gray-600'
+                }`}
+                style={(log.vitamins_taken || []).includes(v) ? { background: 'linear-gradient(135deg,#6366f1,#a78bfa)' } : {}}>
                 {v}
               </button>
             ))}
           </div>
-        </MetricCard>
+        </div>
+      </Section>
 
-        <MetricCard icon="🌙" title="Sleep" color="#a855f7">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl font-black text-violet-500">{log.sleep_hours || 0}</span>
-            <span className="text-xs text-gray-500">hrs</span>
+      {/* ─── AI FOOD ANALYZER ─── */}
+      <Section title="AI Food Analyzer">
+        <div className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-3">
+          <p className="text-xs text-gray-500">Analyze any food or drink for its skin impact</p>
+          <div className="flex gap-2">
+            <input value={aiFood} onChange={e => setAiFood(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && analyzeFood()}
+              placeholder="Search any food, e.g. matcha, oats…"
+              className="flex-1 px-3 py-2 rounded-xl text-xs border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:border-pink-300 transition-all" />
+            <button onClick={analyzeFood} disabled={aiFoodLoading || !aiFood.trim()}
+              className="px-4 py-2 rounded-xl text-xs font-bold text-white disabled:opacity-50" style={{ background: 'linear-gradient(135deg,#10b981,#38bdf8)' }}>
+              {aiFoodLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Go'}
+            </button>
           </div>
-          <input type="range" min="0" max="12" step="0.5" value={log.sleep_hours || 0}
-            onChange={e => updateField('sleep_hours', parseFloat(e.target.value))}
-            className="w-full mt-2 accent-violet-500" />
-        </MetricCard>
+          {aiFoodResult && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+              className={`p-3 rounded-2xl border text-xs space-y-1 ${aiFoodResult.verdict === 'Good for skin' ? 'bg-emerald-50 border-emerald-200' : aiFoodResult.verdict === 'Bad for skin' ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-200'}`}>
+              <p className={`font-black text-sm ${aiFoodResult.verdict === 'Good for skin' ? 'text-emerald-600' : aiFoodResult.verdict === 'Bad for skin' ? 'text-red-500' : 'text-gray-600'}`}>
+                {aiFoodResult.verdict === 'Good for skin' ? '✅' : aiFoodResult.verdict === 'Bad for skin' ? '❌' : '⚖️'} {aiFoodResult.verdict}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">{aiFoodResult.reason}</p>
+              {aiFoodResult.tip && <p className="text-gray-500 italic">💡 {aiFoodResult.tip}</p>}
+            </motion.div>
+          )}
+        </div>
+      </Section>
 
-        <MetricCard icon="🏃" title="Exercise" color="#10b981">
-          <div className="flex items-center gap-2">
-            <span className="text-3xl font-black text-emerald-500">{log.exercise_minutes || 0}</span>
-            <span className="text-xs text-gray-500">min</span>
-          </div>
-          <div className="flex gap-1 mt-2">
-            {[0, 15, 30, 60].map(m => (
-              <button key={m} onClick={() => updateField('exercise_minutes', m)}
-                className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  log.exercise_minutes === m ? 'bg-emerald-500 text-white' : 'bg-gray-100 text-gray-600'
-                }`}>
-                {m === 0 ? '0' : `${m}m`}
-              </button>
-            ))}
-          </div>
-        </MetricCard>
+      {/* ─── FOOD FOR SKIN ─── */}
+      <Section title="Food Tracking">
+        <FoodTagInput label="Good for Skin" emoji="✅" value={log.foods_good || []} onChange={v => updateField('foods_good', v)} suggestions={GOOD_FOODS} color="#10b981" />
+        <FoodTagInput label="Bad for Skin" emoji="❌" value={log.foods_bad || []} onChange={v => updateField('foods_bad', v)} suggestions={BAD_FOODS} color="#ef4444" />
+      </Section>
 
-        <MetricCard icon="🧠" title="Stress" color="#ef4444">
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map(s => (
-              <button key={s} onClick={() => updateField('stress_level', s)}
-                className={`flex-1 py-2 rounded-lg font-semibold transition-all text-xs ${
-                  log.stress_level === s ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-600'
-                }`}>
-                {s}
-              </button>
-            ))}
-          </div>
-        </MetricCard>
-      </div>
-
-      {/* Food Tracking */}
-      <div className="space-y-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Food & Nutrition</p>
-        <FoodSearchCard title="Morning Foods" emoji="🌅" value={log.morning_foods} 
-          onChange={v => updateField('morning_foods', v)} color="#f59e0b" />
-        <FoodSearchCard title="Breakfast" emoji="🥐" value={log.breakfast_foods} 
-          onChange={v => updateField('breakfast_foods', v)} color="#ec4899" />
-        <FoodSearchCard title="Lunch & Dinner" emoji="🍽️" value={log.pm_foods} 
-          onChange={v => updateField('pm_foods', v)} color="#10b981" />
-      </div>
-
-      {/* Skin Metrics */}
-      <div className="space-y-2">
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Skin Health</p>
+      {/* ─── SKIN HEALTH ─── */}
+      <Section title="Skin Health">
         {SKIN_METRICS.map(metric => (
           <MetricCard key={metric.key} icon={metric.emoji} title={metric.label} color={metric.color}>
             <div className="flex gap-1 flex-wrap">
               {metric.values.map(val => (
                 <button key={val} onClick={() => updateField(metric.key, val)}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
-                    log[metric.key] === val 
-                      ? `bg-black text-white` 
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}>
+                    log[metric.key] === val ? 'text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-600'
+                  }`}
+                  style={log[metric.key] === val ? { background: metric.color } : {}}>
                   {val}
                 </button>
               ))}
             </div>
           </MetricCard>
         ))}
-      </div>
+      </Section>
 
-      {/* Skincare Checklist */}
-      <div>
-        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1 mb-2">Skincare</p>
-        <div className="space-y-2">
-          {[
-            { key: 'skincare_done_morning', label: 'Morning Routine', emoji: '🌅' },
-            { key: 'skincare_done_night', label: 'Night Routine', emoji: '🌙' },
-          ].map(item => (
-            <button key={item.key} onClick={() => updateField(item.key, !log[item.key])}
-              className={`w-full p-4 rounded-2xl font-semibold transition-all text-sm flex items-center gap-3 ${
-                log[item.key] ? 'bg-black text-white' : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-              }`}>
-              <span className="text-lg">{item.emoji}</span>
-              <span>{item.label}</span>
-              <span className="ml-auto">{log[item.key] ? '✓' : '○'}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Save button bottom */}
+      <button onClick={handleSave} disabled={saving}
+        className="w-full py-4 rounded-2xl font-black text-white text-base ios-button-3d disabled:opacity-50"
+        style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+        {saving ? 'Saving…' : '✨ Save Today\'s Log'}
+      </button>
     </div>
   );
 }

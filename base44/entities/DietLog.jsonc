@@ -24,6 +24,9 @@
     "coffee_cups": {
       "type": "number"
     },
+    "caffeine_cups": {
+      "type": "number"
+    },
     "alcohol_drinks": {
       "type": "number"
     },
@@ -37,6 +40,18 @@
       "type": "boolean"
     },
     "exercise_minutes": {
+      "type": "number"
+    },
+    "daily_steps": {
+      "type": "number"
+    },
+    "screen_time_hours": {
+      "type": "number"
+    },
+    "meditation_minutes": {
+      "type": "number"
+    },
+    "outdoor_minutes": {
       "type": "number"
     },
     "foods_good": {
@@ -56,6 +71,54 @@
       "items": {
         "type": "string"
       }
+    },
+    "morning_foods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "breakfast_foods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "pm_foods": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acne_level": {
+      "type": "number"
+    },
+    "hydration": {
+      "type": "string"
+    },
+    "oiliness": {
+      "type": "number"
+    },
+    "redness": {
+      "type": "number"
+    },
+    "texture": {
+      "type": "string"
+    },
+    "dark_circles": {
+      "type": "number"
+    },
+    "puffiness": {
+      "type": "number"
+    },
+    "radiance": {
+      "type": "number"
+    },
+    "breakouts": {
+      "type": "string"
+    },
+    "itching": {
+      "type": "string"
     }
   },
   "required": [
