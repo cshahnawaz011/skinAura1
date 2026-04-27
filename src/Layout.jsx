@@ -1,46 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsFetching } from '@tanstack/react-query';
 import BackgroundOperationBar from '@/components/BackgroundOperationBar';
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
-  BookOpen, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Apple, Salad, Star, MoreHorizontal, Map, Heart, HeartPulse
+  BookOpen, Sun, Users, X, Moon, Droplets,
+  Zap, FlaskConical, LogIn, LogOut, Apple, Salad, Star,
+  MoreHorizontal, Map, HeartPulse, Grid3x3
 } from 'lucide-react';
-import { useTranslation } from '@/components/i18n/translations';
 import { base44 } from '@/api/base44Client';
 
-// Bottom nav: 3 most-used + More
 const BOTTOM_NAV = [
-  { key: 'home', icon: Home, page: 'Home', label: 'Home' },
-  { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Scan' },
-  { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
-  { key: 'more', icon: MoreHorizontal, page: null, label: 'More' },
+  { key: 'home',    icon: Home,          page: 'Home',        label: 'Home' },
+  { key: 'analyze', icon: Camera,         page: 'SkinAnalysis', label: 'Scan' },
+  { key: 'routine', icon: Sparkles,       page: 'SkinRoutine', label: 'Routine' },
+  { key: 'more',    icon: MoreHorizontal, page: null,          label: 'More' },
 ];
 
-const ALL_FEATURES = [
-  { key: 'home', icon: Home, page: 'Home', label: 'Home' },
-  { key: 'analyze', icon: Camera, page: 'SkinAnalysis', label: 'Skin Analysis' },
-  { key: 'routine', icon: Sparkles, page: 'SkinRoutine', label: 'Routine' },
-  { key: 'skinMap', icon: Map, page: 'AdaptiveSkinMap', label: 'Skin Map' },
-  { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
-  { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
-  { key: 'insights', icon: Zap, page: 'AiInsights', label: 'Insights' },
-
-  { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
-  { key: 'health', icon: TrendingUp, page: 'LifestyleInsights', label: 'Health' },
-  { key: 'dashboard', icon: Star, page: 'GlowDashboard', label: 'Dashboard' },
-
-  { key: 'yoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
-  { key: 'hormones', icon: HeartPulse, page: 'HormoneTracker', label: 'Cycle Intelligence' },
-  { key: 'diet', icon: Salad, page: 'Diet', label: 'Diet' },
-  { key: 'scanner', icon: Apple, page: 'NutritionScanner', label: 'Food Scanner' },
-  { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
-  { key: 'ingredients', icon: FlaskConical, page: 'IngredientLibrary', label: 'Ingredients' },
-  { key: 'community', icon: Users, page: 'Community', label: 'Community' },
-  { key: 'learn', icon: BookOpen, page: 'Education', label: 'Learn' },
+const MORE_CATEGORIES = [
+  {
+    label: '✨ Skin Care',
+    color: '#f472b6',
+    bg: 'rgba(244,114,182,0.08)',
+    items: [
+      { key: 'progress',    icon: TrendingUp,  page: 'Progress',       label: 'Progress' },
+      { key: 'skinMap',     icon: Map,          page: 'AdaptiveSkinMap', label: 'Skin Map' },
+      { key: 'chat',        icon: MessageCircle,page: 'SkinChat',       label: 'AI Coach' },
+      { key: 'insights',    icon: Zap,          page: 'AiInsights',     label: 'Insights' },
+    ],
+  },
+  {
+    label: '🌿 Wellness',
+    color: '#34d399',
+    bg: 'rgba(52,211,153,0.08)',
+    items: [
+      { key: 'lifestyle',  icon: Sun,       page: 'Lifestyle',       label: 'Lifestyle' },
+      { key: 'health',     icon: TrendingUp, page: 'LifestyleInsights',label: 'Health' },
+      { key: 'hormones',   icon: HeartPulse, page: 'HormoneTracker',  label: 'Cycle' },
+      { key: 'yoga',       icon: Zap,        page: 'FaceYoga',        label: 'Face Yoga' },
+      { key: 'diet',       icon: Salad,      page: 'Diet',            label: 'Diet' },
+      { key: 'scanner',    icon: Apple,      page: 'NutritionScanner',label: 'Food Scan' },
+    ],
+  },
+  {
+    label: '🚀 Growth',
+    color: '#a78bfa',
+    bg: 'rgba(167,139,250,0.08)',
+    items: [
+      { key: 'dashboard',  icon: Star,         page: 'GlowDashboard',    label: 'Dashboard' },
+      { key: 'products',   icon: Droplets,      page: 'Products',         label: 'Products' },
+      { key: 'ingredients',icon: FlaskConical,  page: 'IngredientLibrary',label: 'Ingredients' },
+    ],
+  },
+  {
+    label: '📚 Community',
+    color: '#f59e0b',
+    bg: 'rgba(245,158,11,0.08)',
+    items: [
+      { key: 'community',  icon: Users,    page: 'Community', label: 'Community' },
+      { key: 'learn',      icon: BookOpen, page: 'Education', label: 'Learn' },
+    ],
+  },
 ];
 
 function createPageUrl(page) {
@@ -49,9 +70,8 @@ function createPageUrl(page) {
 
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const { tr, lang } = useTranslation();
   const isFetching = useIsFetching();
 
   useEffect(() => {
@@ -71,10 +91,8 @@ export default function Layout({ children, currentPageName }) {
     localStorage.setItem('skinaura-dark', next.toString());
   };
 
-  const getBottomNavLabel = (page) => {
-    const item = BOTTOM_NAV.find(i => i.page === page);
-    return item ? item.label : null;
-  };
+  const isActive = (page) => currentPageName === page;
+  const isMoreActive = MORE_CATEGORIES.flatMap(c => c.items).some(i => i.page === currentPageName);
 
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
@@ -82,12 +100,13 @@ export default function Layout({ children, currentPageName }) {
 
       {/* GLOBAL LOADING INDICATOR */}
       {isFetching > 0 && (
-        <div className="fixed top-0 left-0 right-0 h-1 z-50 overflow-hidden bg-pink-100">
+        <div className="fixed top-0 left-0 right-0 h-0.5 z-50 overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-pink-400 to-purple-500"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="h-full"
+            style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }}
+            initial={{ width: '0%', x: '-100%' }}
+            animate={{ width: '100%', x: '0%' }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
           />
         </div>
       )}
@@ -100,92 +119,6 @@ export default function Layout({ children, currentPageName }) {
           backdropFilter: 'blur(24px)',
         }}>
         <div className="max-w-7xl mx-auto px-4 flex items-center h-14 gap-4">
-          {/* Hamburger Menu */}
-          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-            <SheetTrigger asChild>
-              <button className="p-2 -ml-2 rounded-xl transition-all hover:bg-gray-100 dark:hover:bg-white/10 active:opacity-50 active:scale-95">
-                <Menu className="w-5 h-5" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }} />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[280px] sm:w-[320px] p-0" style={{ background: darkMode ? '#0a0814' : '#f8f4f0', borderColor: darkMode ? 'rgba(255,255,255,0.06)' : '#ede8e3' }}>
-              <SheetHeader className="p-6 text-left border-b" style={{ borderColor: darkMode ? 'rgba(255,255,255,0.06)' : '#ede8e3' }}>
-                <SheetTitle className="flex items-center gap-3">
-                  <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-xl object-cover shadow-sm" alt="SkinAura" />
-                  <span className="font-black text-xl" style={{ color: darkMode ? '#f5e8e0' : '#2d1f1f' }}>SkinAura</span>
-                </SheetTitle>
-              </SheetHeader>
-              <div className="p-4 flex flex-col gap-4 overflow-y-auto h-[calc(100vh-100px)]">
-                {/* Skin Care Category */}
-                <div>
-                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Skin Care</p>
-                  {ALL_FEATURES.filter(f => ['home', 'analyze', 'routine', 'skinMap', 'progress'].includes(f.key)).map((feature) => {
-                    const FeatureIcon = feature.icon;
-                    const isActive = currentPageName === feature.page;
-                    return (
-                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
-                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                        }`}>
-                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Lifestyle & Wellness Category */}
-                <div>
-                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Wellness</p>
-                  {ALL_FEATURES.filter(f => ['health', 'lifestyle', 'yoga', 'hormones', 'diet', 'scanner'].includes(f.key)).map((feature) => {
-                    const FeatureIcon = feature.icon;
-                    const isActive = currentPageName === feature.page;
-                    return (
-                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
-                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                        }`}>
-                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Growth Category */}
-                <div>
-                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Growth</p>
-                  {ALL_FEATURES.filter(f => ['dashboard', 'insights', 'chat'].includes(f.key)).map((feature) => {
-                    const FeatureIcon = feature.icon;
-                    const isActive = currentPageName === feature.page;
-                    return (
-                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
-                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                        }`}>
-                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-
-                {/* Resources Category */}
-                <div>
-                  <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Resources</p>
-                  {ALL_FEATURES.filter(f => ['ingredients', 'products', 'learn', 'community'].includes(f.key)).map((feature) => {
-                    const FeatureIcon = feature.icon;
-                    const isActive = currentPageName === feature.page;
-                    return (
-                      <Link key={feature.key} to={createPageUrl(feature.page)} onClick={() => setMenuOpen(false)}
-                        className={`flex items-center gap-3 p-3 rounded-xl text-sm font-semibold transition-all ${
-                          isActive ? 'bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-                        }`}>
-                        <FeatureIcon className="w-5 h-5" /><span>{feature.label}</span>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </SheetContent>
-          </Sheet>
-
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
@@ -195,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
           {/* Right Controls */}
           <div className="ml-auto flex items-center gap-2">
             <button onClick={toggleDarkMode}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all"
               style={{ background: darkMode ? 'rgba(255,255,255,0.08)' : '#f0ebe6', color: darkMode ? '#d0c0b8' : '#7a6560' }}>
               {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
             </button>
@@ -219,7 +152,7 @@ export default function Layout({ children, currentPageName }) {
       </header>
 
       {/* ── MAIN CONTENT ── */}
-      <main className="flex-1 overflow-y-auto pb-6">
+      <main className="flex-1 overflow-y-auto pb-24">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPageName}
@@ -237,6 +170,183 @@ export default function Layout({ children, currentPageName }) {
       {/* Global Background Operations Bar */}
       <BackgroundOperationBar />
 
+      {/* ── MORE DRAWER (slides up from bottom) ── */}
+      <AnimatePresence>
+        {moreOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40"
+              style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+              onClick={() => setMoreOpen(false)}
+            />
+            {/* Drawer */}
+            <motion.div
+              key="drawer"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 320 }}
+              className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl overflow-hidden"
+              style={{
+                background: darkMode ? 'rgba(15,10,28,0.98)' : 'rgba(255,255,255,0.98)',
+                backdropFilter: 'blur(32px)',
+                boxShadow: '0 -8px 48px rgba(244,114,182,0.18), 0 -2px 16px rgba(0,0,0,0.1)',
+                maxHeight: '80vh',
+                paddingBottom: 'calc(env(safe-area-inset-bottom) + 90px)',
+              }}
+            >
+              {/* Handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(0,0,0,0.15)' }} />
+              </div>
+
+              {/* Header */}
+              <div className="flex items-center justify-between px-5 py-3">
+                <p className="font-black text-base" style={{ color: darkMode ? '#f5e8e0' : '#1f1f1f' }}>All Features</p>
+                <button onClick={() => setMoreOpen(false)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+                  style={{ background: darkMode ? 'rgba(255,255,255,0.1)' : '#f0f0f0' }}>
+                  <X className="w-4 h-4" style={{ color: darkMode ? '#ccc' : '#555' }} />
+                </button>
+              </div>
+
+              {/* Gradient accent bar */}
+              <div className="h-0.5 mx-5 rounded-full mb-4" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }} />
+
+              {/* Categories */}
+              <div className="overflow-y-auto px-4 pb-4 space-y-5" style={{ maxHeight: 'calc(80vh - 120px)' }}>
+                {MORE_CATEGORIES.map((cat) => (
+                  <div key={cat.label}>
+                    <p className="text-xs font-black mb-2.5 px-1" style={{ color: cat.color }}>{cat.label}</p>
+                    <div className="grid gap-2"
+                      style={{ gridTemplateColumns: `repeat(auto-fill, minmax(min(72px, calc((100% - 24px) / 4)), 1fr))` }}>
+                      {cat.items.map((item) => {
+                        const Icon = item.icon;
+                        const active = isActive(item.page);
+                        return (
+                          <Link key={item.key} to={createPageUrl(item.page)}
+                            onClick={() => setMoreOpen(false)}
+                            className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl transition-all active:scale-95"
+                            style={{
+                              background: active ? cat.bg : darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+                              border: `1.5px solid ${active ? cat.color + '50' : 'transparent'}`,
+                            }}>
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                              style={{ background: active ? cat.color + '20' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }}>
+                              <Icon className="w-5 h-5" style={{ color: active ? cat.color : darkMode ? '#aaa' : '#666' }} />
+                            </div>
+                            <span className="text-[10px] font-bold text-center leading-tight"
+                              style={{ color: active ? cat.color : darkMode ? '#aaa' : '#555' }}>
+                              {item.label}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── BOTTOM NAVIGATION BAR ── */}
+      <nav className="fixed bottom-0 left-0 right-0 z-40"
+        style={{
+          background: darkMode ? 'rgba(10,8,20,0.96)' : 'rgba(255,255,255,0.96)',
+          backdropFilter: 'blur(32px) saturate(1.8)',
+          WebkitBackdropFilter: 'blur(32px) saturate(1.8)',
+          borderTop: darkMode ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(244,114,182,0.15)',
+          boxShadow: '0 -4px 32px rgba(244,114,182,0.1), 0 -1px 0 rgba(255,255,255,0.5)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}>
+        <div className="max-w-lg mx-auto flex items-center justify-around px-2 h-16">
+          {BOTTOM_NAV.map((item) => {
+            const Icon = item.icon;
+            const active = item.page ? isActive(item.page) : isMoreActive || moreOpen;
+            const isMore = item.key === 'more';
+
+            return (
+              <motion.button
+                key={item.key}
+                onClick={() => {
+                  if (isMore) {
+                    setMoreOpen(o => !o);
+                  }
+                }}
+                whileTap={{ scale: 0.88 }}
+                className="relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all"
+                style={{ minWidth: 0 }}
+              >
+                {item.page ? (
+                  <Link to={createPageUrl(item.page)}
+                    className="flex flex-col items-center gap-0.5 w-full"
+                    onClick={() => setMoreOpen(false)}>
+                    <NavIcon Icon={Icon} active={active} isMore={false} moreOpen={false} darkMode={darkMode} />
+                    <span className="text-[10px] font-bold truncate" style={{ color: active ? '#f472b6' : darkMode ? '#666' : '#9ca3af' }}>
+                      {item.label}
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="flex flex-col items-center gap-0.5 w-full">
+                    <NavIcon Icon={Icon} active={active} isMore moreOpen={moreOpen} darkMode={darkMode} />
+                    <span className="text-[10px] font-bold" style={{ color: active || moreOpen ? '#a78bfa' : darkMode ? '#666' : '#9ca3af' }}>
+                      {item.label}
+                    </span>
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+}
+
+function NavIcon({ Icon, active, isMore, moreOpen, darkMode }) {
+  const activeColor = isMore ? '#a78bfa' : '#f472b6';
+  const isHighlighted = active || moreOpen;
+
+  return (
+    <div className="relative flex items-center justify-center">
+      {isHighlighted && (
+        <motion.div
+          layoutId={isMore ? 'nav-pill-more' : undefined}
+          className="absolute inset-0 rounded-xl"
+          initial={false}
+          animate={{ opacity: 1 }}
+          style={{
+            background: `${activeColor}18`,
+            width: 40, height: 28,
+            left: '50%', top: '50%',
+            transform: 'translate(-50%, -50%)',
+          }}
+        />
+      )}
+      {isMore && moreOpen ? (
+        <motion.div animate={{ rotate: 45 }} transition={{ duration: 0.2 }}>
+          <Icon className="w-5 h-5 relative z-10" style={{ color: activeColor }} />
+        </motion.div>
+      ) : (
+        <Icon className="w-5 h-5 relative z-10"
+          style={{ color: isHighlighted ? activeColor : darkMode ? '#555' : '#c4c4c4' }} />
+      )}
+      {isHighlighted && !isMore && (
+        <motion.div
+          layoutId="nav-dot"
+          className="absolute -bottom-2 w-1 h-1 rounded-full"
+          style={{ background: activeColor }}
+          initial={false}
+          animate={{ scale: 1 }}
+        />
+      )}
     </div>
   );
 }
