@@ -412,15 +412,7 @@ export default function HormoneTracker() {
     queryKey: ['cycleData', user?.email],
     queryFn: async () => {
       const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
-      if (cycles.length > 0) return cycles[0];
-      return base44.entities.CycleData.create({
-        user_email: user.email,
-        start_date: format(addDays(new Date(), -10), 'yyyy-MM-dd'),
-        cycle_length: 28,
-        current_phase: 'follicular',
-        symptoms: [],
-        energy_level: 5,
-      });
+      return cycles.length > 0 ? cycles[0] : null;
     },
     enabled: !!user?.email,
   });
@@ -453,9 +445,9 @@ export default function HormoneTracker() {
     },
   });
 
-  const currentPhase = cycleData?.start_date ? getPhaseFromDay(getCycleDay(cycleData.start_date)) : 'follicular';
+  const currentPhase = cycleData?.start_date ? getPhaseFromDay(getCycleDay(cycleData.start_date)) : null;
   const cycleDay = cycleData?.start_date ? getCycleDay(cycleData.start_date) : null;
-  const phaseConfig = PHASES.find(p => p.key === currentPhase);
+  const phaseConfig = PHASES.find(p => p.key === (currentPhase || 'follicular'));
   const daysUntilNext = currentPhase === 'menstrual' ? 6 - cycleDay : currentPhase === 'follicular' ? 13 - cycleDay : currentPhase === 'ovulation' ? 17 - cycleDay : 29 - cycleDay;
 
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
@@ -504,6 +496,51 @@ export default function HormoneTracker() {
     { key: 'hormones', label: 'Hormones', emoji: '🧬' },
     { key: 'ai', label: 'AI Insights', emoji: '🤖' },
   ];
+
+  // No cycle data yet — show setup prompt instead of pre-filled page
+  if (user && cycleData === null) return (
+    <div className="max-w-2xl mx-auto pb-10 space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'rgba(244,114,182,0.1)', border: '1.5px solid rgba(244,114,182,0.3)' }}>🌙</div>
+        <div>
+          <h1 className="text-2xl font-black">Cycle Intelligence</h1>
+          <p className="text-sm text-gray-500">Hormones × Skin × Diet × Lifestyle — AI-chained</p>
+        </div>
+      </div>
+
+      <div className="rounded-3xl p-8 text-center bg-white border border-gray-100 shadow-sm">
+        <div className="text-5xl mb-4">🗓️</div>
+        <h2 className="text-xl font-black mb-2">Set Up Your Cycle</h2>
+        <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto leading-relaxed">
+          Enter the first day of your last period to start tracking your cycle phases, hormone trends, and personalised skin + wellness insights.
+        </p>
+        <div className="max-w-xs mx-auto space-y-4">
+          <div className="text-left">
+            <label className="text-xs font-bold text-gray-600 block mb-1.5">Last Period Start Date</label>
+            <input type="date" value={startDateInput} max={today}
+              onChange={e => setStartDateInput(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 focus:outline-none focus:border-pink-300" />
+          </div>
+          <button onClick={async () => {
+            setSaving(true);
+            await saveMutation.mutateAsync({
+              user_email: user.email,
+              start_date: startDateInput,
+              cycle_length: 28,
+              current_phase: 'follicular',
+              symptoms: [],
+              energy_level: 5,
+            });
+            setSaving(false);
+          }} disabled={saving || !startDateInput}
+            className="w-full py-3.5 rounded-2xl font-black text-white ios-button-3d disabled:opacity-50 text-sm"
+            style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+            {saving ? 'Setting up…' : '🌙 Start Tracking My Cycle'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   if (!user) return (
     <div className="max-w-2xl mx-auto pt-20 text-center px-4">
