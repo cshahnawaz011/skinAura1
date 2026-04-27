@@ -408,7 +408,7 @@ export default function HormoneTracker() {
 
   useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
-  const { data: cycleData } = useQuery({
+  const { data: cycleData, isLoading: cycleLoading } = useQuery({
     queryKey: ['cycleData', user?.email],
     queryFn: async () => {
       const cycles = await base44.entities.CycleData.filter({ user_email: user.email }, '-created_date', 1);
@@ -496,6 +496,14 @@ export default function HormoneTracker() {
     { key: 'hormones', label: 'Hormones', emoji: '🧬' },
     { key: 'ai', label: 'AI Insights', emoji: '🤖' },
   ];
+
+  // Still loading — don't flash incorrect content
+  if (user && cycleLoading) return (
+    <div className="max-w-2xl mx-auto pt-20 text-center">
+      <div className="w-8 h-8 border-4 border-pink-200 border-t-pink-500 rounded-full animate-spin mx-auto" />
+      <p className="text-sm text-gray-400 mt-3">Loading your cycle data…</p>
+    </div>
+  );
 
   // No cycle data yet — show setup prompt instead of pre-filled page
   if (user && cycleData === null) return (
