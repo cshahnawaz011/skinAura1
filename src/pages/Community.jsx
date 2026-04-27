@@ -2,93 +2,69 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Heart, MessageCircle, Plus, X, Loader2,
-  Trophy, TrendingUp, Users, Sparkles, Send, Star, Droplets, Sun
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Heart, MessageCircle, Plus, X, Loader2, Sparkles, Send, Droplets, Trophy } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import GlassCard from '@/components/ui/GlassCard';
 import { format } from 'date-fns';
 
 export default function Community() {
   const [user, setUser] = useState(null);
-  const [showCreatePost, setShowCreatePost] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
   const [caption, setCaption] = useState('');
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [openComments, setOpenComments] = useState(null);
   const [newComment, setNewComment] = useState('');
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
-  }, []);
+  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
 
   const { data: posts = [], isLoading } = useQuery({
     queryKey: ['communityPosts'],
     queryFn: () => base44.entities.CommunityPost.list('-created_date', 50),
   });
 
-  // Fetch latest skin analysis for the current user
   const { data: myAnalysis } = useQuery({
     queryKey: ['mySkinAnalysis', user?.email],
-    queryFn: async () => {
-      const list = await base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 1);
-      return list[0] || null;
-    },
+    queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0] || null),
     enabled: !!user?.email,
   });
 
-  const openShareModal = () => {
-    // Auto-fill caption with skin insights if available
+  const openShare = () => {
     if (myAnalysis) {
       const concerns = [
         myAnalysis.acne_level > 5 && 'acne',
         myAnalysis.dark_spots > 5 && 'dark spots',
         myAnalysis.redness > 5 && 'redness',
         myAnalysis.oiliness > 5 && 'oiliness',
-        myAnalysis.dryness > 5 && 'dryness',
       ].filter(Boolean);
-      const concernText = concerns.length > 0 ? ` Working on: ${concerns.join(', ')}.` : '';
-      setCaption(
-        `My current skin score is ${myAnalysis.overall_score}/100 (${myAnalysis.skin_type} skin).${concernText} Sharing my skin health journey! 🌟`
-      );
+      setCaption(`My skin score is ${myAnalysis.overall_score}/100 (${myAnalysis.skin_type} skin).${concerns.length ? ` Working on: ${concerns.join(', ')}.` : ''} Sharing my glow journey! 🌟`);
     } else {
       setCaption('');
     }
-    setShowCreatePost(true);
+    setShowCreate(true);
   };
 
   const createMutation = useMutation({
-    mutationFn: () =>
-      base44.entities.CommunityPost.create({
-        user_email: user.email,
-        user_name: user.full_name || user.email.split('@')[0],
-        caption,
-        overall_score: myAnalysis?.overall_score || null,
-        skin_type: myAnalysis?.skin_type || null,
-        acne_level: myAnalysis?.acne_level || null,
-        dark_spots: myAnalysis?.dark_spots || null,
-        redness: myAnalysis?.redness || null,
-        likes_count: 0,
-        liked_by: [],
-        comments: [],
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['communityPosts']);
-      setShowCreatePost(false);
-      setCaption('');
-    },
+    mutationFn: () => base44.entities.CommunityPost.create({
+      user_email: user.email,
+      user_name: user.full_name || user.email.split('@')[0],
+      caption,
+      overall_score: myAnalysis?.overall_score || null,
+      skin_type: myAnalysis?.skin_type || null,
+      acne_level: myAnalysis?.acne_level || null,
+      dark_spots: myAnalysis?.dark_spots || null,
+      redness: myAnalysis?.redness || null,
+      likes_count: 0,
+      liked_by: [],
+      comments: [],
+    }),
+    onSuccess: () => { queryClient.invalidateQueries(['communityPosts']); setShowCreate(false); setCaption(''); },
   });
 
   const likeMutation = useMutation({
     mutationFn: async (post) => {
-      const likedBy = post.liked_by || [];
-      const isLiked = likedBy.includes(user.email);
+      const liked = post.liked_by || [];
+      const isLiked = liked.includes(user.email);
       return base44.entities.CommunityPost.update(post.id, {
-        liked_by: isLiked ? likedBy.filter(e => e !== user.email) : [...likedBy, user.email],
+        liked_by: isLiked ? liked.filter(e => e !== user.email) : [...liked, user.email],
         likes_count: isLiked ? (post.likes_count || 1) - 1 : (post.likes_count || 0) + 1,
       });
     },
@@ -96,287 +72,224 @@ export default function Community() {
   });
 
   const commentMutation = useMutation({
-    mutationFn: async ({ post, comment }) => {
-      const comments = post.comments || [];
-      return base44.entities.CommunityPost.update(post.id, {
-        comments: [...comments, {
-          user_email: user.email,
-          user_name: user.full_name || user.email.split('@')[0],
-          text: comment,
-          date: new Date().toISOString(),
-        }],
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['communityPosts']);
-      setNewComment('');
-    },
+    mutationFn: ({ post, comment }) => base44.entities.CommunityPost.update(post.id, {
+      comments: [...(post.comments || []), {
+        user_email: user.email,
+        user_name: user.full_name || user.email.split('@')[0],
+        text: comment,
+        date: new Date().toISOString(),
+      }],
+    }),
+    onSuccess: () => { queryClient.invalidateQueries(['communityPosts']); setNewComment(''); },
   });
 
-  const isLiked = (post) => post.liked_by?.includes(user?.email);
-
-  const scoreColor = (score) => {
-    if (score >= 75) return 'text-emerald-500';
-    if (score >= 50) return 'text-amber-500';
-    return 'text-rose-500';
-  };
+  const scoreColor = (s) => s >= 75 ? '#10b981' : s >= 50 ? '#f59e0b' : '#f43f5e';
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <GlassCard className="text-center py-12">
-          <Users className="w-12 h-12 text-pink-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Join the Community</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">Sign in to share your skin health journey</p>
-          <Button onClick={() => base44.auth.redirectToLogin()} className="bg-gradient-to-r from-pink-500 to-amber-500">
-            Sign In
-          </Button>
-        </GlassCard>
+      <div className="max-w-2xl mx-auto pt-16 text-center px-4">
+        <div className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl shadow-lg" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>👥</div>
+        <h2 className="text-2xl font-black mb-2">Join the Community</h2>
+        <p className="text-gray-500 mb-6">Sign in to share your skin journey</p>
+        <button onClick={() => base44.auth.redirectToLogin()} className="px-8 py-3 rounded-2xl font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          Sign In
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto pb-8">
+
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Community</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Share your skin health & glow score</p>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>👥</div>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Community</h1>
+            <p className="text-sm text-gray-500">Share your glow journey</p>
+          </div>
         </div>
-        <Button onClick={openShareModal} className="bg-gradient-to-r from-pink-500 to-amber-500 flex-shrink-0">
-          <Sparkles className="w-4 h-4 mr-1 sm:mr-2" />
-          <span className="hidden sm:inline">Share My Skin Insights</span>
-          <span className="sm:hidden">Share</span>
-        </Button>
+        <button onClick={openShare} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          <Plus className="w-4 h-4" /> Share
+        </button>
       </div>
 
       {/* My Skin Snapshot */}
       {myAnalysis && (
-        <GlassCard className="border border-pink-200 dark:border-pink-800">
-          <div className="flex items-center gap-2 mb-3">
-            <Star className="w-4 h-4 text-amber-500" />
-            <span className="font-semibold text-sm">Your Latest Skin Snapshot</span>
+        <div className="mb-5 p-4 rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">My Skin Snapshot</p>
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: 'Score', val: myAnalysis.overall_score, color: scoreColor(myAnalysis.overall_score) },
+              { label: 'Type', val: myAnalysis.skin_type?.slice(0, 4) || '—', color: '#f472b6' },
+              { label: 'Acne', val: myAnalysis.acne_level ?? '—', color: '#ef4444' },
+              { label: 'Spots', val: myAnalysis.dark_spots ?? '—', color: '#f59e0b' },
+            ].map(s => (
+              <div key={s.label} className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-3 text-center">
+                <p className="text-lg font-black capitalize" style={{ color: s.color }}>{s.val}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">{s.label}</p>
+              </div>
+            ))}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl p-3">
-              <p className={`text-2xl font-bold ${scoreColor(myAnalysis.overall_score)}`}>{myAnalysis.overall_score}</p>
-              <p className="text-xs text-gray-500">Glow Score</p>
-            </div>
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl p-3">
-              <p className="text-sm font-bold capitalize text-pink-500">{myAnalysis.skin_type || '—'}</p>
-              <p className="text-xs text-gray-500">Skin Type</p>
-            </div>
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl p-3">
-              <p className="text-2xl font-bold text-rose-400">{myAnalysis.acne_level ?? '—'}</p>
-              <p className="text-xs text-gray-500">Acne</p>
-            </div>
-            <div className="bg-white/60 dark:bg-white/10 rounded-xl p-3">
-              <p className="text-2xl font-bold text-blue-400">{myAnalysis.dark_spots ?? '—'}</p>
-              <p className="text-xs text-gray-500">Dark Spots</p>
-            </div>
-          </div>
-        </GlassCard>
+        </div>
       )}
 
-      {/* Posts Feed */}
-      {isLoading ? (
-        Array(3).fill(0).map((_, i) => (
-          <GlassCard key={i} className="animate-pulse">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-3" />
-            <div className="h-20 bg-gray-200 dark:bg-gray-700 rounded-xl" />
-          </GlassCard>
-        ))
-      ) : posts.length === 0 ? (
-        <GlassCard className="text-center py-12">
-          <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold mb-2">No Posts Yet</h3>
-          <p className="text-gray-500">Be the first to share your skin health!</p>
-        </GlassCard>
-      ) : (
-        posts.map((post, i) => (
-          <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-            <GlassCard>
-              {/* Author */}
-              <div className="flex items-center gap-3 mb-4">
-                <Avatar>
-                  <AvatarFallback className="bg-gradient-to-br from-pink-400 to-amber-400 text-white">
+      {/* Posts */}
+      <div className="space-y-4">
+        {isLoading ? (
+          Array(3).fill(0).map((_, i) => (
+            <div key={i} className="rounded-3xl bg-white border border-gray-100 p-5 animate-pulse">
+              <div className="h-4 bg-gray-100 rounded-xl w-1/3 mb-3" />
+              <div className="h-16 bg-gray-100 rounded-2xl" />
+            </div>
+          ))
+        ) : posts.length === 0 ? (
+          <div className="text-center py-16 rounded-3xl bg-white border border-gray-100">
+            <div className="text-5xl mb-3">✨</div>
+            <p className="font-black text-lg mb-1">No posts yet</p>
+            <p className="text-sm text-gray-400 mb-4">Be the first to share your skin journey!</p>
+            <button onClick={openShare} className="px-6 py-2.5 rounded-2xl font-bold text-white text-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+              Share Now
+            </button>
+          </div>
+        ) : (
+          posts.map((post, i) => {
+            const isLiked = post.liked_by?.includes(user?.email);
+            return (
+              <motion.div key={post.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+                className="rounded-3xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+
+                {/* Post header */}
+                <div className="p-4 pb-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-black text-sm flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
                     {post.user_name?.[0]?.toUpperCase() || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{post.user_name}</p>
-                  <p className="text-xs text-gray-500">{format(new Date(post.created_date), 'MMM d, yyyy')}</p>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-gray-900 dark:text-white">{post.user_name}</p>
+                    <p className="text-xs text-gray-400">{format(new Date(post.created_date), 'MMM d, yyyy')}</p>
+                  </div>
+                  {post.overall_score != null && (
+                    <div className="px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1" style={{ background: `${scoreColor(post.overall_score)}15`, color: scoreColor(post.overall_score) }}>
+                      <Trophy className="w-3 h-3" /> {post.overall_score}
+                    </div>
+                  )}
                 </div>
-                {post.overall_score != null && (
-                  <Badge className={`ml-auto ${post.overall_score >= 75 ? 'bg-emerald-500' : post.overall_score >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}>
-                    <Trophy className="w-3 h-3 mr-1" />
-                    Glow {post.overall_score}
-                  </Badge>
+
+                {/* Skin tags */}
+                {(post.skin_type || post.acne_level != null) && (
+                  <div className="flex gap-1.5 px-4 mb-3 flex-wrap">
+                    {post.skin_type && <Badge className="text-xs bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300"><Droplets className="w-2.5 h-2.5 mr-0.5" />{post.skin_type}</Badge>}
+                    {post.acne_level != null && <Badge variant="outline" className="text-xs">Acne {post.acne_level}/10</Badge>}
+                    {post.dark_spots != null && <Badge variant="outline" className="text-xs">Spots {post.dark_spots}/10</Badge>}
+                  </div>
                 )}
-              </div>
 
-              {/* Skin Stats */}
-              {(post.overall_score != null || post.skin_type || post.acne_level != null) && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {post.skin_type && (
-                    <span className="bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-300 text-xs px-3 py-1 rounded-full capitalize">
-                      <Droplets className="w-3 h-3 inline mr-1" />{post.skin_type}
-                    </span>
-                  )}
-                  {post.acne_level != null && (
-                    <span className="bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-300 text-xs px-3 py-1 rounded-full">
-                      Acne: {post.acne_level}/10
-                    </span>
-                  )}
-                  {post.dark_spots != null && (
-                    <span className="bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-300 text-xs px-3 py-1 rounded-full">
-                      Dark Spots: {post.dark_spots}/10
-                    </span>
-                  )}
-                  {post.redness != null && (
-                    <span className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 text-xs px-3 py-1 rounded-full">
-                      Redness: {post.redness}/10
-                    </span>
-                  )}
+                {/* Caption */}
+                <p className="px-4 pb-4 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">{post.caption}</p>
+
+                {/* Actions */}
+                <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-800 flex items-center gap-5">
+                  <button onClick={() => user && likeMutation.mutate(post)}
+                    className={`flex items-center gap-1.5 text-sm font-semibold transition-all ${isLiked ? 'text-pink-500' : 'text-gray-400 hover:text-pink-500'}`}>
+                    <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
+                    {post.likes_count || 0}
+                  </button>
+                  <button onClick={() => setOpenComments(openComments === post.id ? null : post.id)}
+                    className="flex items-center gap-1.5 text-sm font-semibold text-gray-400 hover:text-blue-500 transition-all">
+                    <MessageCircle className="w-4 h-4" />
+                    {post.comments?.length || 0}
+                  </button>
                 </div>
-              )}
 
-              {/* Caption */}
-              <p className="text-gray-700 dark:text-gray-300 mb-4">{post.caption}</p>
-
-              {/* Actions */}
-              <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  onClick={() => likeMutation.mutate(post)}
-                  className={`flex items-center gap-2 ${isLiked(post) ? 'text-pink-500' : 'text-gray-500 hover:text-pink-500'}`}
-                >
-                  <Heart className={`w-5 h-5 ${isLiked(post) ? 'fill-current' : ''}`} />
-                  <span>{post.likes_count || 0}</span>
-                </button>
-                <button
-                  onClick={() => setSelectedPost(selectedPost?.id === post.id ? null : post)}
-                  className="flex items-center gap-2 text-gray-500 hover:text-blue-500"
-                >
-                  <MessageCircle className="w-5 h-5" />
-                  <span>{post.comments?.length || 0}</span>
-                </button>
-              </div>
-
-              {/* Comments */}
-              <AnimatePresence>
-                {selectedPost?.id === post.id && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 overflow-hidden"
-                  >
-                    <div className="space-y-3 mb-3 max-h-48 overflow-y-auto">
-                      {post.comments?.map((c, j) => (
-                        <div key={j} className="flex gap-2">
-                          <Avatar className="w-7 h-7 flex-shrink-0">
-                            <AvatarFallback className="text-xs bg-gray-200">{c.user_name?.[0]?.toUpperCase()}</AvatarFallback>
-                          </Avatar>
-                          <div className="bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2 flex-1">
-                            <p className="font-medium text-xs">{c.user_name}</p>
-                            <p className="text-sm text-gray-600 dark:text-gray-300">{c.text}</p>
+                {/* Comments */}
+                <AnimatePresence>
+                  {openComments === post.id && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                      className="overflow-hidden border-t border-gray-100 dark:border-gray-800">
+                      <div className="p-4 space-y-2">
+                        {post.comments?.map((c, j) => (
+                          <div key={j} className="flex gap-2">
+                            <div className="w-7 h-7 rounded-xl bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 flex-shrink-0">
+                              {c.user_name?.[0]?.toUpperCase()}
+                            </div>
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-2xl px-3 py-2 flex-1">
+                              <p className="text-xs font-bold text-gray-700 dark:text-gray-200">{c.user_name}</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-300">{c.text}</p>
+                            </div>
                           </div>
+                        ))}
+                        {post.comments?.length === 0 && <p className="text-xs text-gray-400 text-center py-2">No comments yet</p>}
+                        <div className="flex gap-2 mt-2">
+                          <input
+                            placeholder="Add a comment..."
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && newComment.trim() && commentMutation.mutate({ post, comment: newComment })}
+                            className="flex-1 px-3 py-2 rounded-2xl text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:border-pink-300 transition-all"
+                          />
+                          <button onClick={() => newComment.trim() && commentMutation.mutate({ post, comment: newComment })}
+                            disabled={!newComment.trim() || commentMutation.isPending}
+                            className="w-9 h-9 rounded-2xl flex items-center justify-center text-white disabled:opacity-50"
+                            style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                            <Send className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Add a comment..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && newComment.trim() && commentMutation.mutate({ post, comment: newComment })}
-                      />
-                      <Button
-                        onClick={() => commentMutation.mutate({ post, comment: newComment })}
-                        disabled={!newComment.trim() || commentMutation.isPending}
-                        size="icon"
-                        className="bg-pink-500"
-                      >
-                        <Send className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </GlassCard>
-          </motion.div>
-        ))
-      )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })
+        )}
+      </div>
 
-      {/* Share Modal */}
+      {/* Create Post Modal */}
       <AnimatePresence>
-        {showCreatePost && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-            onClick={() => setShowCreatePost(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-lg"
-            >
-              <GlassCard>
+        {showCreate && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+            style={{ background: 'rgba(15,10,30,0.72)', backdropFilter: 'blur(12px)' }}
+            onClick={() => setShowCreate(false)}>
+            <motion.div initial={{ y: 60, scale: 0.96 }} animate={{ y: 0, scale: 1 }} exit={{ y: 60, scale: 0.96 }}
+              transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+              className="w-full max-w-md rounded-3xl overflow-hidden bg-white shadow-2xl"
+              onClick={e => e.stopPropagation()}>
+              <div className="h-1.5" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }} />
+              <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-semibold flex items-center gap-2">
-                    <Sparkles className="w-5 h-5 text-amber-500" />
-                    Share Skin Insights
-                  </h3>
-                  <Button variant="ghost" size="icon" onClick={() => setShowCreatePost(false)}>
-                    <X className="w-5 h-5" />
-                  </Button>
+                  <div>
+                    <p className="font-black text-lg">Share Your Skin Journey</p>
+                    <p className="text-xs text-gray-400">Inspire the community ✨</p>
+                  </div>
+                  <button onClick={() => setShowCreate(false)} className="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center"><X className="w-4 h-4 text-gray-500" /></button>
                 </div>
 
-                {/* Auto-filled skin stats preview */}
                 {myAnalysis && (
-                  <div className="bg-gradient-to-r from-pink-50 to-amber-50 dark:from-pink-900/20 dark:to-amber-900/20 rounded-xl p-4 mb-4">
-                    <p className="text-xs font-semibold text-gray-500 mb-2">Your Skin Data (auto-attached)</p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge className="bg-pink-500">Glow Score: {myAnalysis.overall_score}</Badge>
-                      {myAnalysis.skin_type && <Badge variant="outline" className="capitalize">{myAnalysis.skin_type}</Badge>}
-                      {myAnalysis.acne_level != null && <Badge variant="outline">Acne: {myAnalysis.acne_level}/10</Badge>}
-                      {myAnalysis.dark_spots != null && <Badge variant="outline">Spots: {myAnalysis.dark_spots}/10</Badge>}
-                      {myAnalysis.redness != null && <Badge variant="outline">Redness: {myAnalysis.redness}/10</Badge>}
-                    </div>
+                  <div className="mb-4 p-3 rounded-2xl flex flex-wrap gap-1.5" style={{ background: 'rgba(244,114,182,0.06)', border: '1px solid rgba(244,114,182,0.2)' }}>
+                    <p className="w-full text-xs font-bold text-pink-600 mb-1">Auto-attached skin data</p>
+                    <Badge className="bg-pink-500 text-white text-xs">Score: {myAnalysis.overall_score}</Badge>
+                    {myAnalysis.skin_type && <Badge variant="outline" className="text-xs capitalize">{myAnalysis.skin_type}</Badge>}
+                    {myAnalysis.acne_level != null && <Badge variant="outline" className="text-xs">Acne: {myAnalysis.acne_level}/10</Badge>}
                   </div>
                 )}
 
-                {!myAnalysis && (
-                  <div className="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 mb-4 text-sm text-amber-700 dark:text-amber-300">
-                    No skin analysis found. Run an analysis first to attach your skin data automatically.
-                  </div>
-                )}
-
-                <Textarea
-                  placeholder="Share your skin journey, tips, or how you're feeling about your skin health..."
+                <textarea
+                  placeholder="Share your skin journey, tips, or progress..."
                   value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
+                  onChange={e => setCaption(e.target.value)}
                   rows={4}
-                  className="mb-4"
+                  className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm resize-none focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100 transition-all mb-4"
+                  style={{ background: '#fafafa' }}
                 />
 
-                <Button
-                  onClick={() => createMutation.mutate()}
-                  disabled={!caption.trim() || createMutation.isPending}
-                  className="w-full bg-gradient-to-r from-pink-500 to-amber-500"
-                >
-                  {createMutation.isPending ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Posting...</>
-                  ) : (
-                    <><Sparkles className="w-4 h-4 mr-2" />Post to Community</>
-                  )}
-                </Button>
-              </GlassCard>
+                <button onClick={() => createMutation.mutate()} disabled={!caption.trim() || createMutation.isPending}
+                  className="w-full py-3 rounded-2xl font-black text-white disabled:opacity-50 ios-button-3d"
+                  style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                  {createMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin inline mr-2" />Posting...</> : <><Sparkles className="w-4 h-4 inline mr-2" />Post to Community</>}
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}
