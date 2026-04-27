@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { PageStateProvider } from '@/lib/pageStateContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsFetching } from '@tanstack/react-query';
-import BackgroundOperationBar from '@/components/BackgroundOperationBar';
+
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Sun, Users, X, Moon, Droplets,
@@ -199,8 +199,7 @@ export default function Layout({ children, currentPageName }) {
         </AnimatePresence>
       </main>
 
-      {/* Global Background Operations Bar */}
-      <BackgroundOperationBar />
+
 
       {/* ── MORE DRAWER (slides up from bottom) ── */}
       <AnimatePresence>
