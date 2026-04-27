@@ -415,6 +415,7 @@ export default function HormoneTracker() {
       return cycles.length > 0 ? cycles[0] : null;
     },
     enabled: !!user?.email,
+    placeholderData: (prev) => prev,
   });
 
   const { data: skinAnalysis } = useQuery({
@@ -533,11 +534,12 @@ export default function HormoneTracker() {
           </div>
           <button onClick={async () => {
             setSaving(true);
+            const newPhase = startDateInput ? getPhaseFromDay(getCycleDay(startDateInput)) : 'follicular';
             await saveMutation.mutateAsync({
               user_email: user.email,
               start_date: startDateInput,
               cycle_length: 28,
-              current_phase: 'follicular',
+              current_phase: newPhase,
               symptoms: [],
               energy_level: 5,
             });
