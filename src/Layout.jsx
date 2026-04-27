@@ -8,7 +8,7 @@ import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
   BookOpen, Sun, Users, X, Moon, Droplets,
   Zap, FlaskConical, LogIn, LogOut, Apple, Salad, Star,
-  MoreHorizontal, Map, HeartPulse, Grid3x3
+  MoreHorizontal, Map, HeartPulse, Grid3x3, Calendar
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -29,6 +29,7 @@ const MORE_CATEGORIES = [
       { key: 'skinMap',     icon: Map,          page: 'AdaptiveSkinMap', label: 'Skin Map' },
       { key: 'chat',        icon: MessageCircle,page: 'SkinChat',       label: 'AI Coach' },
       { key: 'insights',    icon: Zap,          page: 'AiInsights',     label: 'Insights' },
+      { key: 'schedule',    icon: Calendar,     page: 'RoutineSchedule', label: 'Schedule' },
     ],
   },
   {
@@ -50,7 +51,6 @@ const MORE_CATEGORIES = [
   bg: 'rgba(167,139,250,0.08)',
   items: [
     { key: 'dashboard',  icon: Star,         page: 'GlowDashboard',    label: 'Dashboard' },
-    { key: 'schedule',   icon: Grid3x3,      page: 'RoutineSchedule',  label: 'Schedule' },
     { key: 'products',   icon: Droplets,      page: 'Products',         label: 'Products' },
     { key: 'ingredients',icon: FlaskConical,  page: 'IngredientLibrary',label: 'Ingredients' },
   ],
