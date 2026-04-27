@@ -68,14 +68,37 @@ function createPageUrl(page) {
   return `/${page}`;
 }
 
+const VISIT_KEY = 'skinaura-last-visit';
+const STALE_MS = 18 * 60 * 60 * 1000; // 18 hours
+
+function getVisitMap() {
+  try { return JSON.parse(localStorage.getItem(VISIT_KEY) || '{}'); } catch { return {}; }
+}
+function stampVisit(page) {
+  const map = getVisitMap();
+  map[page] = Date.now();
+  localStorage.setItem(VISIT_KEY, JSON.stringify(map));
+}
+function isStale(page) {
+  const map = getVisitMap();
+  if (!map[page]) return true; // never visited = stale
+  return Date.now() - map[page] > STALE_MS;
+}
+
 export default function Layout({ children, currentPageName }) {
   const [darkMode, setDarkMode] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [visitMap, setVisitMap] = useState(() => getVisitMap());
   const isFetching = useIsFetching();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => setUser(null));
+    // Stamp current page visit & refresh map
+    if (currentPageName) {
+      stampVisit(currentPageName);
+      setVisitMap(getVisitMap());
+    }
   }, [currentPageName]);
 
   useEffect(() => {
@@ -93,6 +116,12 @@ export default function Layout({ children, currentPageName }) {
 
   const isActive = (page) => currentPageName === page;
   const isMoreActive = MORE_CATEGORIES.flatMap(c => c.items).some(i => i.page === currentPageName);
+  const isPageStale = (page) => {
+    if (!page) return false;
+    const visited = visitMap[page];
+    if (!visited) return true;
+    return Date.now() - visited > STALE_MS;
+  };
 
   return (
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
@@ -228,17 +257,22 @@ export default function Layout({ children, currentPageName }) {
                       {cat.items.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item.page);
+                        const stale = isPageStale(item.page);
                         return (
                           <Link key={item.key} to={createPageUrl(item.page)}
                             onClick={() => setMoreOpen(false)}
-                            className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl transition-all active:scale-95"
+                            className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl transition-all active:scale-95 relative"
                             style={{
                               background: active ? cat.bg : darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
                               border: `1.5px solid ${active ? cat.color + '50' : 'transparent'}`,
                             }}>
-                            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+                            <div className="relative w-10 h-10 rounded-xl flex items-center justify-center"
                               style={{ background: active ? cat.color + '20' : darkMode ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)' }}>
                               <Icon className="w-5 h-5" style={{ color: active ? cat.color : darkMode ? '#aaa' : '#666' }} />
+                              {stale && !active && (
+                                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-pink-500 border-2 border-white"
+                                  style={{ boxShadow: '0 0 0 2px rgba(244,114,182,0.4)', animation: 'ping 1.5s cubic-bezier(0,0,0.2,1) infinite' }} />
+                              )}
                             </div>
                             <span className="text-[10px] font-bold text-center leading-tight"
                               style={{ color: active ? cat.color : darkMode ? '#aaa' : '#555' }}>
@@ -294,8 +328,14 @@ export default function Layout({ children, currentPageName }) {
                     </span>
                   </Link>
                 ) : (
-                  <div className="flex flex-col items-center gap-0.5 w-full">
-                    <NavIcon Icon={Icon} active={active} isMore moreOpen={moreOpen} darkMode={darkMode} />
+                  <div className="flex flex-col items-center gap-0.5 w-full relative">
+                    <div className="relative">
+                      <NavIcon Icon={Icon} active={active} isMore moreOpen={moreOpen} darkMode={darkMode} />
+                      {MORE_CATEGORIES.flatMap(c => c.items).some(i => isPageStale(i.page) && !isActive(i.page)) && !moreOpen && (
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-pink-500 border-2 border-white"
+                          style={{ boxShadow: '0 0 0 2px rgba(244,114,182,0.35)' }} />
+                      )}
+                    </div>
                     <span className="text-[10px] font-bold" style={{ color: active || moreOpen ? '#a78bfa' : darkMode ? '#666' : '#9ca3af' }}>
                       {item.label}
                     </span>
