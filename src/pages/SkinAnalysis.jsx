@@ -21,10 +21,14 @@ import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis
 import PageIntroPopup from '@/components/PageIntroPopup';
 
 const ANALYSIS_LOCK_DAYS = 3;
-const ANALYSIS_LOCK_KEY = 'skin_analysis_last_run';
 
-function getAnalysisLockStatus() {
-  const last = localStorage.getItem(ANALYSIS_LOCK_KEY);
+function getAnalysisLockKey(userEmail) {
+  return `skin_analysis_last_run_${userEmail}`;
+}
+
+function getAnalysisLockStatus(userEmail) {
+  if (!userEmail) return { locked: false, daysLeft: 0 };
+  const last = localStorage.getItem(getAnalysisLockKey(userEmail));
   if (!last) return { locked: false, daysLeft: 0 };
   const diffMs = Date.now() - parseInt(last, 10);
   const diffDays = diffMs / (1000 * 60 * 60 * 24);
@@ -229,7 +233,7 @@ export default function SkinAnalysis() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
   const [routineMsg] = useState(() => ROUTINE_MESSAGES[Math.floor(Math.random() * ROUTINE_MESSAGES.length)]);
-  const [lockStatus, setLockStatus] = useState(() => getAnalysisLockStatus());
+  const [lockStatus, setLockStatus] = useState({ locked: false, daysLeft: 0 });
   const queryClient = useQueryClient();
 
   const [localState, setLocalState] = useState(sharedAnalysisState);
@@ -240,7 +244,12 @@ export default function SkinAnalysis() {
 
   const { photos, analyzing, step, result, cooldownLeft } = localState;
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  useEffect(() => {
+    base44.auth.me().then(u => {
+      setUser(u);
+      if (u?.email) setLockStatus(getAnalysisLockStatus(u.email));
+    }).catch(() => {});
+  }, []);
 
   const { data: pastAnalyses = [] } = useQuery({
     queryKey: ['skinAnalyses', user?.email],
@@ -311,9 +320,11 @@ export default function SkinAnalysis() {
       });
     }
 
-    // Set 3-day lock
-    localStorage.setItem(ANALYSIS_LOCK_KEY, Date.now().toString());
-    setLockStatus(getAnalysisLockStatus());
+    // Set 3-day lock for this user
+    if (user?.email) {
+      localStorage.setItem(getAnalysisLockKey(user.email), Date.now().toString());
+      setLockStatus(getAnalysisLockStatus(user.email));
+    }
 
     // Start cooldown
     startAnalysisCooldown(COOLDOWN_SECONDS);
