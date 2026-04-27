@@ -265,17 +265,26 @@ export default function SkinAnalysis() {
     updateAnalysisState({ step: 4 });
     backgroundOps.updateProgress('skinAnalysis', 40);
 
-    let res;
-    try {
-      const llmRes = await base44.functions.invoke('geminiAnalysis', {
-        imageUrls: [f.file_url, l.file_url, r.file_url],
-      });
-      res = llmRes.data;
-      console.log('✅ Gemini 2.0 Flash Response:', res);
-    } catch (err) {
-      console.error('❌ Gemini Analysis Error:', err);
-      throw err;
-    }
+    const llmRes = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are an expert AI dermatologist. Analyze these 3 face photos (front, left profile, right profile) and provide a clinical-grade skin health assessment.
+
+Evaluate and score each parameter on a 0-10 scale (0=excellent, 10=severe):
+- Acne level, dark spots, wrinkles, pores, redness, oiliness, dryness, sensitivity
+- Skin type (oily, combination, dry, normal, sensitive)
+- Skin tone assessment
+- Per-zone observations (front, left, right facial regions)
+- 3-5 actionable recommendations
+- Key skin strengths (3-5 positive observations)
+- Priority concerns (top 3 issues to address)
+- Detailed insights for each concern (cause, fix, key ingredient, timeline)
+
+Be precise, clinical, and data-driven. Structure as JSON.`,
+      file_urls: [f.file_url, l.file_url, r.file_url],
+      response_json_schema: FULL_SCHEMA,
+    });
+
+    const res = llmRes;
+    console.log('✅ Analysis Complete:', res);
 
     if (!res || typeof res.overall_score !== 'number') {
       throw new Error(`Invalid response structure: ${JSON.stringify(res)}`);
