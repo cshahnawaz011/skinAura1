@@ -6,8 +6,8 @@ import BackgroundOperationBar from '@/components/BackgroundOperationBar';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import {
   Home, Camera, Sparkles, TrendingUp, MessageCircle,
-  BookOpen, Palette, Sun, Users, Menu, X, Moon, Droplets,
-  Zap, FlaskConical, LogIn, LogOut, Apple, ChevronDown, Salad, Star, MoreHorizontal, Map, Heart
+  BookOpen, Sun, Users, Menu, X, Moon, Droplets,
+  Zap, FlaskConical, LogIn, LogOut, Apple, Salad, Star, MoreHorizontal, Map, Heart, HeartPulse
 } from 'lucide-react';
 import { useTranslation } from '@/components/i18n/translations';
 import { base44 } from '@/api/base44Client';
@@ -34,6 +34,7 @@ const ALL_FEATURES = [
   { key: 'dashboard', icon: Star, page: 'GlowDashboard', label: 'Dashboard' },
 
   { key: 'yoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
+  { key: 'hormones', icon: HeartPulse, page: 'HormoneTracker', label: 'Cycle Intelligence' },
   { key: 'diet', icon: Salad, page: 'Diet', label: 'Diet' },
   { key: 'scanner', icon: Apple, page: 'NutritionScanner', label: 'Food Scanner' },
   { key: 'products', icon: Droplets, page: 'Products', label: 'Products' },
@@ -134,7 +135,7 @@ export default function Layout({ children, currentPageName }) {
                 {/* Lifestyle & Wellness Category */}
                 <div>
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Wellness</p>
-                  {ALL_FEATURES.filter(f => ['health', 'lifestyle', 'yoga', 'diet', 'scanner'].includes(f.key)).map((feature) => {
+                  {ALL_FEATURES.filter(f => ['health', 'lifestyle', 'yoga', 'hormones', 'diet', 'scanner'].includes(f.key)).map((feature) => {
                     const FeatureIcon = feature.icon;
                     const isActive = currentPageName === feature.page;
                     return (

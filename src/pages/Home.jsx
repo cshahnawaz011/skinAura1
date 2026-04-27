@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { 
   Camera, Sparkles, TrendingUp, MessageCircle, 
-  Zap, ArrowRight, Cloud, HeartPulse, Activity, Sun
+  Zap, HeartPulse
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -16,9 +16,7 @@ const EXPLORE_GRID = [
   { icon: TrendingUp, label: 'Progress', page: '/Progress', color: '#38bdf8', bgColor: 'rgba(56,189,248,0.1)' },
   { icon: Zap, label: 'AI Insights', page: '/AiInsights', color: '#10b981', bgColor: 'rgba(16,185,129,0.1)' },
   { icon: MessageCircle, label: 'AI Coach', page: '/SkinChat', color: '#f59e0b', bgColor: 'rgba(245,158,11,0.1)' },
-  { icon: Activity, label: 'Wellness', page: '/TodaysWellness', color: '#ef4444', bgColor: 'rgba(239,68,68,0.1)' },
   { icon: HeartPulse, label: 'Hormones', page: '/HormoneTracker', color: '#ec4899', bgColor: 'rgba(236,72,153,0.1)' },
-  { icon: Cloud, label: 'Forecast', page: '/GlowForecast', color: '#6366f1', bgColor: 'rgba(99,102,241,0.1)' },
 ];
 
 export default function Home() {
