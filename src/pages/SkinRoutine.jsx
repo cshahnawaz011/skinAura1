@@ -173,6 +173,7 @@ export default function SkinRoutine() {
   const [user, setUser] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
   const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
+  const [showRegeneratePrompt, setShowRegeneratePrompt] = useState(false);
   const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
   const { pageKey } = usePageState();
@@ -189,6 +190,12 @@ export default function SkinRoutine() {
       setUser(u);
       const cached = getCachedRoutineData(u.email);
       if (cached && !sharedRoutineState.routineData) updateRoutineState({ routineData: cached });
+      
+      // Check for new analysis signal
+      const newAnalysis = localStorage.getItem('newAnalysisForRoutine');
+      if (newAnalysis && !isCleared.current) {
+        setShowRegeneratePrompt(true);
+      }
     }).catch(() => {});
   }, []);
 
@@ -281,10 +288,71 @@ export default function SkinRoutine() {
     }
   };
 
+  const handleRegenerateFromNewAnalysis = async () => {
+    localStorage.removeItem('newAnalysisForRoutine');
+    setShowRegeneratePrompt(false);
+    await generateRoutine();
+  };
+
   const levelColor = { 'Level 1': '#10b981', 'Level 2': '#f59e0b', 'Level 3': '#f472b6' };
 
   return (
     <div className="max-w-2xl mx-auto space-y-3 pb-10">
+
+      {/* ── Regenerate Prompt Modal ── */}
+      <AnimatePresence>
+        {showRegeneratePrompt && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50"
+              style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
+              onClick={() => setShowRegeneratePrompt(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+              className="fixed inset-x-4 top-1/4 z-50 rounded-3xl overflow-hidden shadow-2xl max-w-md mx-auto"
+              style={{ background: '#ffffff' }}
+            >
+              <div className="h-1.5 w-full" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa,#60a5fa)' }} />
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                    style={{ background: 'rgba(244,114,182,0.15)', border: '1.5px solid rgba(244,114,182,0.3)' }}>
+                    🔬
+                  </div>
+                  <div>
+                    <p className="font-black text-base text-gray-900">New Skin Analysis</p>
+                    <p className="text-[11px] text-gray-400">Your skin has changed</p>
+                  </div>
+                </div>
+
+                <p className="text-sm text-gray-600 leading-relaxed mb-4">
+                  Your new skin analysis is ready. Would you like to regenerate your routine based on the updated results?
+                </p>
+
+                <div className="flex gap-2">
+                  <button onClick={() => setShowRegeneratePrompt(false)}
+                    className="flex-1 py-3 rounded-2xl font-bold text-sm transition-all"
+                    style={{ background: '#f5f5f5', color: '#6b7280' }}>
+                    Later
+                  </button>
+                  <button onClick={handleRegenerateFromNewAnalysis}
+                    className="flex-1 py-3 rounded-2xl font-black text-white text-sm ios-button-3d"
+                    style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── Hero Header Card ── */}
       <div className="rounded-3xl overflow-hidden"

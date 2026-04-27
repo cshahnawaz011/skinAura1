@@ -333,6 +333,9 @@ All results must be internally consistent and based on the parameter scores.`,
     // Start cooldown
     startAnalysisCooldown(COOLDOWN_SECONDS);
 
+    // ── Signal routine page to prompt regeneration ──────────────────────────────
+    localStorage.setItem('newAnalysisForRoutine', JSON.stringify({ timestamp: Date.now(), analysis: res }));
+
     // ── Auto-generate routine after analysis ──────────────────────────────
     if (user && shouldAutoGenerateRoutine()) {
       autoGenerateRoutine(res, user);
