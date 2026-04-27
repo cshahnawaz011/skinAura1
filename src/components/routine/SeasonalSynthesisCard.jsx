@@ -46,11 +46,29 @@ function getUVLabel(uv) {
   return { label: 'Extreme', color: '#7c3aed' };
 }
 
+const WEATHER_CACHE_KEY = 'skinaura_weather_cache';
+const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+function getCachedWeather() {
+  try {
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return null;
+    const { data, timestamp } = JSON.parse(raw);
+    if (Date.now() - timestamp < CACHE_TTL_MS) return data;
+  } catch {}
+  return null;
+}
+
+function setCachedWeather(data) {
+  localStorage.setItem(WEATHER_CACHE_KEY, JSON.stringify({ data, timestamp: Date.now() }));
+}
+
 export default function SeasonalSynthesisCard() {
   const [open, setOpen] = useState(false);
   const [weather, setWeather] = useState(null);
   const [hourlyTrend, setHourlyTrend] = useState([]);
   const [weatherLoading, setWeatherLoading] = useState(false);
+  const [cachedAt, setCachedAt] = useState(null);
 
   const { location, loading, error, source, refetch } = useRealLocation({ autoFetch: true });
 
@@ -60,13 +78,13 @@ export default function SeasonalSynthesisCard() {
     const res = await fetch(url);
     const data = await res.json();
     const current = data.current;
-    setWeather({
+    const weatherData = {
       temp: current.temperature_2m,
       humidity: current.relative_humidity_2m,
       uvIndex: current.uv_index ?? 0,
       weatherCode: current.weather_code,
       wind: current.wind_speed_10m,
-    });
+    };
     const hours = data.hourly;
     const now = new Date().getHours();
     const trend = [];
@@ -78,17 +96,33 @@ export default function SeasonalSynthesisCard() {
         uv: hours.uv_index[i] ?? 0,
       });
     }
+    const cachePayload = { weather: weatherData, hourlyTrend: trend };
+    setCachedWeather(cachePayload);
+    setWeather(weatherData);
     setHourlyTrend(trend);
+    setCachedAt(Date.now());
     setWeatherLoading(false);
   };
 
   useEffect(() => {
+    // Load from cache first
+    const cached = getCachedWeather();
+    if (cached) {
+      setWeather(cached.weather);
+      setHourlyTrend(cached.hourlyTrend || []);
+      const raw = JSON.parse(localStorage.getItem(WEATHER_CACHE_KEY));
+      setCachedAt(raw?.timestamp || null);
+      return; // skip fetching — cache is fresh
+    }
+    // No valid cache — fetch when location is available
     if (location) fetchWeatherByCoords(location.lat, location.lon);
   }, [location]);
 
   const handleRefresh = async () => {
     setWeather(null);
+    localStorage.removeItem(WEATHER_CACHE_KEY);
     await refetch();
+    if (location) fetchWeatherByCoords(location.lat, location.lon);
   };
 
   const isLoading = loading || weatherLoading;
@@ -223,7 +257,7 @@ export default function SeasonalSynthesisCard() {
                   </div>
 
                   <p className="text-[10px] text-gray-400 text-right">
-                    📡 Live · Open-Meteo · {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                    📡 Cached · Open-Meteo · {cachedAt ? new Date(cachedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'} · refreshes every 12h
                   </p>
                 </>
               )}
