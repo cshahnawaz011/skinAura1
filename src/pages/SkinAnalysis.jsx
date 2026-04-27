@@ -20,23 +20,7 @@ import ConfidenceRiskPanel from '@/components/analysis/ConfidenceRiskPanel';
 import NextStepsAfterAnalysis from '@/components/analysis/NextStepsAfterAnalysis';
 import PageIntroPopup from '@/components/PageIntroPopup';
 
-const ANALYSIS_LOCK_DAYS = 3;
 
-function getAnalysisLockKey(userEmail) {
-  return `skin_analysis_last_run_${userEmail}`;
-}
-
-function getAnalysisLockStatus(userEmail) {
-  if (!userEmail) return { locked: false, daysLeft: 0 };
-  const last = localStorage.getItem(getAnalysisLockKey(userEmail));
-  if (!last) return { locked: false, daysLeft: 0 };
-  const diffMs = Date.now() - parseInt(last, 10);
-  const diffDays = diffMs / (1000 * 60 * 60 * 24);
-  if (diffDays < ANALYSIS_LOCK_DAYS) {
-    return { locked: true, daysLeft: Math.ceil(ANALYSIS_LOCK_DAYS - diffDays) };
-  }
-  return { locked: false, daysLeft: 0 };
-}
 
 let sharedAnalysisState = {
   photos: { front: null, left: null, right: null },
@@ -233,7 +217,7 @@ export default function SkinAnalysis() {
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
   const [routineMsg] = useState(() => ROUTINE_MESSAGES[Math.floor(Math.random() * ROUTINE_MESSAGES.length)]);
-  const [lockStatus, setLockStatus] = useState({ locked: false, daysLeft: 0 });
+
   const queryClient = useQueryClient();
 
   const [localState, setLocalState] = useState(sharedAnalysisState);
@@ -245,10 +229,7 @@ export default function SkinAnalysis() {
   const { photos, analyzing, step, result, cooldownLeft } = localState;
 
   useEffect(() => {
-    base44.auth.me().then(u => {
-      setUser(u);
-      if (u?.email) setLockStatus(getAnalysisLockStatus(u.email));
-    }).catch(() => {});
+    base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
   const { data: pastAnalyses = [] } = useQuery({
@@ -320,11 +301,7 @@ export default function SkinAnalysis() {
       });
     }
 
-    // Set 3-day lock for this user
-    if (user?.email) {
-      localStorage.setItem(getAnalysisLockKey(user.email), Date.now().toString());
-      setLockStatus(getAnalysisLockStatus(user.email));
-    }
+
 
     // Start cooldown
     startAnalysisCooldown(COOLDOWN_SECONDS);
@@ -422,26 +399,7 @@ Return JSON:
         ]}
       />
 
-      {/* 3-Day Lock Banner */}
-      {lockStatus.locked && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-3xl p-5 text-center"
-          style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.08),rgba(167,139,250,0.1))', border: '2px solid rgba(244,114,182,0.25)' }}>
-          <div className="text-4xl mb-3">🔒</div>
-          <p className="font-black text-lg text-gray-900 mb-1">Next Scan in {lockStatus.daysLeft} Day{lockStatus.daysLeft > 1 ? 's' : ''}</p>
-          <p className="text-sm text-gray-500 leading-relaxed max-w-xs mx-auto">
-            Your skin needs time to reflect real changes. Scanning every <strong>3 days</strong> ensures each analysis captures meaningful progress — not just daily fluctuations.
-          </p>
-          <div className="mt-4 flex justify-center gap-3 flex-wrap">
-            <a href="/Progress" className="px-4 py-2 rounded-xl text-sm font-bold text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-              📊 View Progress
-            </a>
-            <a href="/SkinRoutine" className="px-4 py-2 rounded-xl text-sm font-bold text-gray-700 bg-gray-100">
-              ✨ My Routine
-            </a>
-          </div>
-        </motion.div>
-      )}
+
 
       {/* Header */}
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -572,12 +530,10 @@ Return JSON:
             ))}
           </div>
 
-          <Button onClick={runAnalysis} disabled={analyzing || !allReady || cooldownLeft > 0 || lockStatus.locked}
-            className={`w-full py-5 text-base font-black text-white ${(cooldownLeft > 0 || lockStatus.locked) ? '' : 'ios-button-3d'}`} style={{ background: (cooldownLeft > 0 || lockStatus.locked) ? 'rgba(0,0,0,0.1)' : 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          <Button onClick={runAnalysis} disabled={analyzing || !allReady || cooldownLeft > 0}
+            className={`w-full py-5 text-base font-black text-white ${cooldownLeft > 0 ? '' : 'ios-button-3d'}`} style={{ background: cooldownLeft > 0 ? 'rgba(0,0,0,0.1)' : 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             {analyzing ? (
               <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Analyzing…</>
-            ) : lockStatus.locked ? (
-              <>🔒 Available in {lockStatus.daysLeft} day{lockStatus.daysLeft > 1 ? 's' : ''}</>
             ) : cooldownLeft > 0 ? (
               <>⏳ Available in {cooldownLeft}s</>
             ) : !allReady ? (
