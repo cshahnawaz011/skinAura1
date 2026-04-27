@@ -2,25 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
-import { Zap, Clock, Sparkles, MessageCircle, ArrowRight, FileText } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 
 const NEXT_STEPS = [
-  {
-    icon: Zap,
-    title: 'AI Insights',
-    desc: 'View your celebrity match, acne risk, and beauty DNA based on this analysis',
-    page: 'AiInsights',
-    color: 'from-violet-400 to-purple-500',
-    bg: 'bg-violet-50 dark:bg-violet-900/20',
-  },
-  {
-    icon: Clock,
-    title: 'Skin Age Prediction',
-    desc: 'Find out the biological age of your skin',
-    page: 'SkinAgePrediction',
-    color: 'from-indigo-400 to-blue-500',
-    bg: 'bg-indigo-50 dark:bg-indigo-900/20',
-  },
   {
     icon: Sparkles,
     title: 'Build AI Routine',
@@ -28,22 +12,6 @@ const NEXT_STEPS = [
     page: 'SkinRoutine',
     color: 'from-amber-400 to-orange-400',
     bg: 'bg-amber-50 dark:bg-amber-900/20',
-  },
-  {
-    icon: MessageCircle,
-    title: 'Ask AI Coach',
-    desc: 'Chat directly with your AI coach about your skin results',
-    page: 'SkinChat',
-    color: 'from-emerald-400 to-teal-400',
-    bg: 'bg-emerald-50 dark:bg-emerald-900/20',
-  },
-  {
-    icon: FileText,
-    title: 'Full Report',
-    desc: 'Generate a PDF report and get your 90-day action plan',
-    page: 'SkinReport',
-    color: 'from-pink-400 to-rose-400',
-    bg: 'bg-pink-50 dark:bg-pink-900/20',
   },
 ];
 
@@ -60,7 +28,7 @@ export default function NextStepsAfterAnalysis() {
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
         Your skin analysis has been saved — explore these features using your results
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {NEXT_STEPS.map((s, i) => {
           const Icon = s.icon;
           return (
