@@ -262,8 +262,8 @@ export default function SkinAnalysis() {
       base44.integrations.Core.UploadFile({ file: photos.right.file }),
     ]);
 
-    updateAnalysisState({ step: 4 });
-    backgroundOps.updateProgress('skinAnalysis', 40);
+    updateAnalysisState({ step: 1 });
+    backgroundOps.updateProgress('skinAnalysis', 20);
 
     const llmRes = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an expert AI dermatologist. Analyze these 3 face photos (front, left profile, right profile) and provide a clinical-grade skin health assessment.
@@ -283,15 +283,14 @@ Be precise, clinical, and data-driven. Structure as JSON.`,
       response_json_schema: FULL_SCHEMA,
     });
 
+    updateAnalysisState({ step: 5 });
+    backgroundOps.updateProgress('skinAnalysis', 90);
     const res = llmRes;
     console.log('✅ Analysis Complete:', res);
 
     if (!res || typeof res.overall_score !== 'number') {
       throw new Error(`Invalid response structure: ${JSON.stringify(res)}`);
     }
-
-    updateAnalysisState({ step: 5 });
-    backgroundOps.updateProgress('skinAnalysis', 90);
     const analysisResult = { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url };
     updateAnalysisState({ result: analysisResult, analyzing: false });
     localStorage.setItem('skinAnalysisCache', JSON.stringify(analysisResult));
