@@ -13,8 +13,6 @@ import { Badge } from '@/components/ui/badge';
 import GlassCard from '@/components/ui/GlassCard';
 import DailyFeedbackPanel from '@/components/routine/DailyFeedbackPanel';
 import WeekPlanGrid from '@/components/routine/WeekPlanGrid';
-import UserLevelTracker from '@/components/routine/UserLevelTracker';
-import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
 import StepProductPicker from '@/components/routine/StepProductPicker';
 import { computeUserLevel } from '@/lib/routineAdaptation';
 import { format } from 'date-fns';
@@ -715,23 +713,7 @@ export default function SkinRoutine() {
         🧩 "Start low → protect barrier → rotate → adjust → upgrade slowly"
       </div>
 
-      {/* User Level Tracker — auto-computed from feedback */}
-      {user && (
-        <UserLevelTracker
-          currentLevel={userLevel.currentLevel}
-          frequencyLabel={userLevel.frequencyLabel}
-          daysAtLevel={userLevel.daysAtLevel}
-          progressPercent={userLevel.progressPercent}
-          nextAction={userLevel.nextAction}
-          recoveryMode={userLevel.recoveryMode}
-          statusEmoji={userLevel.statusEmoji}
-        />
-      )}
-
-      {/* Concentration Level Guide — collapsible */}
-      {user && (
-        <ConcentrationLevelGuide currentLevel={userLevel.currentLevel} />
-      )}
+      {/* User Level & Concentration Guide moved to Routine Intelligence page */}
 
       {/* Skin Profile Banner */}
       {latestAnalysis && (

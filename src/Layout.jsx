@@ -28,11 +28,11 @@ const ALL_FEATURES = [
   { key: 'chat', icon: MessageCircle, page: 'SkinChat', label: 'Chat' },
   { key: 'progress', icon: TrendingUp, page: 'Progress', label: 'Progress' },
   { key: 'insights', icon: Zap, page: 'AiInsights', label: 'Insights' },
-  { key: 'makeup', icon: Palette, page: 'MakeupTryOn', label: 'Makeup' },
+
   { key: 'lifestyle', icon: Sun, page: 'Lifestyle', label: 'Lifestyle' },
   { key: 'health', icon: TrendingUp, page: 'LifestyleInsights', label: 'Health' },
   { key: 'dashboard', icon: Star, page: 'GlowDashboard', label: 'Dashboard' },
-  { key: 'challenges', icon: Sparkles, page: 'GlowChallenge', label: 'Challenges' },
+
   { key: 'yoga', icon: Zap, page: 'FaceYoga', label: 'Face Yoga' },
   { key: 'diet', icon: Salad, page: 'Diet', label: 'Diet' },
   { key: 'scanner', icon: Apple, page: 'NutritionScanner', label: 'Food Scanner' },
@@ -151,7 +151,7 @@ export default function Layout({ children, currentPageName }) {
                 {/* Growth Category */}
                 <div>
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Growth</p>
-                  {ALL_FEATURES.filter(f => ['challenges', 'dashboard', 'insights', 'chat'].includes(f.key)).map((feature) => {
+                  {ALL_FEATURES.filter(f => ['dashboard', 'insights', 'chat'].includes(f.key)).map((feature) => {
                     const FeatureIcon = feature.icon;
                     const isActive = currentPageName === feature.page;
                     return (
@@ -168,7 +168,7 @@ export default function Layout({ children, currentPageName }) {
                 {/* Resources Category */}
                 <div>
                   <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Resources</p>
-                  {ALL_FEATURES.filter(f => ['ingredients', 'products', 'makeup', 'learn', 'community'].includes(f.key)).map((feature) => {
+                  {ALL_FEATURES.filter(f => ['ingredients', 'products', 'learn', 'community'].includes(f.key)).map((feature) => {
                     const FeatureIcon = feature.icon;
                     const isActive = currentPageName === feature.page;
                     return (

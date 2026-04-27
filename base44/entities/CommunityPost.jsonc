@@ -1,0 +1,50 @@
+{
+  "name": "CommunityPost",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "user_name": {
+      "type": "string"
+    },
+    "caption": {
+      "type": "string"
+    },
+    "overall_score": {
+      "type": "number"
+    },
+    "skin_type": {
+      "type": "string"
+    },
+    "acne_level": {
+      "type": "number"
+    },
+    "dark_spots": {
+      "type": "number"
+    },
+    "redness": {
+      "type": "number"
+    },
+    "likes_count": {
+      "type": "number",
+      "default": 0
+    },
+    "liked_by": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "comments": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "required": [
+    "user_email",
+    "caption"
+  ]
+}
