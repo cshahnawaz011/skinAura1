@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 import { format } from 'date-fns';
 import { computeUserLevel } from '@/lib/routineAdaptation';
+import PageIntroPopup from '@/components/PageIntroPopup';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -788,6 +789,19 @@ export default function Progress() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-5 pb-10">
+
+      <PageIntroPopup
+        storageKey="intro_Progress"
+        emoji="📊"
+        title="Skin Progress Tracker"
+        accentColor="#a78bfa"
+        description="Track your skin transformation journey with AI-powered scoring, photo comparisons, and lifestyle correlation — all in one professional dashboard."
+        tips={[
+          { icon: '📸', title: 'Log daily progress photos', text: 'Upload a photo each day to visually track how your skin responds to your routine and lifestyle changes.' },
+          { icon: '🗓️', title: 'Full skin analysis weekly', text: 'Perform a complete 360° AI skin scan once per week to measure your overall score improvement accurately.' },
+          { icon: '📈', title: 'Correlate lifestyle habits', text: 'Your sleep, hydration, and diet logs are automatically linked to your skin score trends for deeper insights.' },
+        ]}
+      />
 
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}

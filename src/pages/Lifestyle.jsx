@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { Save, Plus, X, Search, Loader2 } from 'lucide-react';
 import MetricCard from '@/components/lifestyle/MetricCard';
+import PageIntroPopup from '@/components/PageIntroPopup';
 
 const MOODS = [
   { val: 'Great', emoji: '😄' },
@@ -188,6 +189,19 @@ export default function Lifestyle() {
 
   return (
     <div className="max-w-md mx-auto pb-12 space-y-5">
+
+      <PageIntroPopup
+        storageKey="intro_Lifestyle"
+        emoji="🌿"
+        title="Lifestyle Tracker"
+        accentColor="#10b981"
+        description="Your skin is a mirror of your lifestyle. Log daily habits — water intake, sleep, exercise, stress, and diet — so the AI can identify exactly which lifestyle patterns are improving or harming your skin."
+        tips={[
+          { icon: '💧', title: 'Log water & sleep every day', text: 'Hydration and sleep are the two most impactful lifestyle factors for skin health. Aim for 8 glasses and 7+ hours nightly.' },
+          { icon: '🥗', title: 'Track skin-good & skin-bad foods', text: 'Tagging specific foods allows the AI to correlate your diet with acne flares, dryness spikes, and glow improvements over time.' },
+          { icon: '📊', title: 'Check Health Insights weekly', text: 'Visit the Health Insights page each week to receive a full AI analysis of how your lifestyle is impacting your skin score trends.' },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3">

@@ -15,6 +15,7 @@ import HabitCard from '@/components/glowdashboard/HabitCard';
 import BadgeGrid, { ALL_BADGES } from '@/components/glowdashboard/BadgeGrid';
 import GlowTrendChart from '@/components/glowdashboard/GlowTrendChart';
 import ShareCard from '@/components/glowdashboard/ShareCard';
+import PageIntroPopup from '@/components/PageIntroPopup';
 
 // ── Habit definitions ────────────────────────────────────────────
 const HABITS = [
@@ -181,6 +182,20 @@ export default function GlowDashboard() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 pb-10">
+
+      <PageIntroPopup
+        storageKey="intro_GlowDashboard"
+        emoji="⭐"
+        title="Glow Dashboard"
+        accentColor="#f59e0b"
+        description="Your daily habits are the foundation of healthy, glowing skin. Track all 10 core skin habits, earn badges, and build streaks that compound into real, visible results over weeks."
+        tips={[
+          { icon: '✅', title: 'Check off habits daily', text: 'Log every habit — from hydration and SPF to sleep and stress management — to build your daily Glow Score.' },
+          { icon: '🔥', title: 'Build streaks for real results', text: 'Research shows consistent daily habits over 21+ days produce measurable improvements in skin barrier health and clarity.' },
+          { icon: '📈', title: 'Track your 30-day trend', text: 'Use the Progress tab to see how your Glow Score correlates with your skin analysis scores over time.' },
+        ]}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

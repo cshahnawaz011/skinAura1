@@ -9,6 +9,7 @@ import {
   Check, Calendar, AlertCircle, TrendingUp
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import PageIntroPopup from '@/components/PageIntroPopup';
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip, LineChart, Line } from 'recharts';
 
 // ── Phase Configuration ──────────────────────────────────────────────────────
@@ -565,6 +566,19 @@ export default function HormoneTracker() {
 
   return (
     <div className="max-w-2xl mx-auto pb-10 space-y-5">
+
+      <PageIntroPopup
+        storageKey="intro_HormoneTracker"
+        emoji="🌙"
+        title="Cycle Intelligence"
+        accentColor="#ec4899"
+        description="Track your menstrual cycle to understand how hormonal shifts in each phase directly affect your skin, energy, mood, and ideal skincare routine — all synced with AI."
+        tips={[
+          { icon: '📅', title: 'Log your cycle start date', text: 'Enter the first day of your last period. The AI automatically calculates your current phase and adapts skin & diet recommendations accordingly.' },
+          { icon: '💊', title: 'Update symptoms daily', text: 'Record daily symptoms and energy levels so the AI can identify hormonal patterns affecting your skin over time.' },
+          { icon: '🤖', title: 'Run AI Orchestration', text: 'Use the AI Insights tab to get a complete cross-feature analysis linking your cycle to skin, diet, and lifestyle in real time.' },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex items-center gap-3">

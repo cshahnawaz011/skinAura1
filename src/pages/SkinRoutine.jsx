@@ -20,6 +20,7 @@ import { backgroundOps } from '@/lib/BackgroundOperations';
 import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib/routineSessionCache';
 
 import RoutineTracker from '@/components/routine/RoutineTracker';
+import PageIntroPopup from '@/components/PageIntroPopup';
 
 // Initialize from localStorage
 const initializeRoutineState = () => {
@@ -696,6 +697,19 @@ export default function SkinRoutine() {
       </AnimatePresence>
 
     <div className="max-w-3xl mx-auto space-y-5 pb-8">
+
+      <PageIntroPopup
+        storageKey="intro_SkinRoutine"
+        emoji="✨"
+        title="Your Adaptive Skin Routine"
+        accentColor="#f472b6"
+        description="Your AI-powered skincare routine is built around your unique skin type, current concerns, and daily feedback — adapting every week to your skin's real-time response."
+        tips={[
+          { icon: '🌅', title: 'Follow morning & night steps', text: 'Consistency is everything. Complete both AM and PM routines daily for compounding results over weeks.' },
+          { icon: '📋', title: 'Log daily skin feedback', text: 'Rate how your skin feels after each routine. The AI uses this data to adjust active ingredient frequency and concentration.' },
+          { icon: '🔄', title: 'Regenerate weekly', text: 'Refresh your routine every 7 days as your skin levels up — the AI will safely increase treatment frequency when your skin is ready.' },
+        ]}
+      />
 
       {/* Header */}
       <div className="flex items-center gap-3">
