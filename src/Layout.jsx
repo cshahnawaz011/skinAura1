@@ -45,14 +45,15 @@ const MORE_CATEGORIES = [
     ],
   },
   {
-    label: '🚀 Growth',
-    color: '#a78bfa',
-    bg: 'rgba(167,139,250,0.08)',
-    items: [
-      { key: 'dashboard',  icon: Star,         page: 'GlowDashboard',    label: 'Dashboard' },
-      { key: 'products',   icon: Droplets,      page: 'Products',         label: 'Products' },
-      { key: 'ingredients',icon: FlaskConical,  page: 'IngredientLibrary',label: 'Ingredients' },
-    ],
+  label: '🚀 Growth',
+  color: '#a78bfa',
+  bg: 'rgba(167,139,250,0.08)',
+  items: [
+    { key: 'dashboard',  icon: Star,         page: 'GlowDashboard',    label: 'Dashboard' },
+    { key: 'schedule',   icon: Grid3x3,      page: 'RoutineSchedule',  label: 'Schedule' },
+    { key: 'products',   icon: Droplets,      page: 'Products',         label: 'Products' },
+    { key: 'ingredients',icon: FlaskConical,  page: 'IngredientLibrary',label: 'Ingredients' },
+  ],
   },
   {
     label: '📚 Community',
