@@ -125,78 +125,72 @@ Make them informative and practical.`,
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Skin Education Hub</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">
-          Learn everything about skincare
-        </p>
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>📚</div>
+        <div>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white">Skin Education</h1>
+          <p className="text-sm text-gray-500">Learn everything about skincare</p>
+        </div>
       </div>
 
       {/* Daily Tip */}
       {dailyTip && (
-        <GlassCard className="bg-gradient-to-r from-pink-50 to-amber-50 dark:from-pink-900/20 dark:to-amber-900/20">
+        <div className="rounded-3xl p-5 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-amber-400 flex items-center justify-center flex-shrink-0">
-              <Lightbulb className="w-6 h-6 text-white" />
+            <div className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'linear-gradient(135deg,#f59e0b,#f472b6)' }}>
+              <Lightbulb className="w-5 h-5 text-white" />
             </div>
             <div>
-              <Badge className="mb-2 bg-amber-500">Tip of the Day</Badge>
-              <h3 className="text-lg font-semibold mb-2">{dailyTip.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300">{dailyTip.tip}</p>
+              <span className="inline-block text-xs font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 mb-2">Tip of the Day</span>
+              <h3 className="text-base font-bold mb-1">{dailyTip.title}</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">{dailyTip.tip}</p>
             </div>
           </div>
-        </GlassCard>
+        </div>
       )}
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="tips">Tips</TabsTrigger>
-          <TabsTrigger value="articles">Articles</TabsTrigger>
-          <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
-          <TabsTrigger value="myths">Myths vs Facts</TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        {[['tips','💡','Tips'],['articles','📰','Articles'],['ingredients','🔬','Ingredients'],['myths','❓','Myths']].map(([id, emoji, label]) => (
+          <button key={id} onClick={() => setActiveTab(id)}
+            className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+            style={{ background: activeTab === id ? 'linear-gradient(135deg,#f472b6,#a78bfa)' : 'white', color: activeTab === id ? 'white' : '#6b7280', border: activeTab === id ? 'none' : '1.5px solid #e5e7eb' }}>
+            <span>{emoji}</span>{label}
+          </button>
+        ))}
+      </div>
 
       {/* Tips Tab */}
       {activeTab === 'tips' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {skinTopics.map((topic) => (
-              <motion.button
-                key={topic.id}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  setSelectedTopic(topic.id);
-                  setActiveTab('articles');
-                }}
-                className={`p-4 rounded-2xl bg-gradient-to-br ${topic.color} text-white text-center`}
-              >
-                <span className="text-2xl block mb-2">{topic.icon}</span>
-                <span className="font-medium">{topic.label}</span>
-              </motion.button>
+              <button key={topic.id} onClick={() => { setSelectedTopic(topic.id); setActiveTab('articles'); }}
+                className="p-3 rounded-2xl text-center text-white transition-all hover:scale-105 active:scale-95"
+                style={{ background: `linear-gradient(135deg,${topic.id === 'acne' ? '#f43f5e,#f472b6' : topic.id === 'aging' ? '#a78bfa,#6366f1' : topic.id === 'brightening' ? '#f59e0b,#fcd34d' : topic.id === 'hydration' ? '#38bdf8,#06b6d4' : '#fb923c,#ef4444'})` }}>
+                <span className="text-2xl block mb-1">{topic.icon}</span>
+                <span className="text-xs font-bold">{topic.label}</span>
+              </button>
             ))}
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
-              { title: 'The Perfect Cleansing Routine', desc: 'Learn the double cleanse method' },
-              { title: 'Understanding Your Skin Barrier', desc: 'Why it matters and how to protect it' },
-              { title: 'Layering Products Correctly', desc: 'The right order for maximum absorption' },
-              { title: 'SPF Explained', desc: 'Everything you need to know about sun protection' },
+              { title: 'The Perfect Cleansing Routine', desc: 'Learn the double cleanse method', emoji: '🧼' },
+              { title: 'Understanding Your Skin Barrier', desc: 'Why it matters and how to protect it', emoji: '🛡️' },
+              { title: 'Layering Products Correctly', desc: 'The right order for maximum absorption', emoji: '📐' },
+              { title: 'SPF Explained', desc: 'Everything you need to know about sun protection', emoji: '☀️' },
             ].map((item, i) => (
-              <GlassCard key={i} delay={i * 0.1} className="cursor-pointer group">
-                <div className="flex items-center justify-between">
+              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-between gap-3 cursor-pointer hover:border-pink-200 transition-all group">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">{item.emoji}</span>
                   <div>
-                    <h3 className="font-semibold group-hover:text-pink-500 transition-colors">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm text-gray-500">{item.desc}</p>
+                    <p className="font-bold text-sm group-hover:text-pink-500 transition-colors">{item.title}</p>
+                    <p className="text-xs text-gray-400">{item.desc}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-pink-500 transition-colors" />
                 </div>
-              </GlassCard>
+                <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-pink-400 flex-shrink-0 transition-colors" />
+              </motion.div>
             ))}
           </div>
         </div>
@@ -204,55 +198,30 @@ Make them informative and practical.`,
 
       {/* Articles Tab */}
       {activeTab === 'articles' && (
-        <div className="space-y-6">
-          <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="space-y-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {skinTopics.map((topic) => (
-              <Button
-                key={topic.id}
-                variant={selectedTopic === topic.id ? 'default' : 'outline'}
-                onClick={() => setSelectedTopic(topic.id)}
-                className={selectedTopic === topic.id ? 'bg-pink-500' : ''}
-              >
-                <span className="mr-2">{topic.icon}</span>
-                {topic.label}
-              </Button>
+              <button key={topic.id} onClick={() => setSelectedTopic(topic.id)}
+                className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                style={{ background: selectedTopic === topic.id ? '#f472b6' : 'white', color: selectedTopic === topic.id ? 'white' : '#6b7280', border: '1.5px solid #e5e7eb' }}>
+                {topic.icon} {topic.label}
+              </button>
             ))}
           </div>
-
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map(i => (
-                <GlassCard key={i} className="animate-pulse">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-3" />
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
-                </GlassCard>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {[1,2,3,4].map(i => <div key={i} className="h-32 rounded-2xl bg-gray-100 animate-pulse" />)}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {articles.map((article, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <GlassCard
-                    className="h-full cursor-pointer group hover:shadow-lg"
-                    onClick={() => setOpenArticle(article)}
-                  >
-                    <Badge className="mb-3">{article.readingTime} min read</Badge>
-                    <h3 className="font-semibold text-lg mb-2 group-hover:text-pink-500 transition-colors">
-                      {article.title}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      {article.summary}
-                    </p>
-                    <Button variant="ghost" size="sm" className="mt-4 text-pink-500 pointer-events-none">
-                      Read More <ChevronRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </GlassCard>
+                <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+                  onClick={() => setOpenArticle(article)}
+                  className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm cursor-pointer hover:border-pink-200 transition-all group">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-pink-100 text-pink-600 mb-2 inline-block">{article.readingTime} min read</span>
+                  <h3 className="font-bold text-sm mb-1 group-hover:text-pink-500 transition-colors">{article.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{article.summary}</p>
+                  <p className="text-xs text-pink-500 font-semibold mt-2 flex items-center gap-1">Read More <ChevronRight className="w-3 h-3" /></p>
                 </motion.div>
               ))}
             </div>
@@ -262,38 +231,21 @@ Make them informative and practical.`,
 
       {/* Ingredients Tab */}
       {activeTab === 'ingredients' && (
-        <div className="space-y-6">
+        <div className="space-y-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search ingredients..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input placeholder="Search ingredients..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:border-pink-300 transition-all" />
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {filteredIngredients.map((ing, i) => (
-              <motion.div
-                key={ing.name}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <GlassCard>
-                  <h3 className="font-semibold text-lg mb-2">{ing.name}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
-                    {ing.benefit}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {ing.goodFor.map(tag => (
-                      <Badge key={tag} variant="outline" className="capitalize">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </GlassCard>
+              <motion.div key={ing.name} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
+                className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+                <h3 className="font-bold text-sm mb-1">{ing.name}</h3>
+                <p className="text-xs text-gray-500 mb-2">{ing.benefit}</p>
+                <div className="flex flex-wrap gap-1">
+                  {ing.goodFor.map(tag => <Badge key={tag} variant="outline" className="text-xs capitalize">{tag}</Badge>)}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -305,38 +257,20 @@ Make them informative and practical.`,
 
       {/* Myths vs Facts Tab */}
       {activeTab === 'myths' && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {mythsVsFacts.map((item, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-            >
-              <GlassCard>
-                <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    item.isFact ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'
-                  }`}>
-                    {item.isFact ? (
-                      <Check className="w-5 h-5 text-emerald-500" />
-                    ) : (
-                      <X className="w-5 h-5 text-red-500" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge className={item.isFact ? 'bg-emerald-500' : 'bg-red-500'}>
-                        {item.isFact ? 'Fact' : 'Myth'}
-                      </Badge>
-                    </div>
-                    <p className="font-medium mb-2">"{item.myth}"</p>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      <span className="font-medium">Truth:</span> {item.fact}
-                    </p>
-                  </div>
-                </div>
-              </GlassCard>
+            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}
+              className="p-4 rounded-2xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm flex items-start gap-3">
+              <div className={`w-9 h-9 rounded-2xl flex items-center justify-center flex-shrink-0 ${item.isFact ? 'bg-emerald-100' : 'bg-red-100'}`}>
+                {item.isFact ? <Check className="w-4 h-4 text-emerald-500" /> : <X className="w-4 h-4 text-red-500" />}
+              </div>
+              <div>
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full inline-block mb-1.5 ${item.isFact ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'}`}>
+                  {item.isFact ? 'Fact' : 'Myth'}
+                </span>
+                <p className="font-semibold text-sm mb-1">"{item.myth}"</p>
+                <p className="text-xs text-gray-500 leading-relaxed"><span className="font-bold">Truth:</span> {item.fact}</p>
+              </div>
             </motion.div>
           ))}
         </div>

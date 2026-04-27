@@ -87,30 +87,25 @@ export default function Products() {
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-xl shadow-lg"
-              style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🧴</div>
-            <div>
-              <h1 className="text-2xl font-black">Product Engine</h1>
-              <p className="text-xs text-gray-500">Personalized · Smart-matched · Skin-first</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🧴</div>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Products</h1>
+            <p className="text-sm text-gray-500">Personalized · Smart-matched · Skin-first</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {latestAnalysis && (
-            <Badge className="bg-violet-100 text-violet-700 capitalize">{latestAnalysis.skin_type} skin</Badge>
+            <span className="px-3 py-1 rounded-full text-xs font-semibold capitalize bg-violet-50 text-violet-700 border border-violet-200">{latestAnalysis.skin_type} skin</span>
           )}
-          <Button onClick={() => setShowAddModal(true)}
-            className="gap-2 text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-            <Plus className="w-4 h-4" /> Add Product
-          </Button>
+          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+            <Plus className="w-4 h-4" /> Add
+          </button>
         </div>
       </div>
 
       {/* Quote pill */}
-      <div className="rounded-2xl px-5 py-3 text-sm font-medium italic text-center"
-        style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.08),rgba(167,139,250,0.10))', border: '1px solid rgba(244,114,182,0.2)' }}>
+      <div className="rounded-2xl px-5 py-3 text-sm font-medium italic text-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
         <span className="text-gray-500">{quote}</span>
       </div>
 

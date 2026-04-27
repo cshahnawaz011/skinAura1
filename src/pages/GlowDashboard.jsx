@@ -183,14 +183,13 @@ export default function GlowDashboard() {
     <div className="max-w-2xl mx-auto space-y-5 pb-10">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-black flex items-center gap-3">
-            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
-            Glow Dashboard
-          </h1>
-          <p className="text-sm text-gray-400">{format(new Date(), 'EEEE, MMM d')}</p>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#f59e0b)' }}>✨</div>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Glow Dashboard</h1>
+            <p className="text-sm text-gray-400">{format(new Date(), 'EEEE, MMM d')}</p>
+          </div>
         </div>
-
       </div>
 
       {/* Score + Streak hero */}

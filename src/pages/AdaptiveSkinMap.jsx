@@ -131,22 +131,18 @@ export default function AdaptiveSkinMap() {
 
       {/* Header */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-10 h-10 rounded-2xl object-cover shadow-sm" alt="Map" />
-            <div>
-              <h1 className="text-2xl font-black">Skin Map</h1>
-              <p className="text-xs text-gray-500">Interactive diagnostic intelligence</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🗺️</div>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Skin Map</h1>
+            <p className="text-sm text-gray-500">Interactive diagnostic intelligence</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className={`px-4 py-2 rounded-2xl text-sm font-bold ${scoreGrade.bg} ${scoreGrade.color}`}>
-            Skin Score: {overallScore}/100 · {scoreGrade.label}
+          <div className={`px-3 py-1.5 rounded-2xl text-sm font-bold ${scoreGrade.bg} ${scoreGrade.color}`}>
+            {overallScore}/100 · {scoreGrade.label}
           </div>
-          <Badge className="bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 capitalize">
-            {latestAnalysis.skin_type}
-          </Badge>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold capitalize bg-violet-50 text-violet-700 border border-violet-200">{latestAnalysis.skin_type}</span>
         </div>
       </div>
 

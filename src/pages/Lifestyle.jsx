@@ -100,44 +100,40 @@ export default function Lifestyle() {
 
   if (!user) {
     return (
-      <div className="max-w-2xl mx-auto pt-20 text-center px-4">
-        <h2 className="text-3xl font-black mb-2">Lifestyle Tracker</h2>
+      <div className="max-w-2xl mx-auto pt-16 text-center px-4">
+        <div className="w-16 h-16 rounded-3xl mx-auto mb-4 flex items-center justify-center text-3xl shadow-lg" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🌿</div>
+        <h2 className="text-2xl font-black mb-2">Lifestyle Tracker</h2>
         <p className="text-gray-500 mb-6">Sign in to track your wellness & skin</p>
-        <Button onClick={() => base44.auth.redirectToLogin()}
-          className="ios-button-3d text-white px-8" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-          Sign In
-        </Button>
+        <button onClick={() => base44.auth.redirectToLogin()} className="px-8 py-3 rounded-2xl font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In</button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-md mx-auto pb-12 space-y-3 px-3">
+    <div className="max-w-md mx-auto pb-12 space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-3 sticky top-20 z-10 pt-3 pb-2 px-2"
-        style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)' }}>
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-8 h-8 rounded-xl object-cover shadow-sm" alt="SkinAura" />
-            <h1 className="text-xl font-black text-gray-900">Lifestyle</h1>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>🌿</div>
+          <div>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-white">Lifestyle</h1>
+            <p className="text-sm text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'EEEE, MMM d')}</p>
           </div>
-          <p className="text-xs text-gray-500">{format(new Date(selectedDate + 'T12:00:00'), 'MMM d')}</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} size="sm"
-          className="ios-button-3d text-white gap-1.5" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-          <Save className="w-3.5 h-3.5" /> {saving ? 'Saving' : 'Save'}
-        </Button>
+        <button onClick={handleSave} disabled={saving}
+          className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white ios-button-3d disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          <Save className="w-3.5 h-3.5" /> {saving ? 'Saving…' : 'Save'}
+        </button>
       </div>
 
       {/* Date Picker */}
-      <div className="px-2">
-        <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-black" />
-      </div>
+      <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
+        className="w-full px-4 py-2.5 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-pink-200 transition-all" />
 
       {/* Wellness Metrics */}
-      <div className="space-y-2 px-2">
-        <p className="text-xs font-semibold text-gray-500 px-2">WELLNESS</p>
+      <div className="space-y-2">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Wellness</p>
         <MetricCard icon="💧" title="Water" color="#0ea5e9">
           <div className="flex items-center gap-2">
             <span className="text-3xl font-black text-blue-500">{log.water_glasses || 0}</span>
@@ -197,8 +193,8 @@ export default function Lifestyle() {
       </div>
 
       {/* Food Tracking */}
-      <div className="space-y-2 px-2">
-        <p className="text-xs font-semibold text-gray-500 px-2">FOOD & NUTRITION</p>
+      <div className="space-y-2">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Food & Nutrition</p>
         <FoodSearchCard title="Morning Foods" emoji="🌅" value={log.morning_foods} 
           onChange={v => updateField('morning_foods', v)} color="#f59e0b" />
         <FoodSearchCard title="Breakfast" emoji="🥐" value={log.breakfast_foods} 
@@ -208,8 +204,8 @@ export default function Lifestyle() {
       </div>
 
       {/* Skin Metrics */}
-      <div className="space-y-2 px-2">
-        <p className="text-xs font-semibold text-gray-500 px-2">SKIN HEALTH</p>
+      <div className="space-y-2">
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">Skin Health</p>
         {SKIN_METRICS.map(metric => (
           <MetricCard key={metric.key} icon={metric.emoji} title={metric.label} color={metric.color}>
             <div className="flex gap-1 flex-wrap">
@@ -229,8 +225,8 @@ export default function Lifestyle() {
       </div>
 
       {/* Skincare Checklist */}
-      <div className="px-2">
-        <p className="text-xs font-semibold text-gray-500 px-2 mb-2">SKINCARE</p>
+      <div>
+        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1 mb-2">Skincare</p>
         <div className="space-y-2">
           {[
             { key: 'skincare_done_morning', label: 'Morning Routine', emoji: '🌅' },

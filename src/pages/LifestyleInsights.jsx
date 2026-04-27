@@ -117,77 +117,41 @@ export default function LifestyleInsights() {
   return (
     <div className="max-w-2xl mx-auto pb-12 px-4 space-y-5">
       {/* Header */}
-      <div className="pt-6 flex items-center gap-3">
-        <img src="https://media.base44.com/images/public/69e797df9f8ad61d944d9a14/31e70b171_icon.png" className="w-12 h-12 rounded-2xl object-cover shadow-sm" alt="SkinAura" />
+      <div className="flex items-center gap-3">
+        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ background: 'linear-gradient(135deg,#10b981,#38bdf8)' }}>📊</div>
         <div>
-          <h1 className="text-3xl font-black text-gray-900 mb-1">Health Insights</h1>
-          <p className="text-sm text-gray-500">Last 30 days • {stats?.total} days logged</p>
+          <h1 className="text-2xl font-black text-gray-900 dark:text-white">Health Insights</h1>
+          <p className="text-sm text-gray-500">Last 30 days · {stats?.total} days logged</p>
         </div>
       </div>
 
       {/* Stats Grid */}
       {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 bg-blue-50 border border-blue-100">
-            <p className="text-xs text-blue-600 font-semibold mb-2">💧 Water</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-blue-600">{stats.water.avg}</span>
-              <span className="text-xs text-gray-500">/ {WATER_GOAL}</span>
-            </div>
-            <p className="text-[10px] text-gray-500 mt-1">{stats.water.goalMet} days met</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 bg-violet-50 border border-violet-100">
-            <p className="text-xs text-violet-600 font-semibold mb-2">🌙 Sleep</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-violet-600">{stats.sleep.avg}</span>
-              <span className="text-xs text-gray-500">/ {SLEEP_GOAL}</span>
-            </div>
-            <p className="text-[10px] text-gray-500 mt-1">{stats.sleep.goalMet} days met</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 bg-emerald-50 border border-emerald-100">
-            <p className="text-xs text-emerald-600 font-semibold mb-2">🏃 Exercise</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-emerald-600">{stats.exercise.avg}</span>
-              <span className="text-xs text-gray-500">/ {EXERCISE_GOAL}</span>
-            </div>
-            <p className="text-[10px] text-gray-500 mt-1">{stats.exercise.goalMet} days met</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 bg-orange-50 border border-orange-100">
-            <p className="text-xs text-orange-600 font-semibold mb-2">😰 Stress</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-orange-600">{stats.stress.avg}</span>
-              <span className="text-xs text-gray-500">/ 10</span>
-            </div>
-            <p className="text-[10px] text-gray-500 mt-1">avg level</p>
-          </motion.div>
-
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl p-4 bg-yellow-50 border border-yellow-100">
-            <p className="text-xs text-yellow-600 font-semibold mb-2">⚡ Energy</p>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-yellow-600">{stats.energy.avg}</span>
-              <span className="text-xs text-gray-500">/ 10</span>
-            </div>
-            <p className="text-[10px] text-gray-500 mt-1">avg level</p>
-          </motion.div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { emoji: '💧', label: 'Water', val: stats.water.avg, goal: WATER_GOAL, unit: 'g', sub: `${stats.water.goalMet} days met`, color: '#0ea5e9', bg: 'rgba(14,165,233,0.08)' },
+            { emoji: '🌙', label: 'Sleep', val: stats.sleep.avg, goal: SLEEP_GOAL, unit: 'h', sub: `${stats.sleep.goalMet} days met`, color: '#a855f7', bg: 'rgba(168,85,247,0.08)' },
+            { emoji: '🏃', label: 'Exercise', val: stats.exercise.avg, goal: EXERCISE_GOAL, unit: 'm', sub: `${stats.exercise.goalMet} days met`, color: '#10b981', bg: 'rgba(16,185,129,0.08)' },
+            { emoji: '😰', label: 'Stress', val: stats.stress.avg, goal: 10, unit: '', sub: 'avg level', color: '#f97316', bg: 'rgba(249,115,22,0.08)' },
+            { emoji: '⚡', label: 'Energy', val: stats.energy.avg, goal: 10, unit: '', sub: 'avg level', color: '#f59e0b', bg: 'rgba(245,158,11,0.08)' },
+          ].map(s => (
+            <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl p-3 text-center" style={{ background: s.bg, border: `1.5px solid ${s.color}20` }}>
+              <p className="text-sm mb-1">{s.emoji}</p>
+              <p className="text-xl font-black" style={{ color: s.color }}>{s.val}</p>
+              <p className="text-[10px] text-gray-400">{s.label}</p>
+              <p className="text-[9px] text-gray-400">{s.sub}</p>
+            </motion.div>
+          ))}
         </div>
       )}
 
       {/* Water Chart */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} delay={0.1}
-        className="rounded-2xl p-5 bg-white border border-gray-200">
-        <div className="mb-4">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            <span className="text-xl">💧</span> Water Intake
-          </h2>
-          <p className="text-xs text-gray-500">Daily glasses consumed</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="mb-3">
+          <h2 className="font-bold text-sm flex items-center gap-2"><span>💧</span> Water Intake</h2>
+          <p className="text-xs text-gray-400">Daily glasses · Goal: {WATER_GOAL}</p>
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData}>
@@ -204,19 +168,15 @@ export default function LifestyleInsights() {
             <Area type="monotone" dataKey="water" stroke="#0ea5e9" fill="url(#colorWater)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="mt-3 pt-3 border-t border-gray-100 text-[11px] text-gray-500">
-          Goal: {WATER_GOAL} glasses/day • Avg: {stats?.water.avg} glasses
-        </div>
+        <p className="mt-2 text-[10px] text-gray-400">Avg: {stats?.water.avg} glasses/day</p>
       </motion.div>
 
       {/* Sleep Chart */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} delay={0.2}
-        className="rounded-2xl p-5 bg-white border border-gray-200">
-        <div className="mb-4">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            <span className="text-xl">🌙</span> Sleep Duration
-          </h2>
-          <p className="text-xs text-gray-500">Hours slept per night</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="mb-3">
+          <h2 className="font-bold text-sm flex items-center gap-2"><span>🌙</span> Sleep Duration</h2>
+          <p className="text-xs text-gray-400">Hours slept · Goal: {SLEEP_GOAL}h</p>
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData}>
@@ -233,19 +193,15 @@ export default function LifestyleInsights() {
             <Area type="monotone" dataKey="sleep" stroke="#a855f7" fill="url(#colorSleep)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="mt-3 pt-3 border-t border-gray-100 text-[11px] text-gray-500">
-          Goal: {SLEEP_GOAL} hours/night • Avg: {stats?.sleep.avg} hours
-        </div>
+        <p className="mt-2 text-[10px] text-gray-400">Avg: {stats?.sleep.avg} hours/night</p>
       </motion.div>
 
       {/* Exercise Chart */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} delay={0.3}
-        className="rounded-2xl p-5 bg-white border border-gray-200">
-        <div className="mb-4">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-            <span className="text-xl">🏃</span> Exercise Time
-          </h2>
-          <p className="text-xs text-gray-500">Minutes exercised per day</p>
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <div className="mb-3">
+          <h2 className="font-bold text-sm flex items-center gap-2"><span>🏃</span> Exercise Time</h2>
+          <p className="text-xs text-gray-400">Minutes exercised · Goal: {EXERCISE_GOAL}m</p>
         </div>
         <ResponsiveContainer width="100%" height={200}>
           <AreaChart data={chartData}>
@@ -262,22 +218,23 @@ export default function LifestyleInsights() {
             <Area type="monotone" dataKey="exercise" stroke="#10b981" fill="url(#colorExercise)" strokeWidth={2} />
           </AreaChart>
         </ResponsiveContainer>
-        <div className="mt-3 pt-3 border-t border-gray-100 text-[11px] text-gray-500">
-          Goal: {EXERCISE_GOAL} min/day • Avg: {stats?.exercise.avg} min
-        </div>
+        <p className="mt-2 text-[10px] text-gray-400">Avg: {stats?.exercise.avg} min/day</p>
       </motion.div>
 
       {/* AI Insights & Advice */}
       <HealthInsightsCard stats={stats} chartData={chartData} last30Days={last30Days} user={user} />
 
       {/* Tips */}
-      <div className="rounded-2xl p-5 bg-gray-50 border border-gray-200">
-        <h3 className="font-semibold text-gray-900 mb-3">💡 Quick Tips</h3>
-        <ul className="space-y-2 text-sm text-gray-700">
-          <li>✓ Drinking {WATER_GOAL}+ glasses helps maintain skin hydration</li>
-          <li>✓ Getting {SLEEP_GOAL}+ hours improves skin repair & radiance</li>
-          <li>✓ {EXERCISE_GOAL}+ min of exercise boosts blood circulation & glow</li>
-        </ul>
+      <div className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
+        <h3 className="font-bold text-sm mb-3">💡 Quick Tips</h3>
+        <div className="space-y-2">
+          {[`Drink ${WATER_GOAL}+ glasses for skin hydration`, `${SLEEP_GOAL}+ hours sleep improves skin repair & radiance`, `${EXERCISE_GOAL}+ min exercise boosts circulation & glow`].map((tip, i) => (
+            <div key={i} className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] font-bold flex-shrink-0">✓</span>
+              {tip}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -356,26 +313,17 @@ Keep responses conversational, skin-health focused, and based on their actual da
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 space-y-4"
-    >
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl p-4 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm space-y-4">
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="font-black text-base text-gray-900 flex items-center gap-2">
-            ✨ Insights & Advice
-          </h3>
-          <p className="text-xs text-gray-500 mt-1">AI-powered analysis of your health data</p>
+          <h3 className="font-black text-base text-gray-900 dark:text-white">✨ AI Health Insights</h3>
+          <p className="text-xs text-gray-400 mt-0.5">Powered by your 30-day data</p>
         </div>
-        <Button
-          onClick={generateInsights}
-          disabled={loading || insights}
-          size="sm"
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-        >
-          {loading ? 'Analyzing...' : insights ? 'Done' : 'Generate'}
-        </Button>
+        <button onClick={generateInsights} disabled={loading || !!insights}
+          className="px-4 py-2 rounded-xl text-xs font-bold text-white disabled:opacity-50 ios-button-3d" style={{ background: 'linear-gradient(135deg,#10b981,#38bdf8)' }}>
+          {loading ? 'Analyzing…' : insights ? 'Done ✓' : 'Generate'}
+        </button>
       </div>
 
       {error && (
@@ -411,15 +359,14 @@ Keep responses conversational, skin-health focused, and based on their actual da
           </div>
 
           {insights.foodInsights && (
-            <div className="p-3 rounded-lg bg-amber-50 border border-amber-200">
-              <p className="text-xs font-bold text-amber-800 mb-1">🍎 Food Impact on Skin</p>
-              <p className="text-xs text-amber-900">{insights.foodInsights}</p>
+            <div className="p-3 rounded-2xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200">
+              <p className="text-xs font-bold text-amber-700 mb-1">🍎 Food Impact on Skin</p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">{insights.foodInsights}</p>
             </div>
           )}
-
           {insights.motivation && (
-            <div className="p-3 rounded-lg bg-white/60 border border-emerald-100">
-              <p className="text-xs font-semibold text-emerald-800">💪 {insights.motivation}</p>
+            <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200">
+              <p className="text-xs font-semibold text-emerald-700">💪 {insights.motivation}</p>
             </div>
           )}
         </div>
