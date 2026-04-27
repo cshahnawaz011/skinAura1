@@ -47,14 +47,44 @@ function getUVLabel(uv) {
 }
 
 const WEATHER_CACHE_KEY = 'skinaura_weather_cache';
-const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+
+// Check if cache is still valid (only update at 9 AM or 1 PM)
+function shouldUpdateCache() {
+  try {
+    const raw = localStorage.getItem(WEATHER_CACHE_KEY);
+    if (!raw) return true;
+    
+    const { timestamp } = JSON.parse(raw);
+    const lastUpdateTime = new Date(timestamp);
+    const now = new Date();
+    
+    // Check if last update was today
+    const sameDay = lastUpdateTime.toDateString() === now.toDateString();
+    if (!sameDay) return true;
+    
+    const currentHour = now.getHours();
+    const lastUpdateHour = lastUpdateTime.getHours();
+    
+    // If current hour is 9 or 13 (1 PM), and last update wasn't in this hour, update
+    if ((currentHour === 9 || currentHour === 13) && lastUpdateHour !== currentHour) {
+      return true;
+    }
+    
+    return false;
+  } catch {}
+  return true;
+}
 
 function getCachedWeather() {
   try {
     const raw = localStorage.getItem(WEATHER_CACHE_KEY);
     if (!raw) return null;
-    const { data, timestamp } = JSON.parse(raw);
-    if (Date.now() - timestamp < CACHE_TTL_MS) return data;
+    
+    // If cache should be updated (9 AM or 1 PM window), return null to refetch
+    if (shouldUpdateCache()) return null;
+    
+    const { data } = JSON.parse(raw);
+    return data;
   } catch {}
   return null;
 }
