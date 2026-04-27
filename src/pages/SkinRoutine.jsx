@@ -21,6 +21,9 @@ import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib
 
 import RoutineTracker from '@/components/routine/RoutineTracker';
 import PageIntroPopup from '@/components/PageIntroPopup';
+import CompactLevelGuide from '@/components/routine/CompactLevelGuide';
+import { usePageState } from '@/lib/pageStateContext';
+import { getLastAutoRoutineTime } from '@/lib/autoRoutineGenerator';
 
 // Initialize from localStorage
 const initializeRoutineState = () => {
@@ -369,8 +372,10 @@ function WeeklyAddonsCard({ addons, userEmail, onProductsSelected }) {
 }
 
 // ─── Collapsible Section Wrapper ─────────────────────────────────────────────
-function CollapsibleSection({ title, icon, defaultOpen = true, children, badge }) {
+function CollapsibleSection({ title, icon, defaultOpen = true, children, badge, resetKey }) {
   const [open, setOpen] = useState(defaultOpen);
+  // Reset to defaultOpen whenever resetKey changes (page navigation)
+  React.useEffect(() => { setOpen(defaultOpen); }, [resetKey]);
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
       <button
@@ -410,6 +415,7 @@ export default function SkinRoutine() {
   const [showFeedbackPrompt, setShowFeedbackPrompt] = useState(false);
   const isCleared = React.useRef(false);
   const queryClient = useQueryClient();
+  const { pageKey } = usePageState();
 
   const [localState, setLocalState] = useState(sharedRoutineState);
   useEffect(() => {
@@ -727,6 +733,9 @@ export default function SkinRoutine() {
         🧩 "Start low → protect barrier → rotate → adjust → upgrade slowly"
       </div>
 
+      {/* ── Compact Level Guide ── */}
+      <CompactLevelGuide currentLevel={userLevel.currentLevel} />
+
       {/* User Level & Concentration Guide moved to Routine Intelligence page */}
 
       {/* Skin Profile Banner */}
@@ -849,6 +858,7 @@ export default function SkinRoutine() {
             title="Skin Summary"
             icon={<Info className="w-4 h-4 text-pink-500" />}
             defaultOpen={true}
+            resetKey={pageKey}
           >
             <SkinSummaryCard summary={routineData.skin_summary} />
           </CollapsibleSection>
@@ -858,6 +868,7 @@ export default function SkinRoutine() {
             title="Morning Routine"
             icon={<Sun className="w-4 h-4 text-amber-500" />}
             defaultOpen={true}
+            resetKey={pageKey}
             badge={<span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">{routineData.morning_routine?.length || 0} steps</span>}
           >
             <MorningRoutineCard 
@@ -884,6 +895,7 @@ export default function SkinRoutine() {
               title="Night Routine — 7-Day Rotation"
               icon={<Moon className="w-4 h-4 text-indigo-500" />}
               defaultOpen={true}
+              resetKey={pageKey}
               badge={<span className="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">7 days</span>}
             >
               <WeekPlanGrid weekPlan={routineData.night_week_plan} userEmail={user?.email} />
@@ -896,6 +908,7 @@ export default function SkinRoutine() {
               title="Weekly Add-ons"
               icon={<Calendar className="w-4 h-4 text-teal-500" />}
               defaultOpen={false}
+              resetKey={pageKey}
             >
               <WeeklyAddonsCard 
                 addons={routineData.weekly_addons} 
@@ -922,6 +935,7 @@ export default function SkinRoutine() {
               title="Safety Notes"
               icon={<ShieldCheck className="w-4 h-4 text-emerald-500" />}
               defaultOpen={false}
+              resetKey={pageKey}
             >
               <SafetyNotesCard notes={routineData.safety_notes} />
             </CollapsibleSection>
@@ -933,6 +947,7 @@ export default function SkinRoutine() {
               title="Adaptive Guidance"
               icon={<TrendingUp className="w-4 h-4 text-indigo-500" />}
               defaultOpen={false}
+              resetKey={pageKey}
             >
               <AdaptiveGuidanceCard guidance={routineData.adaptive_guidance} />
             </CollapsibleSection>

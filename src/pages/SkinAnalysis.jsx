@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { backgroundOps } from '@/lib/BackgroundOperations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { setLastAutoRoutineTime, shouldAutoGenerateRoutine } from '@/lib/autoRoutineGenerator';
+import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, Sparkles, Check, History, Camera,
@@ -9,7 +11,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
 
 import CameraCapture from '@/components/analysis/CameraCapture';
 import SkinScoreHero from '@/components/analysis/SkinScoreHero';
@@ -316,6 +317,75 @@ export default function SkinAnalysis() {
 
     // Start cooldown
     startAnalysisCooldown(COOLDOWN_SECONDS);
+
+    // ── Auto-generate routine after analysis ──────────────────────────────
+    if (user && shouldAutoGenerateRoutine()) {
+      autoGenerateRoutine(res, user);
+    }
+  };
+
+  const autoGenerateRoutine = async (analysisRes, currentUser) => {
+    backgroundOps.start('autoRoutine', '✨ Auto-building Routine');
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const prompt = `You are an AI dermatologist. Based on a fresh skin analysis, generate a minimal, safe, barrier-first skincare routine.
+
+TODAY: ${today}
+SKIN: type=${analysisRes.skin_type}, score=${analysisRes.overall_score}/100, acne=${analysisRes.acne_level}/10, dryness=${analysisRes.dryness}/10, oiliness=${analysisRes.oiliness}/10, sensitivity=${analysisRes.sensitivity}/10, redness=${analysisRes.redness}/10, dark_spots=${analysisRes.dark_spots}/10.
+CONCERNS: ${(analysisRes.priority_concerns || []).join(', ') || 'none'}.
+
+RULES: max 5 morning steps, 1 active per night, start Level 1 frequency (1-2x/week), always include moisturizer+SPF.
+
+Return JSON:
+{
+  "skin_summary": { "skin_type": "string", "concerns": ["string"], "sensitivity_level": "low|medium|high", "current_barrier_status": "string" },
+  "morning_routine": [{ "step": 1, "name": "string", "product_type": "string", "tip": "string", "key_ingredients": ["string"] }],
+  "night_week_plan": [{ "day_label": "Monday", "day_type": "treatment|recovery|hydration", "active_name": "string or null", "concentration_level": "Level 1 or null", "steps": [{ "name": "string", "active": true, "tip": "string" }] }],
+  "weekly_addons": [{ "name": "string", "frequency": "string", "tip": "string" }],
+  "todays_adjustment": { "changed": true, "summary": "Auto-generated from fresh skin analysis on ${today}", "reason": "New skin scan completed" },
+  "safety_notes": ["string"],
+  "adaptive_guidance": { "if_improves": "string", "if_worsens": "string" },
+  "recovery_mode_active": false
+}`;
+
+    const result = await base44.integrations.Core.InvokeLLM({ prompt,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          skin_summary: { type: 'object', properties: { skin_type: { type: 'string' }, concerns: { type: 'array', items: { type: 'string' } }, sensitivity_level: { type: 'string' }, current_barrier_status: { type: 'string' } } },
+          morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
+          night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, active_name: { type: 'string' }, concentration_level: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, active: { type: 'boolean' }, tip: { type: 'string' } } } } } } },
+          weekly_addons: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, frequency: { type: 'string' }, tip: { type: 'string' } } } },
+          todays_adjustment: { type: 'object', properties: { changed: { type: 'boolean' }, summary: { type: 'string' }, reason: { type: 'string' } } },
+          safety_notes: { type: 'array', items: { type: 'string' } },
+          adaptive_guidance: { type: 'object', properties: { if_improves: { type: 'string' }, if_worsens: { type: 'string' } } },
+          recovery_mode_active: { type: 'boolean' },
+        }
+      }
+    });
+
+    if (result) {
+      // Save routine with timestamp
+      const existingRoutines = await base44.entities.SkinRoutine.filter({ user_email: currentUser.email }, '-created_date', 1);
+      const existingRoutine = existingRoutines[0] || null;
+      const routinePayload = {
+        user_email: currentUser.email,
+        routine_type: 'morning',
+        skin_type: result.skin_summary?.skin_type || analysisRes.skin_type || '',
+        steps: result,
+        routine_summary: result.skin_summary?.current_barrier_status || '',
+        skin_concerns: result.skin_summary?.concerns || [],
+      };
+      if (existingRoutine?.id) {
+        await base44.entities.SkinRoutine.update(existingRoutine.id, routinePayload);
+      } else {
+        await base44.entities.SkinRoutine.create(routinePayload);
+      }
+      // Update localStorage cache for routine page
+      localStorage.setItem('skinRoutineCache', JSON.stringify(result));
+      setLastAutoRoutineTime();
+      queryClient.invalidateQueries(['skinRoutine']);
+    }
+    backgroundOps.complete('autoRoutine');
   };
 
   const reset = () => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { PageStateProvider } from '@/lib/pageStateContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useIsFetching } from '@tanstack/react-query';
 import BackgroundOperationBar from '@/components/BackgroundOperationBar';
@@ -124,6 +125,7 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
+    <PageStateProvider currentPage={currentPageName}>
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
       style={{ background: darkMode ? '#0a0814' : '#fafafa' }}>
 
@@ -291,7 +293,7 @@ export default function Layout({ children, currentPageName }) {
       </AnimatePresence>
 
       {/* ── BOTTOM NAVIGATION BAR ── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40"
+      <nav className="fixed bottom-0 left-0 right-0 z-40" id="bottom-nav"
         style={{
           background: darkMode ? 'rgba(10,8,20,0.96)' : 'rgba(255,255,255,0.96)',
           backdropFilter: 'blur(32px) saturate(1.8)',
@@ -347,6 +349,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </nav>
     </div>
+    </PageStateProvider>
   );
 }
 
