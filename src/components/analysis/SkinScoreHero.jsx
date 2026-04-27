@@ -3,10 +3,10 @@ import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
-function ArcMeter({ score, size = 160 }) {
-  const cx = size / 2, cy = size / 2 + 10;
-  const r = size / 2 - 16;
-  const startAngle = -210, endAngle = 30;
+function ArcMeter({ score, size = 180 }) {
+  const cx = size / 2, cy = size / 2;
+  const r = size / 2 - 20;
+  const startAngle = -200, endAngle = 20;
   const totalAngle = endAngle - startAngle;
   const fillAngle = startAngle + (score / 100) * totalAngle;
 
@@ -23,7 +23,7 @@ function ArcMeter({ score, size = 160 }) {
   const color = score >= 85 ? '#34d399' : score >= 70 ? '#38bdf8' : score >= 50 ? '#facc15' : '#f43f5e';
 
   return (
-    <svg width={size} height={size * 0.65} viewBox={`0 0 ${size} ${size * 0.65}`} className="overflow-visible">
+    <svg width={size} height={size * 0.7} viewBox={`0 0 ${size} ${size * 0.7}`} className="overflow-visible">
       <defs>
         <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="#f43f5e" />
@@ -33,15 +33,15 @@ function ArcMeter({ score, size = 160 }) {
         </linearGradient>
       </defs>
       {/* Track */}
-      <path d={arcPath(startAngle, endAngle)} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth={10} strokeLinecap="round" />
+      <path d={arcPath(startAngle, endAngle)} fill="none" stroke="rgba(0,0,0,0.08)" strokeWidth={11} strokeLinecap="round" />
       {/* Fill */}
-      <motion.path d={arcPath(startAngle, fillAngle)} fill="none" stroke="url(#arcGrad)" strokeWidth={10} strokeLinecap="round"
+      <motion.path d={arcPath(startAngle, fillAngle)} fill="none" stroke="url(#arcGrad)" strokeWidth={11} strokeLinecap="round"
         initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} />
       {/* Needle dot */}
       <motion.circle
         cx={cx + r * Math.cos(toRad(fillAngle))}
         cy={cy + r * Math.sin(toRad(fillAngle))}
-        r={6} fill="white" stroke={color} strokeWidth={3}
+        r={7} fill="white" stroke={color} strokeWidth={3}
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} />
     </svg>
   );
@@ -70,13 +70,13 @@ export default function SkinScoreHero({ analysis, previousScore }) {
         <ArcMeter score={score} size={200} />
 
         {/* Score display overlaid on arc */}
-        <div className="text-center -mt-4 mb-2">
-          <div className="flex items-end justify-center gap-2">
-            <span className="text-6xl font-black" style={{ color: grade.color }}>{score}</span>
-            <span className="text-xl text-gray-400 font-bold mb-2">/100</span>
+        <div className="text-center -mt-8 mb-4">
+          <div className="flex items-end justify-center gap-1">
+            <span className="text-7xl font-black" style={{ color: grade.color }}>{Math.round(score)}</span>
+            <span className="text-2xl text-gray-400 font-bold mb-3">/100</span>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <span className="text-4xl font-black" style={{ color: grade.color }}>{grade.grade}</span>
+            <span className="text-5xl font-black" style={{ color: grade.color }}>{grade.grade}</span>
             <Badge className="text-sm font-bold px-3 py-1" style={{ background: `${grade.color}22`, color: grade.color, border: 'none' }}>
               {grade.label}
             </Badge>
