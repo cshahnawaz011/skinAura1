@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useOperationRecovery } from '@/hooks/useOperationRecovery';
 
 import CameraCapture from '@/components/analysis/CameraCapture';
 import SkinScoreHero from '@/components/analysis/SkinScoreHero';
@@ -213,6 +214,7 @@ const ROUTINE_MESSAGES = [
 const COOLDOWN_SECONDS = 10;
 
 export default function SkinAnalysis() {
+  useOperationRecovery();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
@@ -252,7 +254,7 @@ export default function SkinAnalysis() {
   const runAnalysis = async () => {
     if (!allReady) return;
     updateAnalysisState({ analyzing: true, step: 0 });
-    backgroundOps.start('skinAnalysis', '🔬 Skin Analysis');
+    backgroundOps.start('skinAnalysis', '🔬 Skin Analysis', { photos });
 
     const [f, l, r] = await Promise.all([
       base44.integrations.Core.UploadFile({ file: photos.front.file }),
@@ -281,9 +283,11 @@ export default function SkinAnalysis() {
 
     updateAnalysisState({ step: 5 });
     backgroundOps.updateProgress('skinAnalysis', 90);
-    updateAnalysisState({ result: { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url }, analyzing: false });
+    const analysisResult = { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url };
+    updateAnalysisState({ result: analysisResult, analyzing: false });
+    localStorage.setItem('skinAnalysisCache', JSON.stringify(analysisResult));
     backgroundOps.updateProgress('skinAnalysis', 100);
-    backgroundOps.complete('skinAnalysis');
+    backgroundOps.complete('skinAnalysis', { analysisResult });
 
     // Auto-save
     if (user) {

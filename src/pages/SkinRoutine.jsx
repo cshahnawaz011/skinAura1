@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useOperationRecovery } from '@/hooks/useOperationRecovery';
 import {
   Sparkles, Loader2, Sun, Moon, Check, Trash2,
   ShieldCheck, TrendingUp, RefreshCw, Save, ListChecks,
@@ -168,6 +169,7 @@ function WeeklyAddons({ addons, userEmail }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function SkinRoutine() {
+  useOperationRecovery();
   const [user, setUser] = useState(null);
   const [showTracker, setShowTracker] = useState(false);
   const [selectedMorningProducts, setSelectedMorningProducts] = useState({});
@@ -236,7 +238,7 @@ export default function SkinRoutine() {
   const generateRoutine = async () => {
     isCleared.current = false;
     updateRoutineState({ generating: true });
-    backgroundOps.start('skinRoutine', '✨ Skin Routine');
+    backgroundOps.start('skinRoutine', '✨ Skin Routine', { userEmail: user?.email });
     const prompt = buildRoutinePrompt(latestAnalysis, feedbackHistory, userLevel);
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
@@ -255,7 +257,8 @@ export default function SkinRoutine() {
       },
     });
     updateRoutineState({ routineData: result, generating: false });
-    backgroundOps.complete('skinRoutine');
+    localStorage.setItem('skinRoutineCache', JSON.stringify(result));
+    backgroundOps.complete('skinRoutine', { routineResult: result });
     if (user) {
       saveMutation.mutate({
         user_email: user.email, routine_type: 'morning',
