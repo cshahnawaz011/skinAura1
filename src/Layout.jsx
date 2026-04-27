@@ -29,7 +29,7 @@ const MORE_CATEGORIES = [
       { key: 'skinMap',     icon: Map,          page: 'AdaptiveSkinMap', label: 'Skin Map' },
       { key: 'chat',        icon: MessageCircle,page: 'SkinChat',       label: 'AI Coach' },
       { key: 'insights',    icon: Zap,          page: 'AiInsights',     label: 'Insights' },
-      { key: 'schedule',    icon: Calendar,     page: 'RoutineSchedule', label: 'Schedule' },
+
     ],
   },
   {
