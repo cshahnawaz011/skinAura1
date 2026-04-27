@@ -28,6 +28,7 @@ import LifestyleInsights from './pages/LifestyleInsights';
 import RoutineIntelligence from './pages/RoutineIntelligence';
 
 import AdaptiveSkinMap from './pages/AdaptiveSkinMap';
+import HormoneTracker from './pages/HormoneTracker';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -102,6 +103,7 @@ const AuthenticatedApp = () => {
 
       <Route path="/AdaptiveSkinMap" element={<LayoutWrapper currentPageName="AdaptiveSkinMap"><AdaptiveSkinMap /></LayoutWrapper>} />
       <Route path="/SkinAnalysis" element={<LayoutWrapper currentPageName="SkinAnalysis"><SkinAnalysisPage /></LayoutWrapper>} />
+      <Route path="/HormoneTracker" element={<LayoutWrapper currentPageName="HormoneTracker"><HormoneTracker /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
