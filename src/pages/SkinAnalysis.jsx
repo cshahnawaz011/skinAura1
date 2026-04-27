@@ -268,17 +268,32 @@ export default function SkinAnalysis() {
     const llmRes = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an expert AI dermatologist. Analyze these 3 face photos (front, left profile, right profile) and provide a clinical-grade skin health assessment.
 
-Evaluate and score each parameter on a 0-10 scale (0=excellent, 10=severe):
-- Acne level, dark spots, wrinkles, pores, redness, oiliness, dryness, sensitivity
-- Skin type (oily, combination, dry, normal, sensitive)
-- Skin tone assessment
-- Per-zone observations (front, left, right facial regions)
-- 3-5 actionable recommendations
-- Key skin strengths (3-5 positive observations)
-- Priority concerns (top 3 issues to address)
-- Detailed insights for each concern (cause, fix, key ingredient, timeline)
+SCORING RULES:
+- Score each parameter on a 0-10 scale (0=excellent/healthy, 10=severe/problematic)
+- Overall score (0-100): Calculate as 100 - (average of all 8 parameters × 10). This ensures a direct relationship where better parameters = higher overall score.
+- Priority concerns: Must be derived from parameters with scores ≥ 5 (moderate to severe)
+- Recommendations & strengths: Must align with the parameter scores you assigned
 
-Be precise, clinical, and data-driven. Structure as JSON.`,
+PARAMETERS TO EVALUATE (0-10 scale):
+1. Acne level (0=clear, 10=severe breakouts)
+2. Dark spots (0=none, 10=extensive pigmentation)
+3. Wrinkles (0=none, 10=deep lines)
+4. Pores (0=small, 10=enlarged)
+5. Redness (0=clear, 10=inflamed)
+6. Oiliness (0=perfectly balanced, 10=very oily)
+7. Dryness (0=well hydrated, 10=very dry/flaky)
+8. Sensitivity (0=none, 10=highly reactive)
+
+REQUIRED OUTPUTS:
+- Skin type: Based on oiliness & dryness balance
+- Skin tone: Descriptive assessment
+- Zone notes: Observations for front, left, right regions
+- Priority concerns: Top 3 issues derived from parameters ≥ 5
+- Skin strengths: Positive observations from parameters ≤ 3
+- Recommendations: 3-5 specific, parameter-driven actions
+- Concern insights: Detailed analysis (cause, fix, ingredient, timeline) for each priority concern
+
+All results must be internally consistent and based on the parameter scores.`,
       file_urls: [f.file_url, l.file_url, r.file_url],
       response_json_schema: FULL_SCHEMA,
     });
