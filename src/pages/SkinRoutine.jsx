@@ -834,7 +834,7 @@ export default function SkinRoutine() {
           animate={{ opacity: 1, y: 0 }}
           className="space-y-3"
         >
-          {/* Saved indicator */}
+          {/* Saved indicator + Schedule CTA */}
           <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800">
             <Save className="w-3.5 h-3.5 text-emerald-500" />
             <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
@@ -846,6 +846,27 @@ export default function SkinRoutine() {
               </span>
             )}
           </div>
+
+          {/* Schedule CTA */}
+          <Link to="/RoutineSchedule">
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl cursor-pointer hover:scale-[1.02] transition-all"
+              style={{ background: 'linear-gradient(135deg,rgba(167,139,250,0.12),rgba(244,114,182,0.1))', border: '1.5px solid rgba(167,139,250,0.3)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg,#a78bfa,#f472b6)' }}>
+                  <Calendar className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-black text-sm text-violet-700 dark:text-violet-300">View Weekly Schedule</p>
+                  <p className="text-[11px] text-violet-500 dark:text-violet-400">Check off daily tasks · synced with this routine</p>
+                </div>
+              </div>
+              <ArrowRight className="w-4 h-4 text-violet-400 flex-shrink-0" />
+            </motion.div>
+          </Link>
 
           {/* Recovery Mode Alert (always shown inline, no collapse) */}
           <TodaysAdjustmentCard
