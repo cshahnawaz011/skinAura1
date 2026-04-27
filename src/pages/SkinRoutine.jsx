@@ -20,6 +20,11 @@ import { backgroundOps } from '@/lib/BackgroundOperations';
 import { cacheRoutineData, getCachedRoutineData, clearRoutineCache } from '@/lib/routineSessionCache';
 import RoutineTracker from '@/components/routine/RoutineTracker';
 import ConcentrationLevelGuide from '@/components/routine/ConcentrationLevelGuide';
+import AdvancedTolerancePhases from '@/components/routine/AdvancedTolerancePhases';
+import SkinCyclingProtocol from '@/components/routine/SkinCyclingProtocol';
+import SafetyGuidelinesChecklist from '@/components/routine/SafetyGuidelinesChecklist';
+import AdvancedSkinAdaptations from '@/components/routine/AdvancedSkinAdaptations';
+import IngredientProgressionChart from '@/components/routine/IngredientProgressionChart';
 import { usePageState } from '@/lib/pageStateContext';
 
 // ── Shared state ──────────────────────────────────────────────────────────────
@@ -490,6 +495,31 @@ export default function SkinRoutine() {
               </div>
             </div>
           )}
+
+          {/* Advanced Tolerance System */}
+          <Section title="Advanced Tolerance-Based System" emoji="🚀" defaultOpen={false} resetKey={pageKey}>
+            <AdvancedTolerancePhases />
+          </Section>
+
+          {/* 4-Night Skin Cycling */}
+          <Section title="4-Night Skin Cycling Protocol" emoji="🌙" defaultOpen={false} resetKey={pageKey}>
+            <SkinCyclingProtocol />
+          </Section>
+
+          {/* Ingredient Progression */}
+          <Section title="Ingredient Progression Chart" emoji="📊" defaultOpen={false} resetKey={pageKey}>
+            <IngredientProgressionChart />
+          </Section>
+
+          {/* Safety Guidelines */}
+          <Section title="Safety & Irritation Guidelines" emoji="🛡️" defaultOpen={false} resetKey={pageKey}>
+            <SafetyGuidelinesChecklist />
+          </Section>
+
+          {/* Advanced Adaptations */}
+          <Section title="Advanced Adaptations (Skin Type, Climate, Hormones)" emoji="🔧" defaultOpen={false} resetKey={pageKey}>
+            <AdvancedSkinAdaptations />
+          </Section>
 
           {/* Level & Frequency Guide */}
           <ConcentrationLevelGuide currentLevel={userLevel.currentLevel} />
