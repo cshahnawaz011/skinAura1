@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import {
   Sparkles, RefreshCw, AlertCircle, CheckCircle, ChevronDown, ChevronUp,
-  Zap, Shield, Sun, Moon, Timer, MapPin, Play, Pause, RotateCcw, TrendingUp, TrendingDown, Minus
+  Zap, Shield, Sun, Moon, Timer, Play, Pause, RotateCcw, TrendingUp, TrendingDown, Minus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,8 +33,6 @@ const FEEDBACK_OPTIONS = [
   { code: 9, emoji: '🔴', label: 'New pimples', signal: 'bad', color: '#f43f5e' },
   { code: 10, emoji: '😰', label: 'Acne worsening', signal: 'bad', color: '#dc2626' },
 ];
-
-const REGIONS = ['India', 'USA', 'UK', 'Europe', 'Southeast Asia', 'Middle East', 'Australia'];
 
 // Step-specific durations in seconds
 const STEP_DURATIONS = {
@@ -155,35 +154,49 @@ function getHowToUse(name = '') {
   return HOW_TO_USE.default;
 }
 
-function ProductLocationPicker({ stepName, concentration, chemicals, region, onRegionChange, products, loadingProducts, onLoadProducts }) {
+function AIProductSuggestions({ stepName, concentration, ingredients }) {
+  const [products, setProducts] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const load = async () => {
+    setLoading(true);
+    const concText = concentration ? ` at ${concentration}` : '';
+    const ingText = ingredients?.length > 0 ? ` with ${ingredients.slice(0, 2).join(', ')}` : '';
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Recommend 3 specific real skincare products for: "${stepName}"${concText}${ingText}. 
+Products must match the concentration if specified. Return JSON: { products: [{name, brand, concentration, price_range, emoji}] }`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          products: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { name: { type: 'string' }, brand: { type: 'string' }, concentration: { type: 'string' }, price_range: { type: 'string' }, emoji: { type: 'string' } }
+            }
+          }
+        }
+      }
+    });
+    setProducts(result?.products || []);
+    setLoading(false);
+  };
+
   return (
-    <div className="mt-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <MapPin className="w-3.5 h-3.5 text-violet-500 flex-shrink-0" />
-        <p className="text-[11px] font-black text-gray-700">Find Products in Your Region</p>
-      </div>
-      <div className="flex gap-1.5 flex-wrap">
-        {REGIONS.map(r => (
-          <button key={r} onClick={() => onRegionChange(r)}
-            className="text-[9px] font-bold px-2 py-0.5 rounded-full transition-all"
-            style={{
-              background: region === r ? '#a78bfa' : 'rgba(0,0,0,0.05)',
-              color: region === r ? 'white' : '#6b7280',
-            }}>
-            {r}
-          </button>
-        ))}
-      </div>
-      <button onClick={onLoadProducts} disabled={loadingProducts}
-        className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl text-white"
-        style={{ background: 'linear-gradient(135deg,#a78bfa,#60a5fa)' }}>
-        {loadingProducts ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-        {loadingProducts ? 'Finding…' : `Find ${region} Products`}
-      </button>
+    <div className="space-y-2">
+      {!products && (
+        <button onClick={load} disabled={loading}
+          className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl text-white"
+          style={{ background: 'linear-gradient(135deg,#a78bfa,#60a5fa)' }}>
+          {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+          {loading ? 'Finding products…' : 'Find AI Product Picks'}
+        </button>
+      )}
       <AnimatePresence>
         {products?.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className="space-y-1.5">
+            <p className="text-[10px] font-black text-violet-600">✨ AI Product Picks</p>
             {products.map((p, i) => (
               <div key={i} className="flex items-start gap-2 p-2.5 rounded-xl"
                 style={{ background: 'rgba(167,139,250,0.07)', border: '1px solid rgba(167,139,250,0.2)' }}>
@@ -193,8 +206,7 @@ function ProductLocationPicker({ stepName, concentration, chemicals, region, onR
                   {p.concentration && (
                     <span className="inline-block text-[9px] font-black px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 mb-0.5">{p.concentration}</span>
                   )}
-                  <p className="text-[10px] text-gray-500">{p.brand} · {p.price}</p>
-                  {p.where && <p className="text-[10px] text-violet-500 font-semibold">📍 {p.where}</p>}
+                  <p className="text-[10px] text-gray-500">{p.brand} · {p.price_range}</p>
                 </div>
               </div>
             ))}
@@ -209,36 +221,8 @@ function ProductLocationPicker({ stepName, concentration, chemicals, region, onR
 
 function RoutineStep({ step, isActive, stepIndex, userEmail, onProductSaved }) {
   const [open, setOpen] = useState(false);
-  const [region, setRegion] = useState('India');
-  const [products, setProducts] = useState(null);
-  const [loadingProducts, setLoadingProducts] = useState(false);
   const duration = getStepDuration(step.name);
   const howTo = getHowToUse(step.name);
-
-  const loadProducts = async () => {
-    setLoadingProducts(true);
-    const concText = step.concentration ? ` at concentration ${step.concentration}` : '';
-    const chemText = step.ingredients?.length > 0 ? ` containing ${step.ingredients.slice(0, 3).join(', ')}` : '';
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a skincare product expert. Recommend 3 specific, real, affordable products for: "${step.name}"${concText}${chemText} (${step.type || ''}) available in ${region}. 
-IMPORTANT: Products must have the correct concentration if specified (e.g. if Niacinamide 5% is needed, recommend products with ~5% Niacinamide).
-Return JSON with products array, exactly 3 items, each: { name, brand, concentration (e.g. "Niacinamide 10%"), price (local currency), where (pharmacy/online/store name), emoji }`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          products: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: { name: { type: 'string' }, brand: { type: 'string' }, concentration: { type: 'string' }, price: { type: 'string' }, where: { type: 'string' }, emoji: { type: 'string' } }
-            }
-          }
-        }
-      }
-    });
-    setProducts(result?.products || []);
-    setLoadingProducts(false);
-  };
 
   return (
     <motion.div layout className="rounded-2xl overflow-hidden"
@@ -249,28 +233,28 @@ Return JSON with products array, exactly 3 items, each: { name, brand, concentra
       }}>
 
       {/* Header row */}
-      <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left" onClick={() => setOpen(o => !o)}>
+      <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left relative" onClick={() => setOpen(o => !o)}>
+        {/* Concentration badge — top right corner */}
+        {step.concentration && (
+          <span className="absolute top-2 right-2 text-[9px] font-black px-1.5 py-0.5 rounded-full z-10"
+            style={{ background: isActive ? 'rgba(244,114,182,0.2)' : 'rgba(167,139,250,0.18)', color: isActive ? '#db2777' : '#7c3aed' }}>
+            {step.concentration}
+          </span>
+        )}
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
           style={{ background: isActive ? 'rgba(244,114,182,0.15)' : 'rgba(167,139,250,0.1)' }}>
           {isActive ? '⚡' : ['🧴', '💧', '☀️', '🌙', '🌿', '✨'][stepIndex % 6]}
         </div>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 pr-16">
           <p className="font-black text-sm text-gray-800">{step.name}</p>
-          {/* Concentration + chemicals — always visible */}
-          {step.concentration && (
-            <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-full mt-0.5 mr-1"
-              style={{ background: isActive ? 'rgba(244,114,182,0.18)' : 'rgba(167,139,250,0.15)', color: isActive ? '#db2777' : '#7c3aed' }}>
-              {step.concentration}
-            </span>
-          )}
           {step.ingredients?.slice(0, 2).map(ing => (
             <span key={ing} className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-0.5 mr-1 bg-gray-100 text-gray-500">{ing}</span>
           ))}
-          {!step.concentration && step.type && (
+          {!step.ingredients?.length && step.type && (
             <p className="text-[11px] text-gray-400 mt-0.5">{step.type}</p>
           )}
         </div>
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           {isActive && <Badge className="text-[10px] bg-pink-100 text-pink-600 border-none px-1.5">Active</Badge>}
           <span className="text-[10px] text-gray-400 flex items-center gap-0.5">
             <Timer className="w-3 h-3" />{Math.floor(duration / 60) > 0 ? `${Math.floor(duration / 60)}m` : `${duration}s`}
@@ -316,16 +300,11 @@ Return JSON with products array, exactly 3 items, each: { name, brand, concentra
                 </div>
               )}
 
-              {/* Product picker */}
-              <ProductLocationPicker
+              {/* AI Product suggestions */}
+              <AIProductSuggestions
                 stepName={step.name}
                 concentration={step.concentration}
-                chemicals={step.ingredients}
-                region={region}
-                onRegionChange={setRegion}
-                products={products}
-                loadingProducts={loadingProducts}
-                onLoadProducts={loadProducts}
+                ingredients={step.ingredients}
               />
 
               {/* Save product to shelf */}
@@ -465,6 +444,7 @@ function RoutineChangeToast({ change, onClose }) {
 
 export default function SkinRoutine() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -477,37 +457,47 @@ export default function SkinRoutine() {
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
+    // Clear stale localStorage cache so DB is always source of truth on page visit
+    // (don't remove — just let DB override happen in the savedRoutine effect)
   }, []);
 
   const { data: analyses = [] } = useQuery({
     queryKey: ['skinAnalyses', user?.email],
     queryFn: () => base44.entities.SkinAnalysis.filter({ user_email: user.email }, '-created_date', 5),
     enabled: !!user?.email,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const { data: feedbackHistory = [], refetch: refetchFeedback } = useQuery({
     queryKey: ['skinFeedback', user?.email],
     queryFn: () => base44.entities.SkinFeedback.filter({ user_email: user.email }, '-created_date', 14),
     enabled: !!user?.email,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const { data: savedRoutines = [], refetch: refetchRoutine } = useQuery({
     queryKey: ['skinRoutine', user?.email],
     queryFn: () => base44.entities.SkinRoutine.filter({ user_email: user.email }, '-created_date', 1),
     enabled: !!user?.email,
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const latestAnalysis = analyses[0] || null;
   const savedRoutine = savedRoutines[0] || null;
 
   useEffect(() => {
-    if (savedRoutine?.steps && typeof savedRoutine.steps === 'object') {
+    if (savedRoutine?.steps && typeof savedRoutine.steps === 'object' && !Array.isArray(savedRoutine.steps)) {
+      // DB routine has priority — always use it when available
       setRoutineData(savedRoutine.steps);
-    } else {
+      localStorage.setItem('skinRoutineCache', JSON.stringify(savedRoutine.steps));
+    } else if (!savedRoutine) {
       const cached = localStorage.getItem('skinRoutineCache');
       if (cached) { try { setRoutineData(JSON.parse(cached)); } catch {} }
     }
-  }, [savedRoutine]);
+  }, [savedRoutine?.id, savedRoutine?.updated_date]);
 
   const modules = selectModules(latestAnalysis);
   const baseRoutine = buildBaseRoutine(latestAnalysis?.skin_type);
@@ -625,7 +615,7 @@ Return JSON with: morning_routine (array: step, name, product_type, concentratio
           { icon: '⏱️', title: 'Use step timers', text: 'Each step has a timer and region-specific product finder.' },
         ]}
       />
-
+      
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
@@ -646,7 +636,7 @@ Return JSON with: morning_routine (array: step, name, product_type, concentratio
           <p className="text-3xl mb-2">🔬</p>
           <p className="font-black text-base mb-1">No Skin Analysis Found</p>
           <p className="text-sm text-gray-500 mb-4">Run a skin analysis first so we can build your personalized routine.</p>
-          <Button onClick={() => window.location.href = '/SkinAnalysis'} className="text-white ios-button-3d"
+          <Button onClick={() => navigate('/SkinAnalysis')} className="text-white ios-button-3d"
             style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             Go to Skin Analysis
           </Button>

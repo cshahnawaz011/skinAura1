@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { backgroundOps } from '@/lib/BackgroundOperations';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -216,6 +217,7 @@ const COOLDOWN_SECONDS = 10;
 
 export default function SkinAnalysis() {
   useOperationRecovery();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
