@@ -28,6 +28,10 @@ export default function Products() {
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
+    // Clear stale cached data so pages reflect only live DB data
+    localStorage.removeItem('skinRoutineCache');
+    localStorage.removeItem('skinaura-routine-store');
+    localStorage.removeItem('newAnalysisForRoutine');
   }, []);
 
   const { data: savedProducts = [] } = useQuery({

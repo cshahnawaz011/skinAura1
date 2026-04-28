@@ -15,6 +15,7 @@ import {
 } from '@/lib/adaptiveRoutineEngine';
 import { saveRoutineStore } from '@/lib/routineStore';
 import PageIntroPopup from '@/components/PageIntroPopup';
+import StepProductSelector from '@/components/routine/StepProductSelector';
 
 // ─── Constants ────────────────────────────────────────────────────
 
@@ -202,7 +203,7 @@ function ProductLocationPicker({ stepName, region, onRegionChange, products, loa
 
 // ─── Routine Step Card ────────────────────────────────────────────
 
-function RoutineStep({ step, isActive, stepIndex }) {
+function RoutineStep({ step, isActive, stepIndex, userEmail, onProductSaved }) {
   const [open, setOpen] = useState(false);
   const [region, setRegion] = useState('India');
   const [products, setProducts] = useState(null);
@@ -304,6 +305,13 @@ Return JSON array with exactly 3 items, each: { name, brand, price (local curren
                 products={products}
                 loadingProducts={loadingProducts}
                 onLoadProducts={loadProducts}
+              />
+
+              {/* Save product to shelf */}
+              <StepProductSelector
+                step={{ name: step.name, type: step.type }}
+                userEmail={userEmail}
+                onSaved={onProductSaved}
               />
             </div>
           </motion.div>
@@ -680,7 +688,7 @@ Return JSON with: morning_routine (array: step, name, product_type, tip, key_ing
                 amSteps.map((step, i) => (
                   <RoutineStep key={i} stepIndex={i}
                     step={{ name: step.name, type: step.product_type, tip: step.tip, ingredients: step.key_ingredients || [] }}
-                    isActive={false} />
+                    isActive={false} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
                 ))
               ) : (
                 <>
@@ -693,7 +701,7 @@ Return JSON with: morning_routine (array: step, name, product_type, tip, key_ing
                   {(todayPM?.steps || []).map((step, i) => (
                     <RoutineStep key={i} stepIndex={i}
                       step={{ name: step.name, type: step.active ? `Active — ${INGREDIENT_REGISTRY[modules.actives[0]]?.conc || ''}` : 'Base step', tip: step.tip || '', ingredients: [] }}
-                      isActive={!!step.active} />
+                      isActive={!!step.active} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
                   ))}
                 </>
               )}

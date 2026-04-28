@@ -101,7 +101,7 @@ function SavedProductCard({ product, analysis, onRemove }) {
           <span className="text-xl">{CAT_EMOJI[product.category] || '📦'}</span>
           <div>
             <p className="font-bold text-sm leading-tight">{product.product_name}</p>
-            <p className="text-[10px] text-gray-400 capitalize">{product.category?.replace('_', ' ')}</p>
+            <p className="text-[10px] text-gray-400 capitalize">{product.brand || product.category?.replace('_', ' ')}</p>
           </div>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
@@ -112,6 +112,16 @@ function SavedProductCard({ product, analysis, onRemove }) {
           </button>
         </div>
       </div>
+      {product.skin_analysis_notes && (
+        <div className="mb-1.5">
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-pink-100 text-pink-600">💊 {product.skin_analysis_notes}</span>
+        </div>
+      )}
+      {product.routine_step && (
+        <div className="mb-1.5">
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-600">📍 {product.routine_step}</span>
+        </div>
+      )}
       <div className="flex flex-wrap gap-1">
         {(product.key_ingredients || []).slice(0, 4).map((ing, i) => (
           <span key={i} className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-violet-50 text-violet-600 border border-violet-100">{ing}</span>
