@@ -38,8 +38,10 @@ export default function StepProductSelector({ step, userEmail, onSaved }) {
   const fetchSuggestions = async () => {
     if (!step?.name) return;
     setAiLoading(true);
+    const concText = step.concentration ? ` at exactly ${step.concentration}` : '';
     const res = await base44.integrations.Core.InvokeLLM({
-      prompt: `Suggest 3 popular, affordable real products for skincare step: "${step.name}" (${step.type || ''}). 
+      prompt: `Suggest 3 popular, affordable real skincare products for step: "${step.name}"${concText}. 
+${step.concentration ? `Products MUST match or be close to the concentration: ${step.concentration}.` : ''}
 Return JSON with products array: [{name, brand, concentration (e.g. "Niacinamide 10%"), key_ingredients[]}]`,
       response_json_schema: {
         type: 'object',
@@ -97,7 +99,7 @@ Return JSON with products array: [{name, brand, concentration (e.g. "Niacinamide
 
   return (
     <div className="mt-2">
-      <button onClick={() => { setOpen(o => !o); if (!open && suggestions.length === 0) fetchSuggestions(); }}
+      <button onClick={() => { const next = !open; setOpen(next); if (next && suggestions.length === 0) fetchSuggestions(); }}
         className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl transition-all"
         style={{ background: open ? 'rgba(167,139,250,0.12)' : 'rgba(0,0,0,0.04)', color: open ? '#7c3aed' : '#9ca3af', border: `1px solid ${open ? 'rgba(167,139,250,0.3)' : 'transparent'}` }}>
         <Package className="w-3 h-3" />

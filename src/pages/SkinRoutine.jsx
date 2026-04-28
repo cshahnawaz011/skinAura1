@@ -154,68 +154,7 @@ function getHowToUse(name = '') {
   return HOW_TO_USE.default;
 }
 
-function AIProductSuggestions({ stepName, concentration, ingredients }) {
-  const [products, setProducts] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  const load = async () => {
-    setLoading(true);
-    const concText = concentration ? ` at ${concentration}` : '';
-    const ingText = ingredients?.length > 0 ? ` with ${ingredients.slice(0, 2).join(', ')}` : '';
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Recommend 3 specific real skincare products for: "${stepName}"${concText}${ingText}. 
-Products must match the concentration if specified. Return JSON: { products: [{name, brand, concentration, price_range, emoji}] }`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          products: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: { name: { type: 'string' }, brand: { type: 'string' }, concentration: { type: 'string' }, price_range: { type: 'string' }, emoji: { type: 'string' } }
-            }
-          }
-        }
-      }
-    });
-    setProducts(result?.products || []);
-    setLoading(false);
-  };
-
-  return (
-    <div className="space-y-2">
-      {!products && (
-        <button onClick={load} disabled={loading}
-          className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl text-white"
-          style={{ background: 'linear-gradient(135deg,#a78bfa,#60a5fa)' }}>
-          {loading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-          {loading ? 'Finding products…' : 'Find AI Product Picks'}
-        </button>
-      )}
-      <AnimatePresence>
-        {products?.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-            className="space-y-1.5">
-            <p className="text-[10px] font-black text-violet-600">✨ AI Product Picks</p>
-            {products.map((p, i) => (
-              <div key={i} className="flex items-start gap-2 p-2.5 rounded-xl"
-                style={{ background: 'rgba(167,139,250,0.07)', border: '1px solid rgba(167,139,250,0.2)' }}>
-                <span className="text-base flex-shrink-0">{p.emoji || '🧴'}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-black text-gray-800">{p.name}</p>
-                  {p.concentration && (
-                    <span className="inline-block text-[9px] font-black px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 mb-0.5">{p.concentration}</span>
-                  )}
-                  <p className="text-[10px] text-gray-500">{p.brand} · {p.price_range}</p>
-                </div>
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
 
 // ─── Routine Step Card ────────────────────────────────────────────
 
@@ -299,13 +238,6 @@ function RoutineStep({ step, isActive, stepIndex, userEmail, onProductSaved }) {
                   ))}
                 </div>
               )}
-
-              {/* AI Product suggestions */}
-              <AIProductSuggestions
-                stepName={step.name}
-                concentration={step.concentration}
-                ingredients={step.ingredients}
-              />
 
               {/* Save product to shelf */}
               <StepProductSelector
