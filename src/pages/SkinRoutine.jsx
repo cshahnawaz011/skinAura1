@@ -18,6 +18,7 @@ import { saveRoutineStore } from '@/lib/routineStore';
 import PageIntroPopup from '@/components/PageIntroPopup';
 import StepProductSelector from '@/components/routine/StepProductSelector';
 import ActiveModulesPanel from '@/components/routine/ActiveModulesPanel';
+import RoutineFeedbackPrompt from '@/components/routine/RoutineFeedbackPrompt';
 
 // ─── Constants ────────────────────────────────────────────────────
 
@@ -377,6 +378,7 @@ function RoutineChangeToast({ change, onClose }) {
 export default function SkinRoutine() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const feedbackRef = useRef(null);
   const [user, setUser] = useState(null);
   const [selectedFeedback, setSelectedFeedback] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -535,6 +537,9 @@ Return JSON with: morning_routine (array: step, name, product_type, concentratio
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 pb-20">
+      <RoutineFeedbackPrompt onScrollToFeedback={() => {
+        feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }} />
       <PageIntroPopup
         storageKey="intro_SkinRoutine"
         emoji="✨"
@@ -665,7 +670,7 @@ Return JSON with: morning_routine (array: step, name, product_type, concentratio
           )}
 
           {/* Feedback panel */}
-          <div className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
+          <div ref={feedbackRef} className="rounded-2xl p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
             <div>
               <p className="font-black text-sm">📋 Daily Skin Feedback</p>
               <p className="text-[11px] text-gray-400 mt-0.5">How does your skin feel? Submitting auto-adjusts your routine frequency.</p>

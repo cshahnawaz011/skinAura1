@@ -9,6 +9,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import SeasonalSynthesisCard from '@/components/routine/SeasonalSynthesisCard';
+import SmartJourneyPopup from '@/components/home/SmartJourneyPopup';
 
 const EXPLORE_GRID = [
   { icon: Camera, label: 'Analyse', page: '/SkinAnalysis', color: '#f472b6', bgColor: 'rgba(244,114,182,0.1)' },
@@ -47,6 +48,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-10" style={{ background: '#fafafa' }}>
+      <SmartJourneyPopup />
       
       {/* Top Banner CTA */}
       <div className="w-full bg-white border-b border-gray-100 p-4 pt-6">
