@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { backgroundOps } from '@/lib/BackgroundOperations';
@@ -50,13 +50,13 @@ const startAnalysisCooldown = (seconds) => {
 };
 
 const ANALYSIS_STEPS = [
-  'Uploading 3 face photos…',
-  'Analyzing front view — skin health & tone…',
-  'Analyzing left profile — texture & congestion…',
-  'Analyzing right profile — symmetry & pigmentation…',
-  'Combining 360° data into unified report…',
-  'Deriving signal parameters & risk scores…',
+  'Uploading photos…',
+  'Analyzing skin health…',
+  'Reading skin parameters…',
+  'Generating report…',
 ];
+
+const TIMEOUT_MS = 40000;
 
 const FULL_SCHEMA = {
   type: 'object',
@@ -72,27 +72,8 @@ const FULL_SCHEMA = {
     oiliness: { type: 'number' },
     dryness: { type: 'number' },
     sensitivity: { type: 'number' },
-    concern_insights: {
-      type: 'object',
-      properties: {
-        acne_level: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        dark_spots: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        wrinkles: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        pores: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        redness: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        oiliness: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        dryness: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-        sensitivity: { type: 'object', properties: { cause: { type: 'string' }, fix: { type: 'string' }, ingredient: { type: 'string' }, timeline: { type: 'string' } } },
-      }
-    },
-    zone_notes: {
-      type: 'object',
-      properties: {
-        front: { type: 'string' },
-        left: { type: 'string' },
-        right: { type: 'string' },
-      }
-    },
+    concern_insights: { type: 'object' },
+    zone_notes: { type: 'object' },
     recommendations: { type: 'array', items: { type: 'string' } },
     skin_strengths: { type: 'array', items: { type: 'string' } },
     priority_concerns: { type: 'array', items: { type: 'string' } },
@@ -221,7 +202,9 @@ export default function SkinAnalysis() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [showHistory, setShowHistory] = useState(false);
+  const [showTimeoutPopup, setShowTimeoutPopup] = useState(false);
   const [routineMsg] = useState(() => ROUTINE_MESSAGES[Math.floor(Math.random() * ROUTINE_MESSAGES.length)]);
+  const timeoutRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -235,6 +218,7 @@ export default function SkinAnalysis() {
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
   const { data: pastAnalyses = [] } = useQuery({
@@ -256,98 +240,74 @@ export default function SkinAnalysis() {
 
   const runAnalysis = async () => {
     if (!allReady) return;
+    setShowTimeoutPopup(false);
     updateAnalysisState({ analyzing: true, step: 0 });
-    backgroundOps.start('skinAnalysis', '🔬 Skin Analysis', { photos });
 
-    const [f, l, r] = await Promise.all([
-      base44.integrations.Core.UploadFile({ file: photos.front.file }),
-      base44.integrations.Core.UploadFile({ file: photos.left.file }),
-      base44.integrations.Core.UploadFile({ file: photos.right.file }),
-    ]);
+    // 40-second timeout
+    timeoutRef.current = setTimeout(() => {
+      updateAnalysisState({ analyzing: false });
+      setShowTimeoutPopup(true);
+    }, TIMEOUT_MS);
 
-    updateAnalysisState({ step: 1 });
-    backgroundOps.updateProgress('skinAnalysis', 20);
+    try {
+      updateAnalysisState({ step: 0 });
+      const [f, l, r] = await Promise.all([
+        base44.integrations.Core.UploadFile({ file: photos.front.file }),
+        base44.integrations.Core.UploadFile({ file: photos.left.file }),
+        base44.integrations.Core.UploadFile({ file: photos.right.file }),
+      ]);
 
-    const llmRes = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert AI dermatologist. Analyze these 3 face photos (front, left profile, right profile) and provide a clinical-grade skin health assessment.
+      updateAnalysisState({ step: 1 });
 
-SCORING RULES:
-- Score each parameter on a 0-10 scale (0=excellent/healthy, 10=severe/problematic)
-- Overall score (0-100): Calculate as 100 - (average of all 8 parameters × 10). This ensures a direct relationship where better parameters = higher overall score.
-- Priority concerns: Must be derived from parameters with scores ≥ 5 (moderate to severe)
-- Recommendations & strengths: Must align with the parameter scores you assigned
-
-PARAMETERS TO EVALUATE (0-10 scale):
-1. Acne level (0=clear, 10=severe breakouts)
-2. Dark spots (0=none, 10=extensive pigmentation)
-3. Wrinkles (0=none, 10=deep lines)
-4. Pores (0=small, 10=enlarged)
-5. Redness (0=clear, 10=inflamed)
-6. Oiliness (0=perfectly balanced, 10=very oily)
-7. Dryness (0=well hydrated, 10=very dry/flaky)
-8. Sensitivity (0=none, 10=highly reactive)
-
-REQUIRED OUTPUTS:
-- Skin type: Based on oiliness & dryness balance
-- Skin tone: Descriptive assessment
-- Zone notes: Observations for front, left, right regions
-- Priority concerns: Top 3 issues derived from parameters ≥ 5
-- Skin strengths: Positive observations from parameters ≤ 3
-- Recommendations: 3-5 specific, parameter-driven actions
-- Concern insights: Detailed analysis (cause, fix, ingredient, timeline) for each priority concern
-
-All results must be internally consistent and based on the parameter scores.`,
-      file_urls: [f.file_url, l.file_url, r.file_url],
-      response_json_schema: FULL_SCHEMA,
-    });
-
-    updateAnalysisState({ step: 5 });
-    backgroundOps.updateProgress('skinAnalysis', 90);
-    const res = llmRes;
-    console.log('✅ Analysis Complete:', res);
-
-    if (!res || typeof res.overall_score !== 'number') {
-      throw new Error(`Invalid response structure: ${JSON.stringify(res)}`);
-    }
-    const analysisResult = { ...res, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url };
-    // Merge with historical data for richer context
-    const mergedAnalysis = await mergeSkinData(analysisResult, pastAnalyses);
-    const finalAnalysisData = mergedAnalysis || analysisResult;
-
-    updateAnalysisState({ result: finalAnalysisData, analyzing: false });
-    localStorage.setItem('skinAnalysisCache', JSON.stringify(finalAnalysisData));
-    backgroundOps.updateProgress('skinAnalysis', 100);
-    backgroundOps.complete('skinAnalysis', { analysisResult: finalAnalysisData });
-
-    // Auto-save merged data
-    if (user) {
-      saveMutation.mutate({
-        user_email: user.email,
-        photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url,
-        analysis_type: 'triple',
-        overall_score: res.overall_score, skin_type: res.skin_type, skin_tone: res.skin_tone,
-        acne_level: res.acne_level, dark_spots: res.dark_spots, wrinkles: res.wrinkles,
-        pores: res.pores, redness: res.redness, oiliness: res.oiliness,
-        dryness: res.dryness, sensitivity: res.sensitivity,
-        recommendations: res.recommendations, skin_strengths: res.skin_strengths,
-        priority_concerns: res.priority_concerns, concern_insights: res.concern_insights,
-        zone_notes: res.zone_notes, analysis_date: new Date().toISOString(),
-        skin_trends: finalAnalysisData.skin_trends,
-        merged_insights: finalAnalysisData.merged_insights,
+      const llmRes = await base44.integrations.Core.InvokeLLM({
+        prompt: `Analyze these 3 face photos (front, left, right) as an AI dermatologist. Score each on 0-10 (0=healthy, 10=severe). Overall score = 100 minus average of all 8 params x 10. Be concise.`,
+        file_urls: [f.file_url, l.file_url, r.file_url],
+        response_json_schema: FULL_SCHEMA,
       });
-    }
 
+      updateAnalysisState({ step: 2 });
 
+      // Clear timeout — we got a response
+      clearTimeout(timeoutRef.current);
 
-    // Start cooldown
-    startAnalysisCooldown(COOLDOWN_SECONDS);
+      if (!llmRes || typeof llmRes.overall_score !== 'number') {
+        updateAnalysisState({ analyzing: false });
+        setShowTimeoutPopup(true);
+        return;
+      }
 
-    // ── Signal routine page to prompt regeneration ──────────────────────────────
-    localStorage.setItem('newAnalysisForRoutine', JSON.stringify({ timestamp: Date.now(), analysis: res }));
+      updateAnalysisState({ step: 3 });
 
-    // ── Auto-generate routine after analysis ──────────────────────────────
-    if (user && shouldAutoGenerateRoutine()) {
-      autoGenerateRoutine(res, user);
+      const analysisResult = { ...llmRes, photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url };
+      const mergedAnalysis = await mergeSkinData(analysisResult, pastAnalyses);
+      const finalAnalysisData = mergedAnalysis || analysisResult;
+
+      updateAnalysisState({ result: finalAnalysisData, analyzing: false });
+      localStorage.setItem('skinAnalysisCache', JSON.stringify(finalAnalysisData));
+
+      if (user) {
+        saveMutation.mutate({
+          user_email: user.email,
+          photo_url: f.file_url, photo_left_url: l.file_url, photo_right_url: r.file_url,
+          analysis_type: 'triple',
+          overall_score: llmRes.overall_score, skin_type: llmRes.skin_type, skin_tone: llmRes.skin_tone,
+          acne_level: llmRes.acne_level, dark_spots: llmRes.dark_spots, wrinkles: llmRes.wrinkles,
+          pores: llmRes.pores, redness: llmRes.redness, oiliness: llmRes.oiliness,
+          dryness: llmRes.dryness, sensitivity: llmRes.sensitivity,
+          recommendations: llmRes.recommendations, skin_strengths: llmRes.skin_strengths,
+          priority_concerns: llmRes.priority_concerns, concern_insights: llmRes.concern_insights,
+          zone_notes: llmRes.zone_notes, analysis_date: new Date().toISOString(),
+        });
+      }
+
+      startAnalysisCooldown(COOLDOWN_SECONDS);
+      localStorage.setItem('newAnalysisForRoutine', JSON.stringify({ timestamp: Date.now(), analysis: llmRes }));
+      if (user && shouldAutoGenerateRoutine()) autoGenerateRoutine(llmRes, user);
+
+    } catch (err) {
+      clearTimeout(timeoutRef.current);
+      updateAnalysisState({ analyzing: false });
+      setShowTimeoutPopup(true);
     }
   };
 
@@ -687,6 +647,42 @@ Return JSON:
           <Button onClick={() => base44.auth.redirectToLogin()} className="ios-button-3d text-white" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>Sign In</Button>
         </div>
       )}
+
+      {/* Timeout / Error Popup */}
+      <AnimatePresence>
+        {showTimeoutPopup && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
+              onClick={() => setShowTimeoutPopup(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 40 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+              className="fixed inset-x-6 top-1/2 -translate-y-1/2 z-50 max-w-sm mx-auto rounded-3xl overflow-hidden shadow-2xl"
+              style={{ background: 'white' }}
+            >
+              <div className="h-1.5" style={{ background: 'linear-gradient(90deg,#f472b6,#a78bfa)' }} />
+              <div className="p-6 text-center">
+                <div className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl"
+                  style={{ background: 'rgba(244,114,182,0.12)' }}>⏱️</div>
+                <h3 className="font-black text-lg text-gray-900 mb-2">Analysis Taking Too Long</h3>
+                <p className="text-sm text-gray-500 mb-5 leading-relaxed">
+                  The AI analysis timed out or returned an unexpected result. Please try again — it usually completes in under 30 seconds.
+                </p>
+                <Button
+                  onClick={() => { setShowTimeoutPopup(false); }}
+                  className="w-full py-3 font-black text-white ios-button-3d"
+                  style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}
+                >
+                  Try Again
+                </Button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
