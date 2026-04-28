@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getRoutineStore, getActiveIngredients } from '@/lib/routineStore';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -108,6 +109,8 @@ export default function IngredientLibrary() {
   const [showRecommended, setShowRecommended] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [loadingAI, setLoadingAI] = useState(false);
+  const routineStore = getRoutineStore();
+  const routineActiveIngredientKeys = getActiveIngredients();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -182,6 +185,23 @@ export default function IngredientLibrary() {
           {latestAnalysis && <span className="text-rose-400 font-medium"> · Personalized for {latestAnalysis.skin_type} skin</span>}
         </p>
       </div>
+
+      {/* Routine active ingredients banner */}
+      {routineStore && routineActiveIngredientKeys.length > 0 && (
+        <div className="rounded-2xl px-4 py-3" style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
+          <p className="text-[10px] font-black text-violet-600 mb-1.5">🧴 Your Active Routine Ingredients</p>
+          <div className="flex flex-wrap gap-1.5">
+            {routineActiveIngredientKeys.map(key => {
+              const nameMap = { niacinamide: 'Niacinamide 5%', ceramides: 'Ceramides 1%', peptides: 'Peptides 3%', salicylic: 'Salicylic Acid 1%', retinol: 'Retinol 0.3%', azelaic: 'Azelaic Acid 10%', tranexamic: 'Tranexamic Acid 3%', vitaminC: 'Vitamin C 10%' };
+              return (
+                <span key={key} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
+                  ✓ {nameMap[key] || key}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="relative">

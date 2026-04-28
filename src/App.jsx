@@ -29,7 +29,7 @@ import RoutineIntelligence from './pages/RoutineIntelligence';
 
 import AdaptiveSkinMap from './pages/AdaptiveSkinMap';
 import HormoneTracker from './pages/HormoneTracker';
-import SkinRoutine from './pages/SkinRoutine';
+import SkinRoutine from './pages/SkinRoutine.jsx';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 

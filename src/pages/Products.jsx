@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getRoutineStore, getActiveIngredients, getRoutineSkinConcerns } from '@/lib/routineStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Plus, Package, Layers, FlaskConical, TrendingUp, AlertTriangle, GitCompare } from 'lucide-react';
@@ -35,6 +36,13 @@ export default function Products() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
   const queryClient = useQueryClient();
+  const routineStore = getRoutineStore();
+  const routineActiveIngredients = getActiveIngredients();
+  const routineConcerns = getRoutineConcerns();
+
+  function getRoutineConcerns() {
+    return getRoutineSkinConcerns();
+  }
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -108,6 +116,17 @@ export default function Products() {
       <div className="rounded-2xl px-5 py-3 text-sm font-medium italic text-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
         <span className="text-gray-500">{quote}</span>
       </div>
+
+      {/* Routine context banner */}
+      {routineStore && (
+        <div className="rounded-2xl px-4 py-2.5 flex items-center gap-3 flex-wrap" style={{ background: 'rgba(244,114,182,0.06)', border: '1px solid rgba(244,114,182,0.18)' }}>
+          <span className="text-xs font-black text-pink-600">🧴 Routine Active:</span>
+          {routineActiveIngredients.length > 0 ? routineActiveIngredients.map(key => (
+            <span key={key} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 capitalize">{key}</span>
+          )) : <span className="text-[10px] text-gray-400">Base routine only</span>}
+          <span className="text-[10px] text-gray-400 ml-auto">Phase {routineStore.phase} · {routineStore.frequencyId}</span>
+        </div>
+      )}
 
       {/* Skin snapshot chips */}
       {latestAnalysis && (
