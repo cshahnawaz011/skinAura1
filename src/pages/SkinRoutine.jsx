@@ -387,12 +387,11 @@ export default function SkinRoutine() {
   const [currentFreqId, setCurrentFreqId] = useState(() => localStorage.getItem('skinaura-freq') || '1x');
   const [routineChange, setRoutineChange] = useState(null); // toast state
   const [generating, setGenerating] = useState(false);
+  const [autoBuilding, setAutoBuilding] = useState(false);
   const [weeksSinceStart] = useState(0);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
-    // Clear stale localStorage cache so DB is always source of truth on page visit
-    // (don't remove — just let DB override happen in the savedRoutine effect)
   }, []);
 
   const { data: analyses = [] } = useQuery({
@@ -424,7 +423,6 @@ export default function SkinRoutine() {
 
   useEffect(() => {
     if (savedRoutine?.steps && typeof savedRoutine.steps === 'object' && !Array.isArray(savedRoutine.steps)) {
-      // DB routine has priority — always use it when available
       setRoutineData(savedRoutine.steps);
       localStorage.setItem('skinRoutineCache', JSON.stringify(savedRoutine.steps));
     } else if (!savedRoutine) {
@@ -432,6 +430,47 @@ export default function SkinRoutine() {
       if (cached) { try { setRoutineData(JSON.parse(cached)); } catch {} }
     }
   }, [savedRoutine?.id, savedRoutine?.updated_date]);
+
+  // Auto-build routine when analysis exists but no routine saved yet
+  useEffect(() => {
+    if (user && latestAnalysis && !savedRoutine && !routineData && !generating && !autoBuilding) {
+      setAutoBuilding(true);
+      autoTriggerBuild();
+    }
+  }, [user, latestAnalysis, savedRoutine, routineData]);
+
+  const autoTriggerBuild = async () => {
+    if (!latestAnalysis || !user) return;
+    setGenerating(true);
+    const a = latestAnalysis;
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `AI dermatologist: create a personalized skincare routine based on this analysis.
+Skin: type=${a.skin_type}, score=${a.overall_score}/100, acne=${a.acne_level}/10, dryness=${a.dryness}/10, oiliness=${a.oiliness}/10, sensitivity=${a.sensitivity}/10, redness=${a.redness}/10, dark_spots=${a.dark_spots}/10
+Concerns: ${(a.priority_concerns || []).join(', ') || 'none'}
+Rules: max 5 AM steps (cleanser, moisturizer, SPF mandatory), max 4 PM steps, barrier-first, add concentration for actives (e.g. "Niacinamide 5%").
+Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingredients[]}], night_week_plan[{day_label,day_type,steps[{name,concentration,tip,active}]}] (7 days), safety_notes[].`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
+            night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
+            safety_notes: { type: 'array', items: { type: 'string' } },
+          }
+        }
+      });
+      if (result) {
+        setRoutineData(result);
+        localStorage.setItem('skinRoutineCache', JSON.stringify(result));
+        const payload = { user_email: user.email, routine_type: 'morning', skin_type: a.skin_type || '', steps: result, skin_concerns: a.priority_concerns || [] };
+        await base44.entities.SkinRoutine.create(payload);
+        refetchRoutine();
+      }
+    } finally {
+      setGenerating(false);
+      setAutoBuilding(false);
+    }
+  };
 
   const modules = selectModules(latestAnalysis);
   const baseRoutine = buildBaseRoutine(latestAnalysis?.skin_type);
@@ -492,37 +531,38 @@ export default function SkinRoutine() {
     setSelectedFeedback([]);
   };
 
-  // ── Generate AI Routine ──
+  // ── Generate AI Routine (manual) ──
   const generateRoutine = async () => {
-    if (!latestAnalysis) return;
+    if (!latestAnalysis || generating) return;
     setGenerating(true);
     const a = latestAnalysis;
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an AI dermatologist. Based on this skin analysis, create a safe minimal skincare routine WITH SPECIFIC CONCENTRATIONS for each active ingredient.
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `AI dermatologist: create a personalized skincare routine based on this analysis.
 Skin: type=${a.skin_type}, score=${a.overall_score}/100, acne=${a.acne_level}/10, dryness=${a.dryness}/10, oiliness=${a.oiliness}/10, sensitivity=${a.sensitivity}/10, redness=${a.redness}/10, dark_spots=${a.dark_spots}/10
 Concerns: ${(a.priority_concerns || []).join(', ') || 'none'}
-Rules: max 5 AM steps, max 4 PM steps, always include moisturizer+SPF in AM, barrier-first, start actives 1-2x/week.
-CRITICAL: For each step with an active ingredient, set concentration field (e.g. "Niacinamide 5%", "Retinol 0.3%", "Salicylic Acid 1%", "Vitamin C 10%"). Base concentration on skin sensitivity — lower if sensitivity > 5.
-Return JSON with: morning_routine (array: step, name, product_type, concentration (string, e.g. "Niacinamide 5%" or null for base steps), tip, key_ingredients[]), night_week_plan (7 items: day_label, day_type "treatment"|"recovery", steps[name, concentration (string or null), tip, active bool]), safety_notes (string[]).`,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
-          night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
-          safety_notes: { type: 'array', items: { type: 'string' } },
+Rules: max 5 AM steps (cleanser, moisturizer, SPF mandatory), max 4 PM steps, barrier-first, add concentration for actives (e.g. "Niacinamide 5%").
+Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingredients[]}], night_week_plan[{day_label,day_type,steps[{name,concentration,tip,active}]}] (7 days), safety_notes[].`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
+            night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
+            safety_notes: { type: 'array', items: { type: 'string' } },
+          }
         }
+      });
+      if (result) {
+        setRoutineData(result);
+        localStorage.setItem('skinRoutineCache', JSON.stringify(result));
+        const payload = { user_email: user.email, routine_type: 'morning', skin_type: a.skin_type || '', steps: result, skin_concerns: a.priority_concerns || [] };
+        if (savedRoutine?.id) await base44.entities.SkinRoutine.update(savedRoutine.id, payload);
+        else await base44.entities.SkinRoutine.create(payload);
+        refetchRoutine();
       }
-    });
-
-    if (result) {
-      setRoutineData(result);
-      localStorage.setItem('skinRoutineCache', JSON.stringify(result));
-      const payload = { user_email: user.email, routine_type: 'morning', skin_type: a.skin_type || '', steps: result, skin_concerns: a.priority_concerns || [] };
-      if (savedRoutine?.id) await base44.entities.SkinRoutine.update(savedRoutine.id, payload);
-      else await base44.entities.SkinRoutine.create(payload);
-      refetchRoutine();
+    } finally {
+      setGenerating(false);
     }
-    setGenerating(false);
   };
 
   const amSteps = routineData?.morning_routine || baseRoutine.am.map(s => ({ name: s.name, product_type: s.type, tip: s.tip, key_ingredients: s.ingredients }));
@@ -577,6 +617,60 @@ Return JSON with: morning_routine (array: step, name, product_type, concentratio
             style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
             Go to Skin Analysis
           </Button>
+        </div>
+      )}
+
+      {/* Auto-building banner */}
+      {autoBuilding && generating && (
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl p-4 flex items-center gap-3"
+          style={{ background: 'linear-gradient(135deg,rgba(244,114,182,0.1),rgba(167,139,250,0.1))', border: '1.5px solid rgba(167,139,250,0.3)' }}>
+          <RefreshCw className="w-5 h-5 animate-spin text-violet-500 flex-shrink-0" />
+          <div>
+            <p className="font-black text-sm text-violet-700">Building your personalized routine…</p>
+            <p className="text-[11px] text-gray-500 mt-0.5">Analysing your skin concerns from the latest scan</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Skin concerns from analysis */}
+      {latestAnalysis && (latestAnalysis.priority_concerns?.length > 0 || latestAnalysis.skin_type) && (
+        <div className="rounded-2xl p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(244,114,182,0.2)' }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-base">🔬</span>
+            <p className="font-black text-sm">Your Skin Profile</p>
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold capitalize"
+              style={{ background: 'rgba(244,114,182,0.12)', color: '#db2777' }}>
+              {latestAnalysis.skin_type} · {latestAnalysis.overall_score}/100
+            </span>
+          </div>
+          {latestAnalysis.priority_concerns?.length > 0 && (
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5">Priority Concerns</p>
+              <div className="flex flex-wrap gap-1.5">
+                {latestAnalysis.priority_concerns.map((c, i) => (
+                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(244,114,182,0.1)', color: '#be185d', border: '1px solid rgba(244,114,182,0.25)' }}>
+                    {c}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="grid grid-cols-4 gap-1.5 mt-2">
+            {[
+              { label: 'Acne', val: latestAnalysis.acne_level, warn: 5 },
+              { label: 'Dryness', val: latestAnalysis.dryness, warn: 5 },
+              { label: 'Oiliness', val: latestAnalysis.oiliness, warn: 6 },
+              { label: 'Sensitivity', val: latestAnalysis.sensitivity, warn: 5 },
+            ].map(m => (
+              <div key={m.label} className="text-center py-1.5 rounded-xl"
+                style={{ background: m.val >= m.warn ? 'rgba(244,114,182,0.08)' : 'rgba(52,211,153,0.08)' }}>
+                <p className="text-[9px] text-gray-400 mb-0.5">{m.label}</p>
+                <p className="text-xs font-black" style={{ color: m.val >= m.warn ? '#db2777' : '#059669' }}>{m.val}/10</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
