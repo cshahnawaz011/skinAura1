@@ -284,6 +284,10 @@ export default function SkinAnalysis() {
 
       updateAnalysisState({ result: finalAnalysisData, analyzing: false });
       localStorage.setItem('skinAnalysisCache', JSON.stringify(finalAnalysisData));
+      // Cache previous score for delta display
+      if (pastAnalyses[0]?.overall_score != null) {
+        localStorage.setItem('skinAnalysisPrevScore', String(pastAnalyses[0].overall_score));
+      }
 
       if (user) {
         saveMutation.mutate({
@@ -380,7 +384,15 @@ Return JSON:
     setActiveTab('overview');
   };
 
-  const previousScore = pastAnalyses.length > 0 ? pastAnalyses[0]?.overall_score : null;
+  // previousScore = the scan before the current one
+  const previousScore = (() => {
+    if (result) {
+      // Fresh scan: compare against the last saved scan (or cached)
+      return pastAnalyses[0]?.overall_score ?? (parseFloat(localStorage.getItem('skinAnalysisPrevScore') || '') || null);
+    }
+    // Viewing saved result: compare against the one before it
+    return pastAnalyses[1]?.overall_score ?? null;
+  })();
 
   return (
     <div className="max-w-2xl mx-auto space-y-5 pb-12">
