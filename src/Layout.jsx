@@ -10,6 +10,7 @@ import {
   Zap, FlaskConical, LogIn, LogOut, Apple, Salad, Star,
   MoreHorizontal, Map, HeartPulse, Grid3x3, Calendar
 } from 'lucide-react';
+import SmartJourneyPopup from '@/components/home/SmartJourneyPopup';
 import { base44 } from '@/api/base44Client';
 
 const BOTTOM_NAV = [
@@ -127,6 +128,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <PageStateProvider currentPage={currentPageName}>
+    <SmartJourneyPopup />
     <div className={`min-h-screen flex flex-col ${darkMode ? 'dark' : ''}`}
       style={{ background: darkMode ? '#0a0814' : '#fafafa' }}>
 

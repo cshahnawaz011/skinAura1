@@ -159,7 +159,7 @@ export default function SmartJourneyPopup() {
     if (show) {
       setStepIndex(idx || 0);
       // Small delay so app loads first
-      const t = setTimeout(() => setVisible(true), 1200);
+      const t = setTimeout(() => setVisible(true), 2000);
       return () => clearTimeout(t);
     }
   }, []);
