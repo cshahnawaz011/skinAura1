@@ -387,11 +387,13 @@ Return JSON:
   // previousScore = the scan before the current one
   const previousScore = (() => {
     if (result) {
-      // Fresh scan: compare against the last saved scan (or cached)
-      return pastAnalyses[0]?.overall_score ?? (parseFloat(localStorage.getItem('skinAnalysisPrevScore') || '') || null);
+      const fromDB = pastAnalyses[0]?.overall_score;
+      if (fromDB != null) return fromDB;
+      const cached = parseFloat(localStorage.getItem('skinAnalysisPrevScore') || '');
+      return isNaN(cached) ? null : cached;
     }
-    // Viewing saved result: compare against the one before it
-    return pastAnalyses[1]?.overall_score ?? null;
+    const prev = pastAnalyses[1]?.overall_score;
+    return prev != null ? prev : null;
   })();
 
   return (
