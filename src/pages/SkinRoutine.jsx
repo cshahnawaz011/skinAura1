@@ -16,6 +16,7 @@ import {
 import { saveRoutineStore } from '@/lib/routineStore';
 import PageIntroPopup from '@/components/PageIntroPopup';
 import StepProductSelector from '@/components/routine/StepProductSelector';
+import ActiveModulesPanel from '@/components/routine/ActiveModulesPanel';
 
 // ─── Constants ────────────────────────────────────────────────────
 
@@ -154,7 +155,7 @@ function getHowToUse(name = '') {
   return HOW_TO_USE.default;
 }
 
-function ProductLocationPicker({ stepName, region, onRegionChange, products, loadingProducts, onLoadProducts }) {
+function ProductLocationPicker({ stepName, concentration, chemicals, region, onRegionChange, products, loadingProducts, onLoadProducts }) {
   return (
     <div className="mt-3 space-y-2">
       <div className="flex items-center gap-2">
@@ -189,6 +190,9 @@ function ProductLocationPicker({ stepName, region, onRegionChange, products, loa
                 <span className="text-base flex-shrink-0">{p.emoji || '🧴'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-black text-gray-800">{p.name}</p>
+                  {p.concentration && (
+                    <span className="inline-block text-[9px] font-black px-1.5 py-0.5 rounded-full bg-pink-100 text-pink-600 mb-0.5">{p.concentration}</span>
+                  )}
                   <p className="text-[10px] text-gray-500">{p.brand} · {p.price}</p>
                   {p.where && <p className="text-[10px] text-violet-500 font-semibold">📍 {p.where}</p>}
                 </div>
@@ -213,9 +217,12 @@ function RoutineStep({ step, isActive, stepIndex, userEmail, onProductSaved }) {
 
   const loadProducts = async () => {
     setLoadingProducts(true);
+    const concText = step.concentration ? ` at concentration ${step.concentration}` : '';
+    const chemText = step.ingredients?.length > 0 ? ` containing ${step.ingredients.slice(0, 3).join(', ')}` : '';
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a skincare product expert. Recommend 3 specific, real, affordable products for: "${step.name}" (${step.type || ''}) available in ${region}. 
-Return JSON array with exactly 3 items, each: { name, brand, price (local currency), where (pharmacy/online/store name), emoji }`,
+      prompt: `You are a skincare product expert. Recommend 3 specific, real, affordable products for: "${step.name}"${concText}${chemText} (${step.type || ''}) available in ${region}. 
+IMPORTANT: Products must have the correct concentration if specified (e.g. if Niacinamide 5% is needed, recommend products with ~5% Niacinamide).
+Return JSON with products array, exactly 3 items, each: { name, brand, concentration (e.g. "Niacinamide 10%"), price (local currency), where (pharmacy/online/store name), emoji }`,
       response_json_schema: {
         type: 'object',
         properties: {
@@ -223,7 +230,7 @@ Return JSON array with exactly 3 items, each: { name, brand, price (local curren
             type: 'array',
             items: {
               type: 'object',
-              properties: { name: { type: 'string' }, brand: { type: 'string' }, price: { type: 'string' }, where: { type: 'string' }, emoji: { type: 'string' } }
+              properties: { name: { type: 'string' }, brand: { type: 'string' }, concentration: { type: 'string' }, price: { type: 'string' }, where: { type: 'string' }, emoji: { type: 'string' } }
             }
           }
         }
@@ -242,16 +249,28 @@ Return JSON array with exactly 3 items, each: { name, brand, price (local curren
       }}>
 
       {/* Header row */}
-      <button className="w-full flex items-center gap-3 px-4 py-3.5" onClick={() => setOpen(o => !o)}>
+      <button className="w-full flex items-center gap-3 px-4 py-3.5 text-left" onClick={() => setOpen(o => !o)}>
         <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
           style={{ background: isActive ? 'rgba(244,114,182,0.15)' : 'rgba(167,139,250,0.1)' }}>
           {isActive ? '⚡' : ['🧴', '💧', '☀️', '🌙', '🌿', '✨'][stepIndex % 6]}
         </div>
-        <div className="flex-1 text-left">
+        <div className="flex-1 min-w-0">
           <p className="font-black text-sm text-gray-800">{step.name}</p>
-          <p className="text-[11px] text-gray-400">{step.type}</p>
+          {/* Concentration + chemicals — always visible */}
+          {step.concentration && (
+            <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-full mt-0.5 mr-1"
+              style={{ background: isActive ? 'rgba(244,114,182,0.18)' : 'rgba(167,139,250,0.15)', color: isActive ? '#db2777' : '#7c3aed' }}>
+              {step.concentration}
+            </span>
+          )}
+          {step.ingredients?.slice(0, 2).map(ing => (
+            <span key={ing} className="inline-block text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-0.5 mr-1 bg-gray-100 text-gray-500">{ing}</span>
+          ))}
+          {!step.concentration && step.type && (
+            <p className="text-[11px] text-gray-400 mt-0.5">{step.type}</p>
+          )}
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-shrink-0">
           {isActive && <Badge className="text-[10px] bg-pink-100 text-pink-600 border-none px-1.5">Active</Badge>}
           <span className="text-[10px] text-gray-400 flex items-center gap-0.5">
             <Timer className="w-3 h-3" />{Math.floor(duration / 60) > 0 ? `${Math.floor(duration / 60)}m` : `${duration}s`}
@@ -300,6 +319,8 @@ Return JSON array with exactly 3 items, each: { name, brand, price (local curren
               {/* Product picker */}
               <ProductLocationPicker
                 stepName={step.name}
+                concentration={step.concentration}
+                chemicals={step.ingredients}
                 region={region}
                 onRegionChange={setRegion}
                 products={products}
@@ -553,16 +574,17 @@ export default function SkinRoutine() {
     setGenerating(true);
     const a = latestAnalysis;
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an AI dermatologist. Based on this skin analysis, create a safe minimal skincare routine.
+      prompt: `You are an AI dermatologist. Based on this skin analysis, create a safe minimal skincare routine WITH SPECIFIC CONCENTRATIONS for each active ingredient.
 Skin: type=${a.skin_type}, score=${a.overall_score}/100, acne=${a.acne_level}/10, dryness=${a.dryness}/10, oiliness=${a.oiliness}/10, sensitivity=${a.sensitivity}/10, redness=${a.redness}/10, dark_spots=${a.dark_spots}/10
 Concerns: ${(a.priority_concerns || []).join(', ') || 'none'}
 Rules: max 5 AM steps, max 4 PM steps, always include moisturizer+SPF in AM, barrier-first, start actives 1-2x/week.
-Return JSON with: morning_routine (array: step, name, product_type, tip, key_ingredients[]), night_week_plan (7 items: day_label, day_type "treatment"|"recovery", steps[name,tip,active bool]), safety_notes (string[]).`,
+CRITICAL: For each step with an active ingredient, set concentration field (e.g. "Niacinamide 5%", "Retinol 0.3%", "Salicylic Acid 1%", "Vitamin C 10%"). Base concentration on skin sensitivity — lower if sensitivity > 5.
+Return JSON with: morning_routine (array: step, name, product_type, concentration (string, e.g. "Niacinamide 5%" or null for base steps), tip, key_ingredients[]), night_week_plan (7 items: day_label, day_type "treatment"|"recovery", steps[name, concentration (string or null), tip, active bool]), safety_notes (string[]).`,
       response_json_schema: {
         type: 'object',
         properties: {
-          morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
-          night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
+          morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
+          night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
           safety_notes: { type: 'array', items: { type: 'string' } },
         }
       }
@@ -687,7 +709,7 @@ Return JSON with: morning_routine (array: step, name, product_type, tip, key_ing
               {tab === 'morning' ? (
                 amSteps.map((step, i) => (
                   <RoutineStep key={i} stepIndex={i}
-                    step={{ name: step.name, type: step.product_type, tip: step.tip, ingredients: step.key_ingredients || [] }}
+                    step={{ name: step.name, type: step.product_type, concentration: step.concentration || null, tip: step.tip, ingredients: step.key_ingredients || [] }}
                     isActive={false} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
                 ))
               ) : (
@@ -698,49 +720,26 @@ Return JSON with: morning_routine (array: step, name, product_type, tip, key_ing
                     </span>
                     <span className="text-xs text-gray-400">{todayPM?.day_label}</span>
                   </div>
-                  {(todayPM?.steps || []).map((step, i) => (
-                    <RoutineStep key={i} stepIndex={i}
-                      step={{ name: step.name, type: step.active ? `Active — ${INGREDIENT_REGISTRY[modules.actives[0]]?.conc || ''}` : 'Base step', tip: step.tip || '', ingredients: [] }}
-                      isActive={!!step.active} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
-                  ))}
+                  {(todayPM?.steps || []).map((step, i) => {
+                    const activeConc = step.concentration || (step.active ? INGREDIENT_REGISTRY[modules.actives[0]]?.conc : null);
+                    return (
+                      <RoutineStep key={i} stepIndex={i}
+                        step={{ name: step.name, type: step.active ? 'Active Ingredient' : 'Base step', concentration: activeConc, tip: step.tip || '', ingredients: [] }}
+                        isActive={!!step.active} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
+                    );
+                  })}
                 </>
               )}
             </div>
           </div>
 
-          {/* Active modules */}
+          {/* Active modules — detailed cards */}
           {(modules.support.length > 0 || modules.actives.length > 0) && (
-            <div className="rounded-2xl p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
-              <p className="font-black text-sm mb-1">🧴 Your Modules</p>
-              {modules.support.map(key => {
-                const ing = INGREDIENT_REGISTRY[key];
-                return (
-                  <div key={key} className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                    style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
-                    <Shield className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-black text-gray-800">{ing.name} <span className="text-emerald-600">{ing.conc}</span></p>
-                      <p className="text-[10px] text-gray-400">Support · {ing.timing}</p>
-                    </div>
-                    <Badge className="text-[10px] bg-emerald-100 text-emerald-700 border-none">Support</Badge>
-                  </div>
-                );
-              })}
-              {modules.actives.map(key => {
-                const ing = INGREDIENT_REGISTRY[key];
-                return (
-                  <div key={key} className="flex items-center gap-3 px-3 py-2 rounded-xl"
-                    style={{ background: 'rgba(244,114,182,0.08)', border: '1px solid rgba(244,114,182,0.2)' }}>
-                    <Zap className="w-4 h-4 text-pink-500 flex-shrink-0" />
-                    <div className="flex-1">
-                      <p className="text-xs font-black text-gray-800">{ing.name} <span className="text-pink-600">{ing.conc}</span></p>
-                      <p className="text-[10px] text-gray-400">Active · {ing.timing} · {FREQUENCY_LADDER.find(f => f.id === currentFreqId)?.label}</p>
-                    </div>
-                    <Badge className="text-[10px] bg-pink-100 text-pink-600 border-none">Active</Badge>
-                  </div>
-                );
-              })}
-            </div>
+            <ActiveModulesPanel
+              modules={modules}
+              currentFreqId={currentFreqId}
+              latestAnalysis={latestAnalysis}
+            />
           )}
 
           {/* Feedback panel */}

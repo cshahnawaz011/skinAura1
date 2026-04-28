@@ -43,7 +43,13 @@ function RoutineStepCard({ step, index, color }) {
             <span className="text-base">{emoji}</span>
             <p className="font-bold text-sm leading-tight">{step.name}</p>
           </div>
-          {step.product_type && (
+          {step.concentration && (
+            <span className="inline-block text-[10px] font-black px-2 py-0.5 rounded-full mt-0.5 mb-0.5"
+              style={{ background: 'rgba(244,114,182,0.15)', color: '#db2777' }}>
+              {step.concentration}
+            </span>
+          )}
+          {step.product_type && !step.concentration && (
             <p className="text-[11px] text-gray-400">{step.product_type}</p>
           )}
           {step.time_needed && (
@@ -223,6 +229,7 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
   const morningSteps = aiRoutineData?.morning_routine?.map(s => ({
     name: s.name,
     product_type: s.product_type,
+    concentration: s.concentration || null,
     key_ingredients: s.key_ingredients,
     application_tip: s.tip,
   })) || [];
@@ -231,7 +238,8 @@ export default function RoutineStack({ savedProducts, latestAnalysis, savedRouti
   const todayNightPlan = aiRoutineData?.night_week_plan?.[todayIdx];
   const nightSteps = todayNightPlan?.steps?.map(s => ({
     name: s.name,
-    product_type: todayNightPlan.active_name || s.name,
+    product_type: s.active ? 'Active Ingredient' : (todayNightPlan.day_type === 'treatment' ? 'Treatment step' : 'Recovery step'),
+    concentration: s.concentration || (s.active ? todayNightPlan.concentration_level : null),
     application_tip: s.tip,
     key_ingredients: s.active ? [todayNightPlan.active_name].filter(Boolean) : [],
   })) || [];
