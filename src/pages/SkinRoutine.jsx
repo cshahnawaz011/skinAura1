@@ -389,6 +389,19 @@ export default function SkinRoutine() {
   const [generating, setGenerating] = useState(false);
   const [autoBuilding, setAutoBuilding] = useState(false);
   const [weeksSinceStart] = useState(0);
+  const [checkedSteps, setCheckedSteps] = useState(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    try { const d = JSON.parse(localStorage.getItem('skinaura-tracker') || '{}'); return d.date === today ? d.steps : {}; } catch { return {}; }
+  });
+
+  const toggleStep = (key) => {
+    setCheckedSteps(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      const today = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('skinaura-tracker', JSON.stringify({ date: today, steps: next }));
+      return next;
+    });
+  };
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -439,31 +452,29 @@ export default function SkinRoutine() {
     }
   }, [user, latestAnalysis, savedRoutine, routineData]);
 
+  const buildRoutineLLM = async (a) => {
+    return base44.integrations.Core.InvokeLLM({
+      prompt: `Skincare routine for: ${a.skin_type} skin, score ${a.overall_score}/100. Issues: acne ${a.acne_level}/10, dry ${a.dryness}/10, oily ${a.oiliness}/10, sensitive ${a.sensitivity}/10, dark_spots ${a.dark_spots}/10. Concerns: ${(a.priority_concerns||[]).join(', ')||'none'}. Give 4-5 AM steps (must include cleanser+moisturizer+SPF) and 7 PM days (treatment or recovery). Include concentration for actives only.`,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
+          night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
+          safety_notes: { type: 'array', items: { type: 'string' } },
+        }
+      }
+    });
+  };
+
   const autoTriggerBuild = async () => {
     if (!latestAnalysis || !user) return;
     setGenerating(true);
-    const a = latestAnalysis;
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `AI dermatologist: create a personalized skincare routine based on this analysis.
-Skin: type=${a.skin_type}, score=${a.overall_score}/100, acne=${a.acne_level}/10, dryness=${a.dryness}/10, oiliness=${a.oiliness}/10, sensitivity=${a.sensitivity}/10, redness=${a.redness}/10, dark_spots=${a.dark_spots}/10
-Concerns: ${(a.priority_concerns || []).join(', ') || 'none'}
-Rules: max 5 AM steps (cleanser, moisturizer, SPF mandatory), max 4 PM steps, barrier-first, add concentration for actives (e.g. "Niacinamide 5%").
-Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingredients[]}], night_week_plan[{day_label,day_type,steps[{name,concentration,tip,active}]}] (7 days), safety_notes[].`,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
-            night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
-            safety_notes: { type: 'array', items: { type: 'string' } },
-          }
-        }
-      });
+      const result = await buildRoutineLLM(latestAnalysis);
       if (result) {
         setRoutineData(result);
         localStorage.setItem('skinRoutineCache', JSON.stringify(result));
-        const payload = { user_email: user.email, routine_type: 'morning', skin_type: a.skin_type || '', steps: result, skin_concerns: a.priority_concerns || [] };
-        await base44.entities.SkinRoutine.create(payload);
+        await base44.entities.SkinRoutine.create({ user_email: user.email, routine_type: 'morning', skin_type: latestAnalysis.skin_type || '', steps: result, skin_concerns: latestAnalysis.priority_concerns || [] });
         refetchRoutine();
       }
     } finally {
@@ -535,27 +546,12 @@ Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingre
   const generateRoutine = async () => {
     if (!latestAnalysis || generating) return;
     setGenerating(true);
-    const a = latestAnalysis;
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `AI dermatologist: create a personalized skincare routine based on this analysis.
-Skin: type=${a.skin_type}, score=${a.overall_score}/100, acne=${a.acne_level}/10, dryness=${a.dryness}/10, oiliness=${a.oiliness}/10, sensitivity=${a.sensitivity}/10, redness=${a.redness}/10, dark_spots=${a.dark_spots}/10
-Concerns: ${(a.priority_concerns || []).join(', ') || 'none'}
-Rules: max 5 AM steps (cleanser, moisturizer, SPF mandatory), max 4 PM steps, barrier-first, add concentration for actives (e.g. "Niacinamide 5%").
-Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingredients[]}], night_week_plan[{day_label,day_type,steps[{name,concentration,tip,active}]}] (7 days), safety_notes[].`,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            morning_routine: { type: 'array', items: { type: 'object', properties: { step: { type: 'number' }, name: { type: 'string' }, product_type: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, key_ingredients: { type: 'array', items: { type: 'string' } } } } },
-            night_week_plan: { type: 'array', items: { type: 'object', properties: { day_label: { type: 'string' }, day_type: { type: 'string' }, steps: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, concentration: { type: 'string' }, tip: { type: 'string' }, active: { type: 'boolean' } } } } } } },
-            safety_notes: { type: 'array', items: { type: 'string' } },
-          }
-        }
-      });
+      const result = await buildRoutineLLM(latestAnalysis);
       if (result) {
         setRoutineData(result);
         localStorage.setItem('skinRoutineCache', JSON.stringify(result));
-        const payload = { user_email: user.email, routine_type: 'morning', skin_type: a.skin_type || '', steps: result, skin_concerns: a.priority_concerns || [] };
+        const payload = { user_email: user.email, routine_type: 'morning', skin_type: latestAnalysis.skin_type || '', steps: result, skin_concerns: latestAnalysis.priority_concerns || [] };
         if (savedRoutine?.id) await base44.entities.SkinRoutine.update(savedRoutine.id, payload);
         else await base44.entities.SkinRoutine.create(payload);
         refetchRoutine();
@@ -711,7 +707,7 @@ Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingre
             </div>
           )}
 
-          {/* AM / PM tabs */}
+          {/* AM / PM tabs with Daily Tracker */}
           <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.07)' }}>
             <div className="flex">
               {[{ key: 'morning', label: '☀️ Morning' }, { key: 'night', label: '🌙 Tonight' }].map(t => (
@@ -726,13 +722,47 @@ Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingre
                 </button>
               ))}
             </div>
+
+            {/* Daily Progress Bar */}
+            {(() => {
+              const tabSteps = tab === 'morning' ? amSteps : (todayPM?.steps || []);
+              const prefix = tab === 'morning' ? 'am' : 'pm';
+              const done = tabSteps.filter((_, i) => checkedSteps[`${prefix}-${i}`]).length;
+              const pct = tabSteps.length ? Math.round((done / tabSteps.length) * 100) : 0;
+              return (
+                <div className="px-4 pt-3 pb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Today's Progress</p>
+                    <p className="text-[11px] font-black" style={{ color: pct === 100 ? '#34d399' : '#f472b6' }}>{done}/{tabSteps.length} steps {pct === 100 ? '🎉' : ''}</p>
+                  </div>
+                  <div className="h-2 rounded-full overflow-hidden bg-gray-100">
+                    <motion.div className="h-full rounded-full" animate={{ width: `${pct}%` }} transition={{ duration: 0.4 }}
+                      style={{ background: pct === 100 ? 'linear-gradient(90deg,#34d399,#10b981)' : 'linear-gradient(90deg,#f472b6,#a78bfa)' }} />
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="p-4 space-y-3">
               {tab === 'morning' ? (
-                amSteps.map((step, i) => (
-                  <RoutineStep key={i} stepIndex={i}
-                    step={{ name: step.name, type: step.product_type, concentration: step.concentration || null, tip: step.tip, ingredients: step.key_ingredients || [] }}
-                    isActive={false} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
-                ))
+                amSteps.map((step, i) => {
+                  const key = `am-${i}`;
+                  const checked = !!checkedSteps[key];
+                  return (
+                    <div key={i} className="flex items-start gap-2">
+                      <button onClick={() => toggleStep(key)}
+                        className="mt-3.5 w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center border-2 transition-all"
+                        style={{ background: checked ? '#34d399' : 'white', borderColor: checked ? '#34d399' : '#e5e7eb' }}>
+                        {checked && <span className="text-white text-xs font-black">✓</span>}
+                      </button>
+                      <div className={`flex-1 transition-opacity ${checked ? 'opacity-50' : ''}`}>
+                        <RoutineStep stepIndex={i}
+                          step={{ name: step.name, type: step.product_type, concentration: step.concentration || null, tip: step.tip, ingredients: step.key_ingredients || [] }}
+                          isActive={false} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
+                      </div>
+                    </div>
+                  );
+                })
               ) : (
                 <>
                   <div className="flex items-center gap-2 mb-1">
@@ -742,11 +772,22 @@ Return JSON: morning_routine[{step,name,product_type,concentration,tip,key_ingre
                     <span className="text-xs text-gray-400">{todayPM?.day_label}</span>
                   </div>
                   {(todayPM?.steps || []).map((step, i) => {
+                    const key = `pm-${i}`;
+                    const checked = !!checkedSteps[key];
                     const activeConc = step.concentration || (step.active ? INGREDIENT_REGISTRY[modules.actives[0]]?.conc : null);
                     return (
-                      <RoutineStep key={i} stepIndex={i}
-                        step={{ name: step.name, type: step.active ? 'Active Ingredient' : 'Base step', concentration: activeConc, tip: step.tip || '', ingredients: [] }}
-                        isActive={!!step.active} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
+                      <div key={i} className="flex items-start gap-2">
+                        <button onClick={() => toggleStep(key)}
+                          className="mt-3.5 w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center border-2 transition-all"
+                          style={{ background: checked ? '#34d399' : 'white', borderColor: checked ? '#34d399' : '#e5e7eb' }}>
+                          {checked && <span className="text-white text-xs font-black">✓</span>}
+                        </button>
+                        <div className={`flex-1 transition-opacity ${checked ? 'opacity-50' : ''}`}>
+                          <RoutineStep stepIndex={i}
+                            step={{ name: step.name, type: step.active ? 'Active Ingredient' : 'Base step', concentration: activeConc, tip: step.tip || '', ingredients: [] }}
+                            isActive={!!step.active} userEmail={user?.email} onProductSaved={() => queryClient.invalidateQueries(['savedProducts'])} />
+                        </div>
+                      </div>
                     );
                   })}
                 </>
