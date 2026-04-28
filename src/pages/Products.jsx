@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { getRoutineStore, getActiveIngredients, getRoutineSkinConcerns } from '@/lib/routineStore';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Plus, Package, Layers, FlaskConical, TrendingUp, AlertTriangle, GitCompare } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Sparkles, Plus, Layers, FlaskConical, TrendingUp, AlertTriangle, GitCompare } from 'lucide-react';
 import AddProductModal from '@/components/products/AddProductModal';
 import RoutineStack from '@/components/products/RoutineStack';
 import IngredientIntelligence from '@/components/products/IngredientIntelligence';
@@ -23,26 +20,11 @@ const TABS = [
   { key: 'compare', label: 'Compare', icon: GitCompare, emoji: '⚖️' },
 ];
 
-const QUOTES = [
-  '"Your skin is a diary — write it well."',
-  '"Great skin doesn\'t happen by chance, it happens by routine."',
-  '"Glow is not a product. It\'s a practice."',
-  '"Every ingredient tells a story. Make yours count."',
-];
-
 export default function Products() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('routine');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [quote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
   const queryClient = useQueryClient();
-  const routineStore = getRoutineStore();
-  const routineActiveIngredients = getActiveIngredients();
-  const routineConcerns = getRoutineConcerns();
-
-  function getRoutineConcerns() {
-    return getRoutineSkinConcerns();
-  }
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -102,49 +84,10 @@ export default function Products() {
             <p className="text-sm text-gray-500">Personalized · Smart-matched · Skin-first</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {latestAnalysis && (
-            <span className="px-3 py-1 rounded-full text-xs font-semibold capitalize bg-violet-50 text-violet-700 border border-violet-200">{latestAnalysis.skin_type} skin</span>
-          )}
-          <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
-            <Plus className="w-4 h-4" /> Add
-          </button>
-        </div>
+        <button onClick={() => setShowAddModal(true)} className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl text-sm font-bold text-white ios-button-3d" style={{ background: 'linear-gradient(135deg,#f472b6,#a78bfa)' }}>
+          <Plus className="w-4 h-4" /> Add
+        </button>
       </div>
-
-      {/* Quote pill */}
-      <div className="rounded-2xl px-5 py-3 text-sm font-medium italic text-center bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm">
-        <span className="text-gray-500">{quote}</span>
-      </div>
-
-      {/* Routine context banner */}
-      {routineStore && (
-        <div className="rounded-2xl px-4 py-2.5 flex items-center gap-3 flex-wrap" style={{ background: 'rgba(244,114,182,0.06)', border: '1px solid rgba(244,114,182,0.18)' }}>
-          <span className="text-xs font-black text-pink-600">🧴 Routine Active:</span>
-          {routineActiveIngredients.length > 0 ? routineActiveIngredients.map(key => (
-            <span key={key} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-100 text-pink-700 capitalize">{key}</span>
-          )) : <span className="text-[10px] text-gray-400">Base routine only</span>}
-          <span className="text-[10px] text-gray-400 ml-auto">Phase {routineStore.phase} · {routineStore.frequencyId}</span>
-        </div>
-      )}
-
-      {/* Skin snapshot chips */}
-      {latestAnalysis && (
-        <div className="flex flex-wrap gap-2">
-          {[
-            { label: 'Acne', val: latestAnalysis.acne_level, emoji: '🔴' },
-            { label: 'Oiliness', val: latestAnalysis.oiliness, emoji: '💦' },
-            { label: 'Dryness', val: latestAnalysis.dryness, emoji: '🏜️' },
-            { label: 'Sensitivity', val: latestAnalysis.sensitivity, emoji: '⚡' },
-            { label: 'Dark Spots', val: latestAnalysis.dark_spots, emoji: '🎯' },
-          ].map(m => (
-            <div key={m.label} className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
-              style={{ background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.07)' }}>
-              {m.emoji} {m.label}: <span className={`ml-1 font-black ${m.val >= 7 ? 'text-red-500' : m.val >= 4 ? 'text-amber-500' : 'text-emerald-500'}`}>{m.val}/10</span>
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Tab bar */}
       <div className="flex gap-1 p-1.5 rounded-2xl overflow-x-auto hide-scrollbar" style={{ background: 'rgba(0,0,0,0.04)' }}>
@@ -161,7 +104,6 @@ export default function Products() {
         ))}
       </div>
 
-      {/* No analysis banner */}
       {!latestAnalysis && (
         <div className="rounded-2xl p-5 text-center" style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(0,0,0,0.07)' }}>
           <Sparkles className="w-8 h-8 text-amber-400 mx-auto mb-2" />

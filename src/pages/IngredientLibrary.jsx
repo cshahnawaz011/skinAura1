@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
-import { getRoutineStore, getActiveIngredients } from '@/lib/routineStore';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, FlaskConical, Star, ChevronDown, ChevronUp,
-  Sparkles, AlertTriangle, CheckCircle, XCircle, Filter
+  CheckCircle, AlertTriangle, XCircle
 } from 'lucide-react';
 
 const STATIC_INGREDIENTS = [
@@ -58,7 +57,7 @@ function IngredientCard({ ingredient, isRecommended }) {
               </div>
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#f0ebe6', color: '#9a7e78' }}>{ingredient.category}</span>
-                <span className="text-xs font-semibold" style={{ color: s.text }}>
+                <span className="text-xs font-semibold flex items-center gap-0.5" style={{ color: s.text }}>
                   {s.icon} {s.label}
                 </span>
               </div>
@@ -109,8 +108,6 @@ export default function IngredientLibrary() {
   const [showRecommended, setShowRecommended] = useState(false);
   const [aiResult, setAiResult] = useState(null);
   const [loadingAI, setLoadingAI] = useState(false);
-  const routineStore = getRoutineStore();
-  const routineActiveIngredientKeys = getActiveIngredients();
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
@@ -122,7 +119,7 @@ export default function IngredientLibrary() {
     enabled: !!user?.email,
   });
 
-  const getTopConcerns = () => {
+  const topConcerns = useMemo(() => {
     if (!latestAnalysis) return [];
     return Object.entries({
       acne_level: latestAnalysis.acne_level,
@@ -134,13 +131,9 @@ export default function IngredientLibrary() {
       dryness: latestAnalysis.dryness,
       sensitivity: latestAnalysis.sensitivity,
     }).filter(([, v]) => v > 3).sort((a, b) => b[1] - a[1]).map(([k]) => k);
-  };
+  }, [latestAnalysis]);
 
-  const topConcerns = getTopConcerns();
-
-  const isRecommended = (ingredient) => {
-    return ingredient.best_for?.some(c => topConcerns.includes(c));
-  };
+  const isRecommended = (ingredient) => ingredient.best_for?.some(c => topConcerns.includes(c));
 
   const filtered = useMemo(() => {
     let list = STATIC_INGREDIENTS;
@@ -156,17 +149,17 @@ export default function IngredientLibrary() {
   const searchAI = async () => {
     if (!search.trim()) return;
     setLoadingAI(true);
-    const skinCtx = latestAnalysis ? `User skin type: ${latestAnalysis.skin_type}. Top concerns: ${topConcerns.slice(0,3).join(', ')}.` : '';
+    const skinCtx = latestAnalysis ? `User skin type: ${latestAnalysis.skin_type}. Top concerns: ${topConcerns.slice(0, 3).join(', ')}.` : '';
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `You are a cosmetic chemist. Explain the ingredient "${search}" for skincare. ${skinCtx}
       Provide: name, category, safety (safe/caution/avoid), benefits, avoid_with, percentage, best skin types, emoji.`,
       response_json_schema: {
-        type: "object",
+        type: 'object',
         properties: {
-          name: { type: "string" }, category: { type: "string" }, safety: { type: "string" },
-          benefits: { type: "string" }, avoid_with: { type: "string" }, percentage: { type: "string" },
-          skin_types: { type: "array", items: { type: "string" } }, emoji: { type: "string" },
-          best_for: { type: "array", items: { type: "string" } }
+          name: { type: 'string' }, category: { type: 'string' }, safety: { type: 'string' },
+          benefits: { type: 'string' }, avoid_with: { type: 'string' }, percentage: { type: 'string' },
+          skin_types: { type: 'array', items: { type: 'string' } }, emoji: { type: 'string' },
+          best_for: { type: 'array', items: { type: 'string' } }
         }
       }
     });
@@ -185,23 +178,6 @@ export default function IngredientLibrary() {
           {latestAnalysis && <span className="text-rose-400 font-medium"> · Personalized for {latestAnalysis.skin_type} skin</span>}
         </p>
       </div>
-
-      {/* Routine active ingredients banner */}
-      {routineStore && routineActiveIngredientKeys.length > 0 && (
-        <div className="rounded-2xl px-4 py-3" style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
-          <p className="text-[10px] font-black text-violet-600 mb-1.5">🧴 Your Active Routine Ingredients</p>
-          <div className="flex flex-wrap gap-1.5">
-            {routineActiveIngredientKeys.map(key => {
-              const nameMap = { niacinamide: 'Niacinamide 5%', ceramides: 'Ceramides 1%', peptides: 'Peptides 3%', salicylic: 'Salicylic Acid 1%', retinol: 'Retinol 0.3%', azelaic: 'Azelaic Acid 10%', tranexamic: 'Tranexamic Acid 3%', vitaminC: 'Vitamin C 10%' };
-              return (
-                <span key={key} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">
-                  ✓ {nameMap[key] || key}
-                </span>
-              );
-            })}
-          </div>
-        </div>
-      )}
 
       {/* Search Bar */}
       <div className="relative">
